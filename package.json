@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "next",
     "build": "next build",
+    "lint": "eslint . --cache",
     "start": "next start"
   },
   "dependencies": {
@@ -17,7 +18,18 @@
     "@types/react": "16.8.23",
     "@types/react-dom": "16.9.8",
     "@types/styled-components": "5.0.1",
+    "@typescript-eslint/eslint-plugin": "4.1.0",
     "babel-plugin-styled-components": "1.10.7",
+    "eslint": "7.9.0",
+    "eslint-config-airbnb-typescript": "10.0.0",
+    "eslint-config-prettier": "6.11.0",
+    "eslint-plugin-import": "2.22.0",
+    "eslint-plugin-jsx-a11y": "6.3.1",
+    "eslint-plugin-prettier": "3.1.4",
+    "eslint-plugin-react": "7.20.6",
+    "eslint-plugin-react-hooks": "4.1.2",
+    "prettier": "2.1.1",
+    "prettier-package-json": "^2.1.3",
     "typescript": "3.5.2"
   }
 }
