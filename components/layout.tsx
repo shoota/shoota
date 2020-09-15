@@ -1,3 +1,5 @@
+import React from 'react'
+
 import Alert from './alert'
 import Footer from './footer'
 import Meta from './meta'
@@ -7,7 +9,7 @@ type Props = {
   children: React.ReactNode
 }
 
-const Layout = ({ preview, children }: Props) => {
+const Layout: React.FC<Props> = ({ preview, children }) => {
   return (
     <>
       <Meta />

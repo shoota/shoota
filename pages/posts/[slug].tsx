@@ -1,3 +1,4 @@
+import React from 'react'
 import { useRouter } from 'next/router'
 import ErrorPage from 'next/error'
 import Head from 'next/head'
@@ -19,7 +20,7 @@ type Props = {
   preview?: boolean
 }
 
-const Post = ({ post, preview }: Props) => {
+const Post: React.FC<Props> = ({ post, preview }) => {
   const router = useRouter()
   if (!router.isFallback && !post.slug) {
     return <ErrorPage statusCode={404} />
@@ -84,14 +85,15 @@ export async function getStaticProps({ params }: Params) {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/require-await
 export async function getStaticPaths() {
   const posts = getAllPosts(['slug'])
 
   return {
-    paths: posts.map((posts) => {
+    paths: posts.map(({ slug }) => {
       return {
         params: {
-          slug: posts.slug,
+          slug,
         },
       }
     }),

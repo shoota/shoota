@@ -1,11 +1,14 @@
-import PostPreview from './post-preview'
+import React from 'react'
+
 import Post from '../types/post'
+
+import PostPreview from './post-preview'
 
 type Props = {
   posts: Post[]
 }
 
-const MoreStories = ({ posts }: Props) => {
+const MoreStories: React.FC<Props> = ({ posts }) => {
   return (
     <section>
       <h2 className="mb-8 text-6xl md:text-7xl font-bold tracking-tighter leading-tight">

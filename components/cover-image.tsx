@@ -1,3 +1,4 @@
+import React from 'react'
 import cn from 'classnames'
 import Link from 'next/link'
 
@@ -7,11 +8,11 @@ type Props = {
   slug?: string
 }
 
-const CoverImage = ({ title, src, slug }: Props) => {
+const CoverImage: React.FC<Props> = ({ title, src, slug }) => {
   const image = (
     <img
       src={src}
-      alt={`Cover Image for ${title}`}
+      alt={`Cover for ${title}`}
       className={cn('shadow-small', {
         'hover:shadow-medium transition-shadow duration-200': slug,
       })}
@@ -21,7 +22,9 @@ const CoverImage = ({ title, src, slug }: Props) => {
     <div className="sm:mx-0">
       {slug ? (
         <Link as={`/posts/${slug}`} href="/posts/[slug]">
-          <a aria-label={title}>{image}</a>
+          <a aria-label={title} href="/posts/[slug]">
+            {image}
+          </a>
         </Link>
       ) : (
         image

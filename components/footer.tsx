@@ -1,7 +1,10 @@
-import Container from './container'
+import React from 'react'
+
 import { EXAMPLE_PATH } from '../lib/constants'
 
-const Footer = () => {
+import Container from './container'
+
+const Footer: React.FC = () => {
   return (
     <footer className="bg-accent-1 border-t border-accent-2">
       <Container>

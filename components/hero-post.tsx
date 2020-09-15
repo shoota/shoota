@@ -1,8 +1,11 @@
+import React from 'react'
+import Link from 'next/link'
+
+import Author from '../types/author'
+
 import Avatar from './avatar'
 import DateFormatter from './date-formatter'
 import CoverImage from './cover-image'
-import Link from 'next/link'
-import Author from '../types/author'
 
 type Props = {
   title: string
@@ -13,14 +16,14 @@ type Props = {
   slug: string
 }
 
-const HeroPost = ({
+const HeroPost: React.FC<Props> = ({
   title,
   coverImage,
   date,
   excerpt,
   author,
   slug,
-}: Props) => {
+}) => {
   return (
     <section>
       <div className="mb-8 md:mb-16">
@@ -30,7 +33,9 @@ const HeroPost = ({
         <div>
           <h3 className="mb-4 text-4xl lg:text-6xl leading-tight">
             <Link as={`/posts/${slug}`} href="/posts/[slug]">
-              <a className="hover:underline">{title}</a>
+              <a className="hover:underline" href="/posts/[slug]">
+                {title}
+              </a>
             </Link>
           </h3>
           <div className="mb-4 md:mb-0 text-lg">
