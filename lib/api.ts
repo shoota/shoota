@@ -1,5 +1,6 @@
 import fs from 'fs'
 import { join } from 'path'
+
 import matter from 'gray-matter'
 
 const postsDirectory = join(process.cwd(), '_posts')
@@ -30,6 +31,7 @@ export function getPostBySlug(slug: string, fields: string[] = []) {
     }
 
     if (data[field]) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       items[field] = data[field]
     }
   })
