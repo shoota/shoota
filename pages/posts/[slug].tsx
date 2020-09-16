@@ -20,13 +20,13 @@ type Props = {
   preview?: boolean
 }
 
-const Post: React.FC<Props> = ({ post, preview }) => {
+const Post: React.FC<Props> = ({ post }) => {
   const router = useRouter()
   if (!router.isFallback && !post.slug) {
     return <ErrorPage statusCode={404} />
   }
   return (
-    <Layout preview={preview}>
+    <Layout>
       <Container>
         <Header />
         {router.isFallback ? (
@@ -88,7 +88,6 @@ export async function getStaticProps({ params }: Params) {
 // eslint-disable-next-line @typescript-eslint/require-await
 export async function getStaticPaths() {
   const posts = getAllPosts(['slug'])
-
   return {
     paths: posts.map(({ slug }) => {
       return {
