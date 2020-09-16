@@ -7,6 +7,7 @@ export const theme = {
     muted: '#f6f6f9',
     gray: '#dddddf',
     highlight: 'hsla(205, 100%, 40%, 0.125)',
+    transparent: 'rgba(0, 0, 0, 0.25)',
   },
   fonts: {
     body: `'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif`,
