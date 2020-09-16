@@ -1,23 +1,23 @@
 import React from 'react'
+import { Box } from 'rebass'
 
-import Alert from './alert'
-import Footer from './footer'
+// import Footer from './footer'
 import Meta from './meta'
+import { NavBar } from './Navbar'
 
 type Props = {
-  preview?: boolean
   children: React.ReactNode
 }
 
-const Layout: React.FC<Props> = ({ preview, children }) => {
+const Layout: React.FC<Props> = ({ children }) => {
   return (
     <>
       <Meta />
-      <div className="min-h-screen">
-        <Alert preview={preview} />
-        <main>{children}</main>
-      </div>
-      <Footer />
+      <Box mx="5vw" sx={{ backgroundColor: 'background', width: '90vw' }}>
+        <NavBar />
+        <Box my={4}>{children}</Box>
+      </Box>
+      {/* <Footer /> */}
     </>
   )
 }
