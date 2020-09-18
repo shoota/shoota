@@ -12,15 +12,16 @@ import {
   Webpack,
 } from '@icons-pack/react-simple-icons'
 import { Box } from 'rebass'
+// import { Box as FlexBox } from 'reflexbox'
 
 import { FlexIconContainer } from '../atoms/FlexIconContainer'
 import { FlexIconBox } from '../atoms/FlexIconItem'
 
-const size = 25
+const size = 24
 
 export const Skills: React.FC = () => {
   return (
-    <Box mx="20%" sx={{ backgroundColor: 'background', width: '60%' }}>
+    <Box mx="10%" sx={{ backgroundColor: 'background', width: '80%' }}>
       {/* <Text fontSize={[2, 2, 4]}>Skill set</Text> */}
       <FlexIconContainer>
         <FlexIconBox backgroundColor="#339933" name="Node.js">
