@@ -3,7 +3,7 @@ import { Box } from 'rebass'
 
 // import Footer from './footer'
 import Meta from './meta'
-import { NavBar } from './Navbar'
+import { NavBar } from './molecules/Navbar'
 
 type Props = {
   children: React.ReactNode

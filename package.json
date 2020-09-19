@@ -8,8 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
-    "@types/classnames": "2.2.10",
-    "classnames": "2.2.6",
+    "@icons-pack/react-simple-icons": "3.10.0",
     "date-fns": "2.16.1",
     "emotion-theming": "10.0.27",
     "gray-matter": "4.0.2",
@@ -17,7 +16,6 @@
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "rebass": "4.0.7",
-    "reflexbox": "4.0.6",
     "remark": "12.0.1",
     "remark-html": "12.0.0",
     "styled-components": "5.1.1"

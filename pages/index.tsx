@@ -3,15 +3,15 @@ import Head from 'next/head'
 
 import Container from '../components/container'
 import Layout from '../components/layout'
-import { CMS_NAME } from '../lib/constants'
-import Hero from '../components/Hero'
+import { SITE_NAME } from '../lib/constants'
+import Hero from '../components/organisms/Hero'
 
-const Index = () => {
+const Index: React.FC = () => {
   return (
     <>
       <Layout>
         <Head>
-          <title>Next.js Blog Example with {CMS_NAME}</title>
+          <title>{`${SITE_NAME} | Home`}</title>
         </Head>
         <Hero />
         <Container />

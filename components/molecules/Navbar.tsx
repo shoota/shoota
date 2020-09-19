@@ -16,7 +16,7 @@ export const NavBar = () => (
     <Link px={3} fontSize={[0, 1, 2]} variant="nav" href="#!">
       WORKS
     </Link>
-    <Link px={3} fontSize={[0, 1, 2]} variant="nav" href="#!">
+    <Link px={3} fontSize={[0, 1, 2]} variant="nav" href="/profile">
       Profile
     </Link>
   </Flex>
