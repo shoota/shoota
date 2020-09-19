@@ -3,9 +3,9 @@ import { Text, Box } from 'rebass'
 
 export type Props = {
   name: string
-  backgroundColor: 'green' | 'yellow' | 'gray'
+  backgroundColor: string
   color?: string
-  icon: ReactNode
+  icon?: ReactNode
 }
 export const FlexIconBox: React.FC<Props> = ({
   name,
@@ -17,7 +17,7 @@ export const FlexIconBox: React.FC<Props> = ({
     ml={2}
     mb={2}
     backgroundColor={backgroundColor}
-    sx={{ borderRadius: '2px' }}
+    sx={{ borderRadius: '2px', textAlign: 'center' }}
     width="180px"
   >
     <Box py={2} color={color}>

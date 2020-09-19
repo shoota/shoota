@@ -43,16 +43,6 @@ import { SKILL_MAP_ICON_SIZE } from '../lib/constants'
 export const skills: FlexIconItemProps[] = [
   {
     backgroundColor: 'green',
-    name: 'GitHub',
-    icon: <Github size={SKILL_MAP_ICON_SIZE} />,
-  },
-  {
-    backgroundColor: 'green',
-    name: 'Git',
-    icon: <Git size={SKILL_MAP_ICON_SIZE} />,
-  },
-  {
-    backgroundColor: 'green',
     name: 'Node.js',
     icon: <NodeDotJs size={SKILL_MAP_ICON_SIZE} />,
   },
@@ -133,6 +123,16 @@ export const skills: FlexIconItemProps[] = [
   },
   {
     backgroundColor: 'green',
+    name: 'GitHub',
+    icon: <Github size={SKILL_MAP_ICON_SIZE} />,
+  },
+  {
+    backgroundColor: 'green',
+    name: 'Git',
+    icon: <Git size={SKILL_MAP_ICON_SIZE} />,
+  },
+  {
+    backgroundColor: 'green',
     name: 'GitHub Actions',
     icon: <Githubactions size={SKILL_MAP_ICON_SIZE} />,
   },
@@ -147,72 +147,72 @@ export const skills: FlexIconItemProps[] = [
     icon: <Circleci size={SKILL_MAP_ICON_SIZE} />,
   },
   {
-    backgroundColor: 'yellow',
+    backgroundColor: 'lightGreen',
     name: 'CSS3',
     icon: <Css3 size={SKILL_MAP_ICON_SIZE} />,
   },
   {
-    backgroundColor: 'yellow',
+    backgroundColor: 'lightGreen',
     name: 'PHP',
     icon: <Php size={SKILL_MAP_ICON_SIZE} />,
   },
   {
-    backgroundColor: 'yellow',
+    backgroundColor: 'lightGreen',
     name: 'MySQL',
     icon: <Mysql size={SKILL_MAP_ICON_SIZE} />,
   },
   {
-    backgroundColor: 'yellow',
+    backgroundColor: 'lightGreen',
     name: 'PostgreSQL',
     icon: <Postgresql size={SKILL_MAP_ICON_SIZE} />,
   },
   {
-    backgroundColor: 'yellow',
+    backgroundColor: 'lightGreen',
     name: 'Linux',
     icon: <Linux size={SKILL_MAP_ICON_SIZE} />,
   },
   {
-    backgroundColor: 'yellow',
+    backgroundColor: 'lightGreen',
     name: 'Docker',
     icon: <Docker size={SKILL_MAP_ICON_SIZE} />,
   },
   {
-    backgroundColor: 'yellow',
+    backgroundColor: 'lightGreen',
     name: 'Datadog',
     icon: <Datadog size={SKILL_MAP_ICON_SIZE} />,
   },
   {
-    backgroundColor: 'gray',
+    backgroundColor: 'coolGreen',
     name: 'CoffeeScript',
     icon: <Coffeescript size={SKILL_MAP_ICON_SIZE} />,
   },
   {
-    backgroundColor: 'gray',
+    backgroundColor: 'coolGreen',
     name: 'Java',
     icon: <Java size={SKILL_MAP_ICON_SIZE} />,
   },
   {
-    backgroundColor: 'gray',
+    backgroundColor: 'coolGreen',
     name: 'Spring',
     icon: <Spring size={SKILL_MAP_ICON_SIZE} />,
   },
   {
-    backgroundColor: 'gray',
+    backgroundColor: 'coolGreen',
     name: 'Ruby on Rails',
     icon: <Rubyonrails size={SKILL_MAP_ICON_SIZE} />,
   },
   {
-    backgroundColor: 'gray',
+    backgroundColor: 'coolGreen',
     name: 'Amazon AWS',
     icon: <Amazonaws size={SKILL_MAP_ICON_SIZE} />,
   },
   {
-    backgroundColor: 'gray',
+    backgroundColor: 'coolGreen',
     name: 'Android',
     icon: <Android size={SKILL_MAP_ICON_SIZE} />,
   },
   {
-    backgroundColor: 'gray',
+    backgroundColor: 'coolGreen',
     name: 'iOS',
     icon: <Ios size={SKILL_MAP_ICON_SIZE} />,
   },
