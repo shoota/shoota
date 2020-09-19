@@ -5,6 +5,8 @@ export const theme = {
     primary: '#07c',
     secondary: '#30c',
     muted: '#f6f6f9',
+    green: '#00D735',
+    yellow: '#F7DF1E',
     gray: '#dddddf',
     highlight: 'hsla(205, 100%, 40%, 0.125)',
     transparent: 'rgba(0, 0, 0, 0.25)',

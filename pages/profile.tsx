@@ -5,7 +5,8 @@ import { SITE_NAME } from '../lib/constants'
 import Container from '../components/container'
 import Layout from '../components/layout'
 import Avatar from '../components/atoms/Avatar'
-import { Skills } from '../components/organisms/Skills'
+import { SkillMap } from '../components/organisms/SkillMap'
+import { skills } from '../data/skills'
 
 type Props = ComponentProps<typeof Avatar>
 
@@ -17,7 +18,7 @@ const Profile: React.FC<Props> = ({ name, picture }) => {
           <title>{`${SITE_NAME} | Profile`}</title>
         </Head>
         <Avatar name={name} picture={picture} />
-        <Skills />
+        <SkillMap data={skills} />
         <Container />
       </Layout>
     </>

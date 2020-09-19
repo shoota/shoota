@@ -1,20 +1,27 @@
-import React from 'react'
+import React, { ReactNode } from 'react'
 import { Text, Box } from 'rebass'
 
-type IconBoxProps = {
+export type Props = {
   name: string
-  backgroundColor: string
+  backgroundColor: 'green' | 'yellow' | 'gray'
   color?: string
+  icon: ReactNode
 }
-export const FlexIconBox: React.FC<IconBoxProps> = ({
+export const FlexIconBox: React.FC<Props> = ({
   name,
   backgroundColor,
   color,
-  children,
+  icon,
 }) => (
-  <Box p={1} sx={{ textAlign: 'center', alignItems: 'center' }} width="150px">
-    <Box py={2} color={color} backgroundColor={backgroundColor}>
-      {children}
+  <Box
+    ml={2}
+    mb={2}
+    backgroundColor={backgroundColor}
+    sx={{ borderRadius: '2px' }}
+    width="180px"
+  >
+    <Box py={2} color={color}>
+      {icon}
       <Text fontSize={[0, 0, 1]}>{name}</Text>
     </Box>
   </Box>
