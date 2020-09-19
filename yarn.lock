@@ -1133,7 +1133,7 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
-"@icons-pack/react-simple-icons@^3.10.0":
+"@icons-pack/react-simple-icons@3.10.0":
   version "3.10.0"
   resolved "https://registry.yarnpkg.com/@icons-pack/react-simple-icons/-/react-simple-icons-3.10.0.tgz#0ccd2b7c0f32513eb244fd15b62c11789eecb703"
   integrity sha512-R3rGWvQ8ah9Od4Xw5USOFlFBRduoIcSih04bTE/+wHFEQ9TzpIN2GNl1vV0R8HTA6lIPcpqpkkAjdZ3nl17FiA==
@@ -1316,10 +1316,10 @@
   dependencies:
     "@types/unist" "*"
 
-"@types/node@12.12.61":
-  version "12.12.61"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.12.61.tgz#f9115df7cef34d76afa0a333d1c7e6aab051870a"
-  integrity sha512-+/KPk6uV9qGfVX0y2uUj3y8O0Z6KZWUy3XTS0uQGYYF+iXGtepm9GPETdcRq+hGmErkLOr5QJDX8vuymkwu4sA==
+"@types/node@12.12.62":
+  version "12.12.62"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.12.62.tgz#733923d73669188d35950253dd18a21570085d2b"
+  integrity sha512-qAfo81CsD7yQIM9mVyh6B/U47li5g7cfpVQEDMfQeF8pSZVwzbhwU3crc0qG4DmpsebpJPR49AKOExQyJ05Cpg==
 
 "@types/parse-json@^4.0.0":
   version "4.0.0"
