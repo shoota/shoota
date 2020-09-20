@@ -3,7 +3,7 @@ import { Flex, Text, Box, Link } from 'rebass'
 
 export const NavBar = () => (
   <Flex pl={2} pr={2} alignItems="baseline">
-    <Text fontSize={[2, 4, 6]} p={2} fontWeight="bold">
+    <Text fontSize={[3, 5, 5]} p={2} fontWeight="bold">
       shoota.work
     </Text>
     <Box ml="auto">

@@ -4,7 +4,7 @@ import Author from '../types/author'
 
 import Avatar from './atoms/Avatar'
 import DateFormatter from './date-formatter'
-import CoverImage from './cover-image'
+import { CoverImage } from './CoverImage'
 import PostTitle from './post-title'
 
 type Props = {

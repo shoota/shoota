@@ -2,7 +2,7 @@ import React, { ComponentProps } from 'react'
 import Head from 'next/head'
 
 import { SITE_NAME } from '../lib/constants'
-import Container from '../components/container'
+import { Container } from '../components/Container'
 import Layout from '../components/layout'
 import Avatar from '../components/atoms/Avatar'
 import { SkillMap } from '../components/organisms/SkillMap'

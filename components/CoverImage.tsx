@@ -1,5 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
+import { Image, Box } from 'rebass'
 
 type Props = {
   title: string
@@ -7,21 +8,20 @@ type Props = {
   slug?: string
 }
 
-const CoverImage: React.FC<Props> = ({ title, src, slug }) => {
-  const image = <img src={src} alt={`Cover for ${title}`} />
+export const CoverImage: React.FC<Props> = ({ title, src, slug }) => {
+  const image = <Image src={src} />
+
   return (
-    <div className="sm:mx-0">
+    <Box mx={0}>
       {slug ? (
         <Link as={`/posts/${slug}`} href="/posts/[slug]">
-          <a aria-label={title} href="/posts/[slug]">
+          <a aria-label={title} href={`/posts/${slug}`}>
             {image}
           </a>
         </Link>
       ) : (
         image
       )}
-    </div>
+    </Box>
   )
 }
-
-export default CoverImage
