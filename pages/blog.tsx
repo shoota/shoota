@@ -1,8 +1,8 @@
 import React from 'react'
 import Head from 'next/head'
 
-import { Container } from '../components/Container'
-import MoreStories from '../components/more-stories'
+import { ContainerBox } from '../components/ContainerBox'
+import { MoreStories } from '../components/MoreStories'
 import { HeroPost } from '../components/HeroPost'
 import Layout from '../components/layout'
 import { getAllPosts } from '../lib/api'
@@ -22,7 +22,7 @@ const Index = ({ allPosts }: Props) => {
         <Head>
           <title>Next.js Blog Example with {CMS_NAME}</title>
         </Head>
-        <Container>
+        <ContainerBox>
           {heroPost && (
             <HeroPost
               title={heroPost.title}
@@ -33,7 +33,7 @@ const Index = ({ allPosts }: Props) => {
             />
           )}
           {morePosts.length > 0 && <MoreStories posts={morePosts} />}
-        </Container>
+        </ContainerBox>
       </Layout>
     </>
   )

@@ -1,8 +1,9 @@
 import React from 'react'
 import Link from 'next/link'
-import { Box, Heading, Link as RebassLink } from 'rebass'
+import { Text, Box, Heading, Link as RebassLink } from 'rebass'
+import styled from 'styled-components'
 
-import DateFormatter from './date-formatter'
+import DateFormatter from './atoms/DateFormatter'
 import { CoverImage } from './CoverImage'
 
 type Props = {
@@ -13,6 +14,10 @@ type Props = {
   slug: string
 }
 
+const StyledSection = styled.section`
+  margin-bottom: 24px;
+`
+
 export const HeroPost: React.FC<Props> = ({
   title,
   coverImage,
@@ -21,7 +26,7 @@ export const HeroPost: React.FC<Props> = ({
   slug,
 }) => {
   return (
-    <section>
+    <StyledSection>
       <Box mb={[0, 1]}>
         <CoverImage title={title} src={coverImage} slug={slug} />
       </Box>
@@ -36,7 +41,11 @@ export const HeroPost: React.FC<Props> = ({
           <Heading>
             <Link as={`/posts/${slug}`} href="/posts/[slug]">
               <RebassLink
-                sx={{ color: 'text', fontSize: [2, 3, 5] }}
+                sx={{
+                  color: 'text',
+                  fontSize: [2, 3, 5],
+                  textDecorationLine: 'none',
+                }}
                 href="/posts/[slug]"
               >
                 {title}
@@ -46,9 +55,9 @@ export const HeroPost: React.FC<Props> = ({
           <DateFormatter dateString={date} />
         </Box>
         <Box p={3}>
-          <p className="text-lg leading-relaxed mb-4">{excerpt}</p>
+          <Text fontSize={[1, 2, 2]}>{excerpt}</Text>
         </Box>
       </Box>
-    </section>
+    </StyledSection>
   )
 }

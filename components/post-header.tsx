@@ -3,7 +3,7 @@ import React from 'react'
 import Author from '../types/author'
 
 import Avatar from './atoms/Avatar'
-import DateFormatter from './date-formatter'
+import DateFormatter from './atoms/DateFormatter'
 import { CoverImage } from './CoverImage'
 import PostTitle from './post-title'
 

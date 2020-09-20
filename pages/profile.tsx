@@ -2,7 +2,7 @@ import React, { ComponentProps } from 'react'
 import Head from 'next/head'
 
 import { SITE_NAME } from '../lib/constants'
-import { Container } from '../components/Container'
+import { ContainerBox } from '../components/ContainerBox'
 import Layout from '../components/layout'
 import Avatar from '../components/atoms/Avatar'
 import { SkillMap } from '../components/organisms/SkillMap'
@@ -19,7 +19,7 @@ const Profile: React.FC<Props> = ({ name, picture }) => {
         </Head>
         <Avatar name={name} picture={picture} />
         <SkillMap data={skills} />
-        <Container />
+        <ContainerBox />
       </Layout>
     </>
   )
