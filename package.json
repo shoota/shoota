@@ -27,7 +27,7 @@
     "@types/rebass": "4.0.6",
     "@types/reflexbox": "4.0.1",
     "@types/styled-components": "5.1.3",
-    "@typescript-eslint/eslint-plugin": "4.1.1",
+    "@typescript-eslint/eslint-plugin": "4.4.1",
     "babel-plugin-styled-components": "1.10.7",
     "eslint": "7.9.0",
     "eslint-config-airbnb-typescript": "10.0.0",
