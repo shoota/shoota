@@ -9,18 +9,16 @@ type Props = {
 }
 
 export const CoverImage: React.FC<Props> = ({ title, src, slug }) => {
-  const image = <Image src={src} />
-
   return (
     <Box mx={0}>
       {slug ? (
         <Link as={`/posts/${slug}`} href="/posts/[slug]">
           <a aria-label={title} href={`/posts/${slug}`}>
-            {image}
+            <Image src={src} />
           </a>
         </Link>
       ) : (
-        image
+        <Image src={src} />
       )}
     </Box>
   )
