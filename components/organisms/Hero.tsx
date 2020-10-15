@@ -1,6 +1,5 @@
 import React from 'react'
-import { Box, Text } from 'rebass'
-import { Flex } from 'reflexbox'
+import { Box, Text, Flex } from 'rebass'
 
 const Hero: React.FC = () => {
   return (

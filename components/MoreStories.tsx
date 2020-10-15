@@ -1,34 +1,38 @@
 import React from 'react'
+import { Heading, Box } from 'rebass'
 
 import Post from '../types/post'
 
-import PostPreview from './post-preview'
+import { PostPreview } from './PostPreview'
 
 type Props = {
   posts: Post[]
 }
 
-const MoreStories: React.FC<Props> = ({ posts }) => {
+export const MoreStories: React.FC<Props> = ({ posts }) => {
   return (
     <section>
-      <h2 className="mb-8 text-6xl md:text-7xl font-bold tracking-tighter leading-tight">
-        More Stories
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 md:col-gap-16 lg:col-gap-32 row-gap-20 md:row-gap-32 mb-32">
+      <Heading mb={2} fontSize={[2, 2, 4]}>
+        More Articles
+      </Heading>
+      <Box
+        sx={{
+          display: 'grid',
+          gridGap: 4,
+          gridTemplateColumns: 'repeat(auto-fit, minmax(128px, 1fr))',
+        }}
+      >
         {posts.map((post) => (
           <PostPreview
             key={post.slug}
             title={post.title}
             coverImage={post.coverImage}
             date={post.date}
-            author={post.author}
             slug={post.slug}
             excerpt={post.excerpt}
           />
         ))}
-      </div>
+      </Box>
     </section>
   )
 }
-
-export default MoreStories
