@@ -4,7 +4,7 @@ import ErrorPage from 'next/error'
 import Head from 'next/head'
 
 import { ContainerBox } from '../../components/ContainerBox'
-import PostBody from '../../components/post-body'
+import PostBody from '../../components/PostBody'
 import PostHeader from '../../components/PostHeader'
 import Layout from '../../components/layout'
 import { getPostBySlug, getAllPosts } from '../../lib/api'
