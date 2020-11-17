@@ -2,12 +2,14 @@ import React from 'react'
 import Link from 'next/link'
 import { Text, Box, Heading, Link as RebassLink } from 'rebass'
 
+import PostType from '../types/post'
+
 import DateFormatter from './atoms/DateFormatter'
 import { CoverImage } from './CoverImage'
 
 type Props = {
   title: string
-  coverImage: string
+  coverImage: PostType['coverImage']
   date: string
   excerpt: string
   slug: string
@@ -23,7 +25,7 @@ export const PostPreview: React.FC<Props> = ({
   return (
     <Box>
       <Box p={3}>
-        <CoverImage slug={slug} title={title} src={coverImage} />
+        <CoverImage slug={slug} title={title} coverImage={coverImage} />
       </Box>
 
       <Box p={3}>
