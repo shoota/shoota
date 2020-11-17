@@ -42,7 +42,6 @@ const Post: React.FC<Props> = ({ post }) => {
               />
               <PostBody content={post.content} />
             </article>
-            <hr />
           </>
         )}
       </ContainerBox>
