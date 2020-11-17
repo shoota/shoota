@@ -3,12 +3,14 @@ import Link from 'next/link'
 import { Text, Box, Heading, Link as RebassLink } from 'rebass'
 import styled from 'styled-components'
 
+import PostType from '../types/post'
+
 import DateFormatter from './atoms/DateFormatter'
 import { CoverImage } from './CoverImage'
 
 type Props = {
   title: string
-  coverImage: string
+  coverImage: PostType['coverImage']
   date: string
   excerpt: string
   slug: string
@@ -28,7 +30,7 @@ export const HeroPost: React.FC<Props> = ({
   return (
     <StyledSection>
       <Box mb={[0, 1]}>
-        <CoverImage title={title} src={coverImage} slug={slug} />
+        <CoverImage title={title} coverImage={coverImage} slug={slug} />
       </Box>
       <Box
         sx={{
