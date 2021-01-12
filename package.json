@@ -21,13 +21,13 @@
     "styled-components": "5.2.1"
   },
   "devDependencies": {
-    "@types/node": "12.19.12",
+    "@types/node": "12.19.13",
     "@types/react": "16.14.2",
     "@types/react-dom": "16.9.10",
     "@types/rebass": "4.0.7",
     "@types/reflexbox": "4.0.2",
     "@types/styled-components": "5.1.7",
-    "@typescript-eslint/eslint-plugin": "4.12.0",
+    "@typescript-eslint/eslint-plugin": "4.13.0",
     "babel-plugin-styled-components": "1.12.0",
     "eslint": "7.17.0",
     "eslint-config-airbnb-typescript": "12.0.0",
