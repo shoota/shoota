@@ -6,7 +6,6 @@ import { MoreStories } from '../components/MoreStories'
 import { HeroPost } from '../components/HeroPost'
 import Layout from '../components/layout'
 import { getAllPosts } from '../lib/api'
-import { CMS_NAME } from '../lib/constants'
 import Post from '../types/post'
 
 type Props = {
@@ -20,7 +19,7 @@ const Index = ({ allPosts }: Props) => {
     <>
       <Layout>
         <Head>
-          <title>Next.js Blog Example with {CMS_NAME}</title>
+          <title>Blog</title>
         </Head>
         <ContainerBox>
           {heroPost && (
@@ -48,7 +47,6 @@ export const getStaticProps = async () => {
     'title',
     'date',
     'slug',
-    'author',
     'coverImage',
     'excerpt',
   ])

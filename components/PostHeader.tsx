@@ -1,7 +1,7 @@
 import React from 'react'
 import { Box } from 'rebass'
 
-import Author from '../types/author'
+import PostType from '../types/post'
 
 import DateFormatter from './atoms/DateFormatter'
 import { CoverImage } from './CoverImage'
@@ -9,9 +9,8 @@ import { PostTitle } from './PostTitle'
 
 type Props = {
   title: string
-  coverImage: string
+  coverImage: PostType['coverImage']
   date: string
-  author: Author
 }
 
 const PostHeader: React.FC<Props> = ({ title, coverImage, date }) => {
@@ -19,7 +18,7 @@ const PostHeader: React.FC<Props> = ({ title, coverImage, date }) => {
     <>
       <PostTitle>{title}</PostTitle>
       <Box sx={{ mb: 3 }}>
-        <CoverImage title={title} src={coverImage} />
+        <CoverImage title={title} coverImage={coverImage} />
       </Box>
       <Box sx={{ mb: 2, fontSize: 2 }}>
         <DateFormatter dateString={date} />
