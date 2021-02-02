@@ -17,7 +17,7 @@ import {
   Githubactions,
   Npm,
   Jest,
-  Css3,
+  CssThree,
   Php,
   Linux,
   Datadog,
@@ -149,7 +149,7 @@ export const skills: FlexIconItemProps[] = [
   {
     backgroundColor: 'lightGreen',
     name: 'CSS3',
-    icon: <Css3 size={SKILL_MAP_ICON_SIZE} />,
+    icon: <CssThree size={SKILL_MAP_ICON_SIZE} />,
   },
   {
     backgroundColor: 'lightGreen',
