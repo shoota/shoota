@@ -1,8 +1,13 @@
 ---
 title: iOSのopenURLでハマった
-author: shoota
-date: 2015-03-23
-template: article.jade
+excerpt: 'あああ'
+coverImage:
+  url: '/assets/blog/keyboard.jpg'
+  provider: 'Ken Suarez'
+  providerUrl: https://unsplash.com/@kensuarez
+date: '2015-03-23'
+ogImage:
+  url: '/assets/blog/keyboard.jpg'
 ---
 
 iOSアプリから電話発信をしたい場合にopenURLで標準アプリ（Phone.app）を呼び出すことができる。

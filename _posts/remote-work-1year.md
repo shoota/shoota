@@ -1,11 +1,17 @@
 ---
 title: フルリモートワーカーになって1年たった
-date: 2018-07-11 22:33:36
-tags: remotework
+excerpt: 'あああ'
+coverImage:
+  url: '/assets/blog/keyboard.jpg'
+  provider: 'Ken Suarez'
+  providerUrl: https://unsplash.com/@kensuarez
+date: '2018-07-11'
+ogImage:
+  url: '/assets/blog/keyboard.jpg'
 ---
 
 
-[前回](http://blog.anaguma.org/2018/02/20/remote-work/) から更に5ヶ月弱が経過し、フルリモートワーカー開始＆入社から1年以上が経過したので、これまでの振り返り。
+[前回](/posts/remote-work) から更に5ヶ月弱が経過し、フルリモートワーカー開始＆入社から1年以上が経過したので、これまでの振り返り。
 
 
 

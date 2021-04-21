@@ -1,7 +1,13 @@
 ---
 title: フルリモートワーカーになって半年ちょっと経ったのでまとめる
-date: 2018-02-20 21:42:02
-tags: remotework
+excerpt: 'あああ'
+coverImage:
+  url: '/assets/blog/keyboard.jpg'
+  provider: 'Ken Suarez'
+  providerUrl: https://unsplash.com/@kensuarez
+date: '2018-02-20'
+ogImage:
+  url: '/assets/blog/keyboard.jpg'
 ---
 
 突然ですが、僕は青森県でフルリモートで働いている。出社は東京のオフィスに月に1回、だいたいが1泊2日。転職したのは2017年の7月で、今日で約7ヶ月半が経った。そろそろフルリモートについて軽くまとめておこう。

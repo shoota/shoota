@@ -1,7 +1,14 @@
 ---
 title: Hexoにした
-date: 2018-01-24 01:40:53
-tags:
+excerpt: 'あああ'
+coverImage:
+  url: '/assets/blog/keyboard.jpg'
+  provider: 'Ken Suarez'
+  providerUrl: https://unsplash.com/@kensuarez
+date: '2018-01-24'
+ogImage:
+  url: '/assets/blog/keyboard.jpg'
+
 ---
 
 

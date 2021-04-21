@@ -1,8 +1,13 @@
 ---
 title: pplogのbotをつくりました
-author: shoota
-date: 2014-02-14
-template: article.jade
+excerpt: 'あああ'
+coverImage:
+  url: '/assets/blog/keyboard.jpg'
+  provider: 'Ken Suarez'
+  providerUrl: https://unsplash.com/@kensuarez
+date: '2014-02-14'
+ogImage:
+  url: '/assets/blog/keyboard.jpg'
 ---
 
 [pplog](https://www.pplog.net)が楽しすぎて、最近はtwitterより見てる時間が長い。愛が高まりすぎるとなにか作ってみたくなるのがプログラマの性というもの。

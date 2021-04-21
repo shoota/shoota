@@ -1,7 +1,13 @@
 ---
 title: エンジニアリングとコミュニケーション
-date: 2018-12-26 01:55:48
-tags: communication
+excerpt: 'あああ'
+coverImage:
+  url: '/assets/blog/keyboard.jpg'
+  provider: 'Ken Suarez'
+  providerUrl: https://unsplash.com/@kensuarez
+date: '2018-12-26'
+ogImage:
+  url: '/assets/blog/keyboard.jpg'
 ---
 
 コミュニケーションについて課題を感じる程度におじさんになってきたので思いの丈を垂れ流す。

@@ -1,8 +1,13 @@
 ---
 title: Pebble 寿司ゆき Watch Faceをリリースしました
-author: shoota
-date: 2015-10-09
-template: article.jade
+excerpt: 'あああ'
+coverImage:
+  url: '/assets/blog/keyboard.jpg'
+  provider: 'Ken Suarez'
+  providerUrl: https://unsplash.com/@kensuarez
+date: '2015-10-09'
+ogImage:
+  url: '/assets/blog/keyboard.jpg'
 ---
 
 iOS/Android対応のスマートウォッチ、Pebbleを買ってしばらく遊んでいました。

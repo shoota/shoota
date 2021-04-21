@@ -1,8 +1,13 @@
 ---
 title: Java(Android)でHTTPSクライアント認証
-author: shoota
-date: 2014-12-29
-template: article.jade
+excerpt: 'あああ'
+coverImage:
+  url: '/assets/blog/keyboard.jpg'
+  provider: 'Ken Suarez'
+  providerUrl: https://unsplash.com/@kensuarez
+date: '2014-12-29'
+ogImage:
+  url: '/assets/blog/keyboard.jpg'
 ---
 
 日本語で簡潔に説明されているものを探せず苦労したので雑にメモ。検索するとサーバ証明書関連が多くて、Androidアプリをクライアント認証させるのはあまり多い事例じゃないっぽい。

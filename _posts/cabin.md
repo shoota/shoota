@@ -1,8 +1,13 @@
 ---
 title: Cabin.jsでのブログ運用を保留した話
-author: shoota
-date: 2014-03-28
-template: article.jade
+excerpt: 'あああ'
+coverImage:
+  url: '/assets/blog/keyboard.jpg'
+  provider: 'Ken Suarez'
+  providerUrl: https://unsplash.com/@kensuarez
+date: '2014-03-28'
+ogImage:
+  url: '/assets/blog/keyboard.jpg'
 ---
 
 ブログ生成をNode.jsベースのstatic site generator、[Cabin](http://www.cabinjs.com/)に乗換えようとしたが、すぐに移行したいほどでなかった。

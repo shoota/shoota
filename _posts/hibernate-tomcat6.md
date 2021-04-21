@@ -1,8 +1,13 @@
 ---
 title: Hibernate ValidatorはTomcat6だと動かない
-author: shoota
-date: 2014-10-14
-template: article.jade
+excerpt: 'あああ'
+coverImage:
+  url: '/assets/blog/keyboard.jpg'
+  provider: 'Ken Suarez'
+  providerUrl: https://unsplash.com/@kensuarez
+date: '2014-10-14'
+ogImage:
+  url: '/assets/blog/keyboard.jpg'
 ---
 
 JavaなWebアプリで入力チェックを実装する上でとても便利な[Hibernate Validator](http://hibernate.org/validator/)。

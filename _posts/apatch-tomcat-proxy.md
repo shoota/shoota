@@ -1,8 +1,13 @@
 ---
 title: Apache-Tomcatのプロキシ設定を変更したらsessionがとれなくなった
-author: shoota
-date: 2014-09-22
-template: article.jade
+excerpt: 'あああ'
+coverImage:
+  url: '/assets/blog/keyboard.jpg'
+  provider: 'Ken Suarez'
+  providerUrl: https://unsplash.com/@kensuarez
+date: '2014-09-22'
+ogImage:
+  url: '/assets/blog/keyboard.jpg'
 ---
 
 Javaアプリでsessionスコープに保存したPOJOを取得できずにハマったときのメモ。

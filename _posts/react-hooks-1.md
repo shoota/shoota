@@ -1,7 +1,13 @@
 ---
-title: React Hooks を雑にメモってまとめる vol.1
-date: 2019-03-10 00:20:29
-tags: react
+title: React Hooks を雑にメモってまとめる
+excerpt: 'あああ'
+coverImage:
+  url: '/assets/blog/keyboard.jpg'
+  provider: 'Ken Suarez'
+  providerUrl: https://unsplash.com/@kensuarez
+date: '2019-03-10'
+ogImage:
+  url: '/assets/blog/keyboard.jpg'
 ---
 
 
@@ -30,7 +36,7 @@ https://reactjs.org/docs/hooks-reference.html
 SFCにState（とそのupdater）を持たせるための関数。`SFC + S = FC`。
 stateの更新を望む振る舞いごとに、updaterを利用した関数を定義して`export`してあげればView側でその関数をbindするだけでよい。
 
-```typescript
+```tsx
 export const useCount = () => {
   const [count, setCount] = React.useState(0);
   const add = () => setCount(count + 1);

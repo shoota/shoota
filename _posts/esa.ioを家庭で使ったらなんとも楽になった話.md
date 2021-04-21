@@ -1,8 +1,13 @@
 ---
 title: esa.ioを家庭で使ったらなんとも楽になった話
-author: shoota
-date: 2015-10-26
-template: article.jade
+excerpt: 'あああ'
+coverImage:
+  url: '/assets/blog/keyboard.jpg'
+  provider: 'Ken Suarez'
+  providerUrl: https://unsplash.com/@kensuarez
+date: '2015-10-26'
+ogImage:
+  url: '/assets/blog/keyboard.jpg'
 ---
 
 情報を育てながら共有するドキュメントサービス、[esa.io](https://esa.io)（えさ）を使いはじめて1年以上が経過しました。

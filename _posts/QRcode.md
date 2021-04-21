@@ -1,8 +1,13 @@
 ---
 title: iOSでQRコードを読み取ってみる
-author: shoota
-date: 2015-03-20
-template: article.jade
+excerpt: 'あああ'
+coverImage:
+  url: '/assets/blog/keyboard.jpg'
+  provider: 'Ken Suarez'
+  providerUrl: https://unsplash.com/@kensuarez
+date: '2015-03-20'
+ogImage:
+  url: '/assets/blog/keyboard.jpg'
 ---
 
 iOS7からQRコードの読み取りが簡単になっていたらしいのですが、そもそも最近はQRコードをあんまり見なくなったのでした。
