@@ -18,8 +18,8 @@ export const MoreStories: React.FC<Props> = ({ posts }) => {
       <Box
         sx={{
           display: 'grid',
-          gridGap: 4,
-          gridTemplateColumns: 'repeat(auto-fit, minmax(128px, 1fr))',
+          gridGap: 3,
+          gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
         }}
       >
         {posts.map((post) => (
