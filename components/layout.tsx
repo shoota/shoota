@@ -13,7 +13,7 @@ const Layout: React.FC<Props> = ({ children }) => {
   return (
     <>
       <Meta />
-      <Box mx="5vw" sx={{ backgroundColor: 'background', width: '90vw' }}>
+      <Box mx="5vw" sx={{ width: '90vw' }}>
         <NavBar />
         <Box my={4}>{children}</Box>
       </Box>
