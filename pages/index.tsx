@@ -14,7 +14,6 @@ const Index: React.FC = () => {
           <title>{`${SITE_NAME} | Home`}</title>
         </Head>
         <Hero />
-        <ContainerBox />
       </Layout>
     </>
   )

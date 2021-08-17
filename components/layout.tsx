@@ -13,10 +13,10 @@ const Layout: React.FC<Props> = ({ children }) => {
   return (
     <>
       <Meta />
-      <Box mx="5vw" sx={{ width: '90vw' }}>
+      <div style={{ margin: '0 240px' }}>
         <NavBar />
         <Box my={4}>{children}</Box>
-      </Box>
+      </div>
       {/* <Footer /> */}
     </>
   )

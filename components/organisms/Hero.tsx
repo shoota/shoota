@@ -1,30 +1,20 @@
+import { Animator, AnimatorGeneralProvider } from '@arwes/animation'
+import { Figure, Text } from '@arwes/core'
+
 import React from 'react'
-import { Box, Text, Flex } from 'rebass'
 
 const Hero: React.FC = () => {
   return (
-    <Flex margin="24px" justifyContent="center" alignItems="center">
-      <Box
-        sx={{
-          backgroundImage: 'url(/assets/img/cover.jpg)',
-          backgroundRepeat: 'no-repeat',
-          backgroundSize: 'cover',
-          width: '100%',
-          color: 'white',
-          textAlign: 'center',
-          py: '20%',
-        }}
-      >
-        <Box backgroundColor="transparent">
-          <Text fontSize={6} p={2} fontWeight="bold">
-            Shoota Kumano
-          </Text>
-          <Text fontSize={4} p={2} fontWeight="bold">
-            Skills, Works and Philosophy
-          </Text>
-        </Box>
-      </Box>
-    </Flex>
+    <AnimatorGeneralProvider animator={{ duration: { enter: 600, exit: 200 } }}>
+      <Animator animator={{ activate: true, manager: 'stagger' }}>
+        <Figure src={'/assets/img/cover.jpg'}>
+          人間は完全に整っているものと、どこかが欠けているものが同時に視界に入ったとき、欠けているも方に注目してしまう。
+        </Figure>
+        <Text as="h3">Skills, Works and Philosophy</Text>
+        <Text as="p">{/* TODO */}</Text>
+        <Text as="p">{/* TODO */}</Text>
+      </Animator>
+    </AnimatorGeneralProvider>
   )
 }
 
