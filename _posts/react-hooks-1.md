@@ -1,6 +1,6 @@
 ---
 title: React Hooks を雑にメモってまとめる
-excerpt: 'あああ'
+excerpt: 'React Hooksで必要そうなやつのDocを読んだから自分語でまとめておく'
 coverImage:
   url: '/assets/blog/keyboard.jpg'
   provider: 'Ken Suarez'
