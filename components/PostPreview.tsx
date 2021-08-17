@@ -1,11 +1,11 @@
 import React from 'react'
-import Link from 'next/link'
-import { Text, Box, Heading, Link as RebassLink } from 'rebass'
 
 import PostType from '../types/post'
 
 import DateFormatter from './atoms/DateFormatter'
-import { CoverImage } from './CoverImage'
+import { AnimatorGeneralProvider } from '@arwes/animation'
+import { Button, Card, Text } from '@arwes/core'
+import { useRouter } from 'next/router'
 
 type Props = {
   title: string
@@ -22,33 +22,50 @@ export const PostPreview: React.FC<Props> = ({
   excerpt,
   slug,
 }) => {
+  const router = useRouter()
   return (
-    <Box>
-      <Box p={3}>
-        <CoverImage slug={slug} title={title} coverImage={coverImage} />
-      </Box>
-
-      <Box p={3}>
-        <Heading>
-          <Link as={`/posts/${slug}`} href="/posts/[slug]">
-            <RebassLink
-              sx={{
-                color: 'text',
-                fontSize: [1, 2, 3],
-                textDecorationLine: 'none',
-              }}
-              href="/posts/[slug]"
-            >
-              {title}
-            </RebassLink>
-          </Link>
-        </Heading>
-        <DateFormatter dateString={date} />
-      </Box>
-
-      <Box p={3}>
-        <Text fontSize={[1, 2, 2]}>{excerpt}</Text>
-      </Box>
-    </Box>
+    <AnimatorGeneralProvider
+      animator={{ duration: { enter: 200, exit: 200, stagger: 30 } }}
+    >
+      <Card
+        animator={{ activate: true }}
+        image={{
+          src: coverImage.url,
+        }}
+        title={
+          <>
+            {title}
+            <Text as="p" style={{ display: 'block', fontSize: '12px' }}>
+              <DateFormatter dateString={date} />
+            </Text>
+          </>
+        }
+        options={
+          <Button
+            palette="secondary"
+            onClick={() => router.push(`/posts/${slug}`)}
+          >
+            <Text>この記事を見る</Text>
+          </Button>
+        }
+        landscape
+        hover
+        style={{ maxWidth: 800 }}
+      >
+        <Text as="div">{excerpt}</Text>
+        <Text
+          as="p"
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            display: 'block',
+            opacity: 1,
+            fontSize: '12px',
+          }}
+        >
+          Photo by <a href={coverImage.providerUrl}>{coverImage.provider}</a>
+        </Text>
+      </Card>
+    </AnimatorGeneralProvider>
   )
 }
