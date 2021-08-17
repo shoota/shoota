@@ -1,12 +1,11 @@
 import React from 'react'
-import Link from 'next/link'
-import { Text, Box, Heading, Link as RebassLink } from 'rebass'
-import styled from 'styled-components'
 
 import PostType from '../types/post'
 
 import DateFormatter from './atoms/DateFormatter'
-import { CoverImage } from './CoverImage'
+import { AnimatorGeneralProvider } from '@arwes/animation'
+import { Button, Card, Text } from '@arwes/core'
+import { useRouter } from 'next/router'
 
 type Props = {
   title: string
@@ -16,10 +15,6 @@ type Props = {
   slug: string
 }
 
-const StyledSection = styled.section`
-  margin-bottom: 24px;
-`
-
 export const HeroPost: React.FC<Props> = ({
   title,
   coverImage,
@@ -27,39 +22,50 @@ export const HeroPost: React.FC<Props> = ({
   excerpt,
   slug,
 }) => {
+  const router = useRouter()
   return (
-    <StyledSection>
-      <Box mb={[0, 1]}>
-        <CoverImage title={title} coverImage={coverImage} slug={slug} />
-      </Box>
-      <Box
-        sx={{
-          display: 'grid',
-          gridGap: 4,
-          gridTemplateColumns: 'repeat(auto-fit, minmax(128px, 1fr))',
+    <AnimatorGeneralProvider
+      animator={{ duration: { enter: 200, exit: 200, stagger: 30 } }}
+    >
+      <Card
+        animator={{ activate: true }}
+        image={{
+          src: coverImage.url,
         }}
+        title={
+          <>
+            {title}
+            <Text as="p" style={{ display: 'block', fontSize: '12px' }}>
+              <DateFormatter dateString={date} />
+            </Text>
+          </>
+        }
+        options={
+          <Button
+            palette="secondary"
+            onClick={() => router.push(`/posts/${slug}`)}
+          >
+            <Text>この記事を見る</Text>
+          </Button>
+        }
+        hover
+        style={{ paddingBottom: '48px' }}
       >
-        <Box p={3}>
-          <Heading>
-            <Link as={`/posts/${slug}`} href="/posts/[slug]">
-              <RebassLink
-                sx={{
-                  color: 'text',
-                  fontSize: [2, 3, 5],
-                  textDecorationLine: 'none',
-                }}
-                href="/posts/[slug]"
-              >
-                {title}
-              </RebassLink>
-            </Link>
-          </Heading>
-          <DateFormatter dateString={date} />
-        </Box>
-        <Box p={3}>
-          <Text fontSize={[1, 2, 2]}>{excerpt}</Text>
-        </Box>
-      </Box>
-    </StyledSection>
+        <Text as="div">{excerpt}</Text>
+        <Text
+          as="p"
+          style={{
+            position: 'absolute',
+            top: '-1.2em',
+            right: '4px',
+            display: 'block',
+            opacity: 1,
+            fontSize: '12px',
+          }}
+        >
+          Photo by <a href={coverImage.providerUrl}>{coverImage.provider}</a>
+        </Text>
+      </Card>
+    </AnimatorGeneralProvider>
   )
 }

@@ -20,7 +20,8 @@ export const MoreStories: React.FC<Props> = ({ posts }) => {
           sx={{
             display: 'grid',
             gridGap: 12,
-            gridTemplateColumns: '1fr 1fr',
+            gridTemplateColumns: ['1fr', '1fr', '1fr', '1fr 1fr'],
+            margin: 'auto ',
           }}
         >
           {posts.map((post) => (

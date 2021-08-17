@@ -50,14 +50,14 @@ export const PostPreview: React.FC<Props> = ({
         }
         landscape
         hover
-        style={{ maxWidth: 800 }}
       >
         <Text as="div">{excerpt}</Text>
         <Text
           as="p"
           style={{
             position: 'absolute',
-            bottom: 0,
+            top: 0,
+            right: 0,
             display: 'block',
             opacity: 1,
             fontSize: '12px',
