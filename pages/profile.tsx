@@ -1,14 +1,14 @@
-import React, { ComponentProps } from 'react'
+import React from 'react'
 import Head from 'next/head'
 
 import { SITE_NAME } from '../lib/constants'
-import { ContainerBox } from '../components/ContainerBox'
 import Layout from '../components/layout'
-import Avatar from '../components/atoms/Avatar'
-import { SkillMap } from '../components/organisms/SkillMap'
-import { skills } from '../data/skills'
+import { Figure, Text } from '@arwes/core'
 
-type Props = ComponentProps<typeof Avatar>
+type Props = {
+  name: string
+  picture: string
+}
 
 const Profile: React.FC<Props> = ({ name, picture }) => {
   return (
@@ -17,9 +17,14 @@ const Profile: React.FC<Props> = ({ name, picture }) => {
         <Head>
           <title>{`${SITE_NAME} | Profile`}</title>
         </Head>
-        <Avatar name={name} picture={picture} />
-        <SkillMap data={skills} />
-        <ContainerBox />
+        <Figure style={{ width: '20vh' }} src={picture} />
+        <Text as="h3">{name}</Text>
+        <Text as="p">
+          1984年、青森県うまれ。
+          学生時代はカメラと遺伝生物学をこよなく愛していましたが、なぜかカメラメーカーのエンジニアとして社会にでました。
+          東日本大震災をきっかけに地元での暮らしを願うようになり、青森へ転職＆移住、現在はフルリモートワーカーとして自宅でエンジニアをしています。
+          ３人の息子と1人の嫁さんと暮らしている。もういちどいぬを飼いたい。
+        </Text>
       </Layout>
     </>
   )

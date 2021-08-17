@@ -1,7 +1,6 @@
 import React from 'react'
 import Head from 'next/head'
 
-import { ContainerBox } from '../components/ContainerBox'
 import Layout from '../components/layout'
 import { SITE_NAME } from '../lib/constants'
 import Hero from '../components/organisms/Hero'
@@ -14,7 +13,6 @@ const Index: React.FC = () => {
           <title>{`${SITE_NAME} | Home`}</title>
         </Head>
         <Hero />
-        <ContainerBox />
       </Layout>
     </>
   )
