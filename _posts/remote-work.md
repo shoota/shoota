@@ -2,9 +2,9 @@
 title: フルリモートワーカーになって半年ちょっと経ったのでまとめる
 excerpt: 'フルリモートワーカーになって変わったことや感じたことを垂れ流した。'
 coverImage:
-  url: '/assets/blog/keyboard.jpg'
-  provider: 'Ken Suarez'
-  providerUrl: https://unsplash.com/@kensuarez
+  url: '/assets/blog/challenge.jpg'
+  provider: 'Jukan Tateisi'
+  providerUrl: https://unsplash.com/@tateisimikito
 date: '2018-02-20'
 ogImage:
   url: '/assets/blog/keyboard.jpg'

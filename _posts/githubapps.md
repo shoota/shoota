@@ -2,9 +2,9 @@
 title: Github Appsはいいねぇ。
 excerpt: 'Github Appsを使いこなしたくなった'
 coverImage:
-  url: '/assets/blog/keyboard.jpg'
-  provider: 'Ken Suarez'
-  providerUrl: https://unsplash.com/@kensuarez
+  url: '/assets/blog/tools.jpg'
+  provider: 'Katie Rodriguez'
+  providerUrl: https://unsplash.com/@katertottz
 date: '2018-01-24'
 ogImage:
   url: '/assets/blog/keyboard.jpg'

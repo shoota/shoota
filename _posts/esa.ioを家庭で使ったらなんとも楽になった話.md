@@ -2,9 +2,9 @@
 title: esa.ioを家庭で使ったらなんとも楽になった話
 excerpt: 'タスク管理やドキュメント管理を家庭にも導入しよう'
 coverImage:
-  url: '/assets/blog/keyboard.jpg'
-  provider: 'Ken Suarez'
-  providerUrl: https://unsplash.com/@kensuarez
+  url: '/assets/blog/bird.jpg'
+  provider: 'Joshua J. Cotten'
+  providerUrl: https://unsplash.com/@jcotten
 date: '2015-10-26'
 ogImage:
   url: '/assets/blog/keyboard.jpg'

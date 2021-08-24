@@ -2,9 +2,7 @@
 title: iOSのopenURLでハマった
 excerpt: 'iOSアプリ、仕様の解釈がむずい。二度と作らねえ。'
 coverImage:
-  url: '/assets/blog/keyboard.jpg'
-  provider: 'Ken Suarez'
-  providerUrl: https://unsplash.com/@kensuarez
+  url: '/assets/blog/preview/cover.jpg'
 date: '2015-03-23'
 ogImage:
   url: '/assets/blog/keyboard.jpg'
