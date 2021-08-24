@@ -4,8 +4,9 @@ import PostType from '../types/post'
 
 import DateFormatter from './atoms/DateFormatter'
 import { AnimatorGeneralProvider } from '@arwes/animation'
-import { Button, Card, Text } from '@arwes/core'
+import { Button, Text } from '@arwes/core'
 import { useRouter } from 'next/router'
+import { PostCard } from './atoms/PostCard'
 
 type Props = {
   title: string
@@ -27,7 +28,7 @@ export const HeroPost: React.FC<Props> = ({
     <AnimatorGeneralProvider
       animator={{ duration: { enter: 200, exit: 200, stagger: 30 } }}
     >
-      <Card
+      <PostCard
         animator={{ activate: true }}
         image={{
           src: coverImage.url,
@@ -65,7 +66,7 @@ export const HeroPost: React.FC<Props> = ({
         >
           Photo by <a href={coverImage.providerUrl}>{coverImage.provider}</a>
         </Text>
-      </Card>
+      </PostCard>
     </AnimatorGeneralProvider>
   )
 }

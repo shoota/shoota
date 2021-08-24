@@ -2,9 +2,7 @@
 title: Java(Android)でHTTPSクライアント認証
 excerpt: 'Androidアプリで証明書によるクライアント認証をしたときのConnectionの作り方メモ'
 coverImage:
-  url: '/assets/blog/keyboard.jpg'
-  provider: 'Ken Suarez'
-  providerUrl: https://unsplash.com/@kensuarez
+  url: '/assets/blog/preview/cover.jpg'
 date: '2014-12-29'
 ogImage:
   url: '/assets/blog/keyboard.jpg'

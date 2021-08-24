@@ -2,9 +2,7 @@
 title: iOSでQRコードを読み取ってみる
 excerpt: 'QRコードを使ってオフラインでの情報移動がかんたんにできるなー、と思いついた。'
 coverImage:
-  url: '/assets/blog/keyboard.jpg'
-  provider: 'Ken Suarez'
-  providerUrl: https://unsplash.com/@kensuarez
+  url: '/assets/blog/preview/cover.jpg'
 date: '2015-03-20'
 ogImage:
   url: '/assets/blog/keyboard.jpg'

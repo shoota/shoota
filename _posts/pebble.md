@@ -2,9 +2,7 @@
 title: Pebble 寿司ゆき Watch Faceをリリースしました
 excerpt: '趣味でC言語を書いた。なにで書いても書いた物が動くのはとても楽しい。'
 coverImage:
-  url: '/assets/blog/keyboard.jpg'
-  provider: 'Ken Suarez'
-  providerUrl: https://unsplash.com/@kensuarez
+  url: '/assets/blog/preview/cover.jpg'
 date: '2015-10-09'
 ogImage:
   url: '/assets/blog/keyboard.jpg'

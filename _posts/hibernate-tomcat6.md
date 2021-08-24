@@ -2,9 +2,7 @@
 title: Hibernate ValidatorはTomcat6だと動かない
 excerpt: 'Tomcatのバージョンを急にさげることになったらドハマリしたときの供養'
 coverImage:
-  url: '/assets/blog/keyboard.jpg'
-  provider: 'Ken Suarez'
-  providerUrl: https://unsplash.com/@kensuarez
+  url: '/assets/blog/preview/cover.jpg'
 date: '2014-10-14'
 ogImage:
   url: '/assets/blog/keyboard.jpg'

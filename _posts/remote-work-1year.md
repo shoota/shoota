@@ -2,9 +2,9 @@
 title: フルリモートワーカーになって1年たった
 excerpt: '青森在住フルリモート１年の振り返りをしました。'
 coverImage:
-  url: '/assets/blog/keyboard.jpg'
-  provider: 'Ken Suarez'
-  providerUrl: https://unsplash.com/@kensuarez
+  url: '/assets/blog/remote-work.jpg'
+  provider: 'Chris Montgomery'
+  providerUrl: https://unsplash.com/@cwmonty
 date: '2018-07-11'
 ogImage:
   url: '/assets/blog/keyboard.jpg'

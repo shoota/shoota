@@ -4,8 +4,9 @@ import PostType from '../types/post'
 
 import DateFormatter from './atoms/DateFormatter'
 import { AnimatorGeneralProvider } from '@arwes/animation'
-import { Button, Card, Text } from '@arwes/core'
+import { Button, Text } from '@arwes/core'
 import { useRouter } from 'next/router'
+import { PostCard } from './atoms/PostCard'
 
 type Props = {
   title: string
@@ -27,7 +28,7 @@ export const PostPreview: React.FC<Props> = ({
     <AnimatorGeneralProvider
       animator={{ duration: { enter: 200, exit: 200, stagger: 30 } }}
     >
-      <Card
+      <PostCard
         animator={{ activate: true }}
         image={{
           src: coverImage.url,
@@ -52,20 +53,22 @@ export const PostPreview: React.FC<Props> = ({
         hover
       >
         <Text as="div">{excerpt}</Text>
-        <Text
-          as="p"
-          style={{
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            display: 'block',
-            opacity: 1,
-            fontSize: '12px',
-          }}
-        >
-          Photo by <a href={coverImage.providerUrl}>{coverImage.provider}</a>
-        </Text>
-      </Card>
+        {coverImage.provider && (
+          <Text
+            as="p"
+            style={{
+              position: 'absolute',
+              top: 0,
+              right: 0,
+              display: 'block',
+              opacity: 1,
+              fontSize: '12px',
+            }}
+          >
+            Photo by <a href={coverImage.providerUrl}>{coverImage.provider}</a>
+          </Text>
+        )}
+      </PostCard>
     </AnimatorGeneralProvider>
   )
 }

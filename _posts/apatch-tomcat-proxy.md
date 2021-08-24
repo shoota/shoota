@@ -2,9 +2,7 @@
 title: Apache-Tomcatのプロキシ設定を変更したらsessionがとれなくなった
 excerpt: 'リバースプロキシの設定をいじりながら開発を進めていたらハマったときの事故記録'
 coverImage:
-  url: '/assets/blog/keyboard.jpg'
-  provider: 'Ken Suarez'
-  providerUrl: https://unsplash.com/@kensuarez
+  url: '/assets/blog/preview/cover.jpg'
 date: '2014-09-22'
 ogImage:
   url: '/assets/blog/keyboard.jpg'

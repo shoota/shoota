@@ -2,9 +2,7 @@
 title: pplogのbotをつくりました
 excerpt: 'pplogすきよ'
 coverImage:
-  url: '/assets/blog/keyboard.jpg'
-  provider: 'Ken Suarez'
-  providerUrl: https://unsplash.com/@kensuarez
+  url: '/assets/blog/preview/cover.jpg'
 date: '2014-02-14'
 ogImage:
   url: '/assets/blog/keyboard.jpg'

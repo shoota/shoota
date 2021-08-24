@@ -2,9 +2,9 @@
 title: エンジニアリングとコミュニケーション
 excerpt: 'コードを書くだけのエンジニアはいらないなという話。またはエンジニアはコードしかかけないと思っている人達との話。'
 coverImage:
-  url: '/assets/blog/keyboard.jpg'
-  provider: 'Ken Suarez'
-  providerUrl: https://unsplash.com/@kensuarez
+  url: '/assets/blog/sing-boy.jpg'
+  provider: 'Jason Rosewell'
+  providerUrl: https://unsplash.com/@jasonrosewell
 date: '2018-12-26'
 ogImage:
   url: '/assets/blog/keyboard.jpg'
