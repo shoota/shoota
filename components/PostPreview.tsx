@@ -4,9 +4,8 @@ import PostType from '../types/post'
 
 import DateFormatter from './atoms/DateFormatter'
 import { AnimatorGeneralProvider } from '@arwes/animation'
-import { Button, Card, Text } from '@arwes/core'
+import { Button, Text } from '@arwes/core'
 import { useRouter } from 'next/router'
-import styled from '@emotion/styled'
 import { PostCard } from './atoms/PostCard'
 
 type Props = {
