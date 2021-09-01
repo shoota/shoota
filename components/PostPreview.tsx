@@ -1,11 +1,11 @@
 import React from 'react'
+import { AnimatorGeneralProvider } from '@arwes/animation'
+import { Button, Text } from '@arwes/core'
+import { useRouter } from 'next/router'
 
 import PostType from '../types/post'
 
 import DateFormatter from './atoms/DateFormatter'
-import { AnimatorGeneralProvider } from '@arwes/animation'
-import { Button, Text } from '@arwes/core'
-import { useRouter } from 'next/router'
 import { PostCard } from './atoms/PostCard'
 
 type Props = {
