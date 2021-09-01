@@ -1,9 +1,9 @@
 import React from 'react'
 import Head from 'next/head'
+import { Figure, Text } from '@arwes/core'
 
 import { SITE_NAME } from '../lib/constants'
 import Layout from '../components/layout'
-import { Figure, Text } from '@arwes/core'
 
 type Props = {
   name: string

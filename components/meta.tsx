@@ -34,10 +34,7 @@ const Meta: React.FC = () => {
       <meta name="msapplication-config" content="/favicon/browserconfig.xml" />
       <meta name="theme-color" content="#000" />
       <link rel="alternate" type="application/rss+xml" href="/feed.xml" />
-      <meta
-        name="description"
-        content={`shoota のポートフォリオとブログです`}
-      />
+      <meta name="description" content="shoota のポートフォリオとブログです" />
       <meta property="og:image" content={HOME_OG_IMAGE_URL} />
     </Head>
   )
