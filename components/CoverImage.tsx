@@ -12,7 +12,7 @@ type Props = {
 
 export const CoverImage: React.FC<Props> = ({ title, coverImage, slug }) => {
   return (
-    <Box mx={0}>
+    <Box mx={0} style={{ textAlign: 'center' }}>
       {slug ? (
         <Link as={`/posts/${slug}`} href="/posts/[slug]">
           <a aria-label={title} href={`/posts/${slug}`}>
@@ -20,9 +20,12 @@ export const CoverImage: React.FC<Props> = ({ title, coverImage, slug }) => {
           </a>
         </Link>
       ) : (
-        <Image src={coverImage.url} />
+        <Image
+          src={coverImage.url}
+          style={{ marginRight: 'auto', maxHeight: '50vh' }}
+        />
       )}
-      <Text sx={{ fontSize: [1], textAlign: 'right' }}>
+      <Text sx={{ fontSize: [1] }} px={7} style={{ textAlign: 'right' }}>
         Photo by{' '}
         <RebassLink href={coverImage.providerUrl}>
           {coverImage.provider}
