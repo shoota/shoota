@@ -148,4 +148,7 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+# mkcert
+localhost-key.pem
+localhost.pem
 
