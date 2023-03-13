@@ -5,7 +5,7 @@ coverImage:
   url: '/assets/blog/car.jpg'
   provider: 'Dietmar Becker'
   providerUrl: https://unsplash.com/@dietmarbecker
-date: '2023-03-12'
+date: '2023-03-13'
 ogImage:
   url: '/assets/blog/car.jpg'
 ---
