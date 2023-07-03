@@ -11,6 +11,7 @@ import { getPostBySlug, getAllPosts } from '../../lib/api'
 import { PostTitle } from '../../components/PostTitle'
 import markdownToHtml from '../../lib/markdownToHtml'
 import PostType from '../../types/post'
+import { SITE_NAME } from '../../lib/constants'
 
 type Props = {
   post: PostType
@@ -32,7 +33,9 @@ const Post: React.FC<Props> = ({ post }) => {
           <>
             <article>
               <Head>
-                <title>{post.title} | shoota.work</title>
+                <title>
+                  {post.title} | {SITE_NAME}
+                </title>
                 <meta property="og:image" content={post.ogImage.url} />
               </Head>
               <PostHeader
