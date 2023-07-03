@@ -3,7 +3,7 @@ import Head from 'next/head'
 
 import { HOME_OG_IMAGE_URL } from '../lib/constants'
 
-const Meta: React.FC = () => {
+const Meta: React.FC<{ ogImage?: string }> = ({ ogImage }) => {
   return (
     <Head>
       <link
@@ -35,7 +35,7 @@ const Meta: React.FC = () => {
       <meta name="theme-color" content="#000" />
       <link rel="alternate" type="application/rss+xml" href="/feed.xml" />
       <meta name="description" content="shoota のポートフォリオとブログです" />
-      <meta property="og:image" content={HOME_OG_IMAGE_URL} />
+      <meta property="og:image" content={ogImage || HOME_OG_IMAGE_URL} />
     </Head>
   )
 }

@@ -6,13 +6,14 @@ import Meta from './meta'
 import { NavBar } from './molecules/Navbar'
 
 type Props = {
+  ogImage?: string
   children: React.ReactNode
 }
 
-const Layout: React.FC<Props> = ({ children }) => {
+const Layout: React.FC<Props> = ({ ogImage, children }) => {
   return (
     <>
-      <Meta />
+      <Meta ogImage={ogImage} />
       <div style={{ margin: '0 auto', width: '90vw' }}>
         <NavBar />
         <Box my={4}>{children}</Box>
