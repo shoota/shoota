@@ -14,7 +14,7 @@ const Layout: React.FC<Props> = ({ ogImage, children }) => {
   return (
     <>
       <Meta ogImage={ogImage} />
-      <div style={{ margin: '0 auto', width: '90vw' }}>
+      <div style={{ margin: '0 auto', width: '90vw', maxWidth: '1400px' }}>
         <NavBar />
         <Box my={4}>{children}</Box>
       </div>

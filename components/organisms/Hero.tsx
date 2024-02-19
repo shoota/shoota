@@ -12,16 +12,21 @@ const StyledFigure = styled(Figure)`
   }
 `
 
+const DescriptionWrapper = styled.div`
+  margin-top: 44px;
+  text-align: center;
+`
+
 const Hero: React.FC = () => {
   return (
     <AnimatorGeneralProvider animator={{ duration: { enter: 600, exit: 200 } }}>
       <Animator animator={{ activate: true, manager: 'stagger' }}>
         <StyledFigure src="/assets/img/cover.jpg">
-          人間は完全に整っているものと、どこかが欠けているものが同時に視界に入ったとき、欠けているも方に注目してしまう。
+          意識は、欠けている部分を見たがる
         </StyledFigure>
-        <Text as="h3">Skills, Works and Philosophy</Text>
-        <Text as="p">{/* TODO */}</Text>
-        <Text as="p">{/* TODO */}</Text>
+        <DescriptionWrapper>
+          <Text as="h3">Web Frontend Developer</Text>
+        </DescriptionWrapper>
       </Animator>
     </AnimatorGeneralProvider>
   )
