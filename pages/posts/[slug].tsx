@@ -15,8 +15,6 @@ import { SITE_NAME } from '../../lib/constants'
 
 type Props = {
   post: PostType
-  morePosts: PostType[]
-  preview?: boolean
 }
 
 const Post: React.FC<Props> = ({ post }) => {
@@ -30,22 +28,20 @@ const Post: React.FC<Props> = ({ post }) => {
         {router.isFallback ? (
           <PostTitle>Loading…</PostTitle>
         ) : (
-          <>
-            <article>
-              <Head>
-                <title>
-                  {post.title} | {SITE_NAME}
-                </title>
-                <meta property="og:image" content={post.ogImage.url} />
-              </Head>
-              <PostHeader
-                title={post.title}
-                coverImage={post.coverImage}
-                date={post.date}
-              />
-              <PostBody content={post.content} />
-            </article>
-          </>
+          <article>
+            <Head>
+              <title>
+                {post.title} | {SITE_NAME}
+              </title>
+              <meta property="og:image" content={post.ogImage.url} />
+            </Head>
+            <PostHeader
+              title={post.title}
+              coverImage={post.coverImage}
+              date={post.date}
+            />
+            <PostBody content={post.content} />
+          </article>
         )}
       </ContainerBox>
     </Layout>

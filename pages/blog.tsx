@@ -12,29 +12,27 @@ type Props = {
   allPosts: Post[]
 }
 
-const Index = ({ allPosts }: Props) => {
+function Index({ allPosts }: Props) {
   const heroPost = allPosts[0]
   const morePosts = allPosts.slice(1)
   return (
-    <>
-      <Layout>
-        <Head>
-          <title>Blog</title>
-        </Head>
-        <ContainerBox>
-          {heroPost && (
-            <HeroPost
-              title={heroPost.title}
-              coverImage={heroPost.coverImage}
-              date={heroPost.date}
-              slug={heroPost.slug}
-              excerpt={heroPost.excerpt}
-            />
-          )}
-          {morePosts.length > 0 && <MoreStories posts={morePosts} />}
-        </ContainerBox>
-      </Layout>
-    </>
+    <Layout>
+      <Head>
+        <title>Blog</title>
+      </Head>
+      <ContainerBox>
+        {heroPost && (
+          <HeroPost
+            title={heroPost.title}
+            coverImage={heroPost.coverImage}
+            date={heroPost.date}
+            slug={heroPost.slug}
+            excerpt={heroPost.excerpt}
+          />
+        )}
+        {morePosts.length > 0 && <MoreStories posts={morePosts} />}
+      </ContainerBox>
+    </Layout>
   )
 }
 
