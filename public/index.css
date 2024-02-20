@@ -1,0 +1,14 @@
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+/* table {
+  max-width: 480px;
+} */
+
+tr > th {
+  width: 0;
+  white-space: nowrap;
+}
