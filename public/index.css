@@ -4,11 +4,13 @@ body {
   margin: 0;
 }
 
-/* table {
-  max-width: 480px;
-} */
+table {
+  margin-left: 24px;
+  width: 100px !important;
+}
 
-tr > th {
-  width: 0;
+th,
+td {
+  min-width: 240px;
   white-space: nowrap;
 }
