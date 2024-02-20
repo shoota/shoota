@@ -1,6 +1,7 @@
 import React from 'react'
 import { AppProps } from 'next/app'
 import { ArwesThemeProvider, StylesBaseline } from '@arwes/core'
+import '../public/index.css'
 
 /*
   supress SSR warning
