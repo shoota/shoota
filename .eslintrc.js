@@ -5,6 +5,7 @@ module.exports = {
   },
   extends: [
     'airbnb-typescript',
+    'airbnb',
     'airbnb/hooks',
     'plugin:@typescript-eslint/eslint-recommended',
     'plugin:@typescript-eslint/recommended',
@@ -19,6 +20,7 @@ module.exports = {
   rules: {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
+    '@typescript-eslint/no-misused-promises': 'off',
     '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
     '@typescript-eslint/no-unused-vars': [
       'error',
@@ -50,6 +52,8 @@ module.exports = {
     'react/jsx-key': ['error', { checkFragmentShorthand: true }],
     'react/jsx-props-no-spreading': 0,
     'react/prop-types': 0,
+    'react/function-component-definition': 0,
+    'react/require-default-props': 0,
   },
   settings: {
     'import/resolver': {

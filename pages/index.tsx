@@ -7,14 +7,12 @@ import Hero from '../components/organisms/Hero'
 
 const Index: React.FC = () => {
   return (
-    <>
-      <Layout>
-        <Head>
-          <title>{`${SITE_NAME} | Home`}</title>
-        </Head>
-        <Hero />
-      </Layout>
-    </>
+    <Layout>
+      <Head>
+        <title>{`${SITE_NAME} | Home`}</title>
+      </Head>
+      <Hero />
+    </Layout>
   )
 }
 
