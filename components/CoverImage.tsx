@@ -31,7 +31,7 @@ export const CoverImage: React.FC<Props> = ({ title, coverImage, slug }) => {
           style={{ marginRight: 'auto', maxHeight: '40vh' }}
         />
       )}
-      <Text sx={{ fontSize: [1] }} px={7} style={{ textAlign: 'right' }}>
+      <Text sx={{ fontSize: [1] }} style={{ textAlign: 'right' }}>
         Photo by{' '}
         <RebassLink href={coverImage.providerUrl}>
           {coverImage.provider}
