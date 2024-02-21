@@ -5,7 +5,7 @@ import { HOME_OG_IMAGE_URL } from '../lib/constants'
 
 const Meta: React.FC<{ ogImage?: string }> = ({ ogImage }) => {
   const ogImageContent = ogImage
-    ? `https://shoota.work/${ogImage}`
+    ? `https://shoota.work${ogImage}`
     : HOME_OG_IMAGE_URL
 
   return (
