@@ -4,6 +4,7 @@ import Head from 'next/head'
 import { HOME_OG_IMAGE_URL } from '../lib/constants'
 
 const Meta: React.FC<{ ogImage?: string }> = ({ ogImage }) => {
+  const ogImageContent = `https://shoota.work/${ogImage || HOME_OG_IMAGE_URL}`
   return (
     <Head>
       <link
@@ -34,8 +35,13 @@ const Meta: React.FC<{ ogImage?: string }> = ({ ogImage }) => {
       <meta name="msapplication-config" content="/favicon/browserconfig.xml" />
       <meta name="theme-color" content="#000" />
       <link rel="alternate" type="application/rss+xml" href="/feed.xml" />
-      <meta name="description" content="shoota のポートフォリオとブログです" />
-      <meta property="og:image" content={ogImage || HOME_OG_IMAGE_URL} />
+      <meta name="description" content="@shootaのブログ" />
+      {/* OGP */}
+      <meta property="og:site_name" content="holoApp" />
+      <meta property="og:image" content={ogImageContent} />
+      <meta name="twitter:image" content={ogImageContent} />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:description" content="@shootaのブログ" />
     </Head>
   )
 }

@@ -33,7 +33,6 @@ const Post: React.FC<Props> = ({ post }) => {
               <title>
                 {post.title} | {SITE_NAME}
               </title>
-              <meta property="og:image" content={post.ogImage.url} />
             </Head>
             <PostHeader
               title={post.title}
