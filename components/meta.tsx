@@ -4,7 +4,10 @@ import Head from 'next/head'
 import { HOME_OG_IMAGE_URL } from '../lib/constants'
 
 const Meta: React.FC<{ ogImage?: string }> = ({ ogImage }) => {
-  const ogImageContent = `https://shoota.work/${ogImage || HOME_OG_IMAGE_URL}`
+  const ogImageContent = ogImage
+    ? `https://shoota.work/${ogImage}`
+    : HOME_OG_IMAGE_URL
+
   return (
     <Head>
       <link
