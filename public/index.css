@@ -14,7 +14,7 @@ th,
 td {
   min-width: 148px;
 }
-
 code {
   text-wrap: balance;
+  white-space: pre-wrap;
 }
