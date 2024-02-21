@@ -7,10 +7,10 @@ body {
 table {
   margin-left: 24px;
   width: 100px !important;
+  overflow-x: scroll;
 }
 
 th,
 td {
-  min-width: 240px;
-  white-space: nowrap;
+  min-width: 148px;
 }
