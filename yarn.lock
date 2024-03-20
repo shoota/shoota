@@ -580,10 +580,10 @@
   resolved "https://registry.yarnpkg.com/@pkgr/core/-/core-0.1.1.tgz#1ec17e2edbec25c8306d424ecfbf13c7de1aaa31"
   integrity sha512-cq8o4cWH0ibXh9VGi5P20Tu9XF/0fFXl9EUinr9QfTM7a7p0oTA4iJRCQWppXR1Pg8dSM0UCItCkPwsk9qWWYA==
 
-"@shikijs/core@1.1.6":
-  version "1.1.6"
-  resolved "https://registry.yarnpkg.com/@shikijs/core/-/core-1.1.6.tgz#a30e0bd836d04ec6cc1736d35b08de5e7000c241"
-  integrity sha512-kt9hhvrWTm0EPtRDIsoAZnSsFlIDBVBBI5CQewpA/NZCPin+MOKRXg+JiWc4y+8fZ/v0HzfDhu/UC+OTZGMt7A==
+"@shikijs/core@1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@shikijs/core/-/core-1.2.0.tgz#c19d1a4d4807d31aa02e9d822aa13da873e6f2e7"
+  integrity sha512-OlFvx+nyr5C8zpcMBnSGir0YPD6K11uYhouqhNmm1qLiis4GA7SsGtu07r9gKS9omks8RtQqHrJL4S+lqWK01A==
 
 "@styled-system/background@^5.1.2":
   version "5.1.2"
@@ -3884,11 +3884,11 @@ shebang-regex@^3.0.0:
   integrity sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==
 
 shiki@^1.1.6:
-  version "1.1.6"
-  resolved "https://registry.yarnpkg.com/shiki/-/shiki-1.1.6.tgz#cbe38edfc6d5fbe208b9fca25af8aefef7a24c73"
-  integrity sha512-j4pcpvaQWHb42cHeV+W6P+X/VcK7Y2ctvEham6zB8wsuRQroT6cEMIkiUmBU2Nqg2qnHZDH6ZyRdVldcy0l6xw==
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/shiki/-/shiki-1.2.0.tgz#7f1b6917cbb10daa1ac3ae62fa29b40c494e2812"
+  integrity sha512-xLhiTMOIUXCv5DqJ4I70GgQCtdlzsTqFLZWcMHHG3TAieBUbvEGthdrlPDlX4mL/Wszx9C6rEcxU6kMlg4YlxA==
   dependencies:
-    "@shikijs/core" "1.1.6"
+    "@shikijs/core" "1.2.0"
 
 side-channel@^1.0.4:
   version "1.0.4"
