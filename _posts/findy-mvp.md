@@ -33,6 +33,8 @@ Fine-dayの詳しい様子は以下の会社ブログにまとめられていま
 少しだけ残念な気持ちになり、心ここにあらず、その後の会食メニューのことを考えていたのですが、最優秀賞であるMVPの発表で自分の写真が **バーーーンッッ** とスクリーンに映し出された瞬間に「オロロロロ...」となるばかりでした。
 「さすがエンジニアのためのプロダクトを作る会社、パフォーマンスが高ければMVPとれるのか！」などと思っていました。
 
+<blockquote class="twitter-tweet"><p lang="ja" dir="ltr">昨日は弊社Findyの2023下期の慰労会的なもの（Fine-day）に参加したのですが、MVPを受賞してしまいました...。全社員の中で「最もValueを体現した」と表彰いただき感無量です。<br>エンジニアがMVPを受賞するのは2度目らしいのですが、1度目の方がレジェンド過ぎて畏れ多い。今年も自分らしく行こう。 <a href="https://t.co/2dQnpYDk8E">pic.twitter.com/2dQnpYDk8E</a></p>&mdash; shoota (@shoota) <a href="https://twitter.com/shoota/status/1755910111212740769?ref_src=twsrc%5Etfw">February 9, 2024</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
 ### が、果たして本当にそうなのか。
 
 自分がやってきたことをもう少し客観的にみて、なにが役に立ったのか？を見つめておこうと思います。
