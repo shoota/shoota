@@ -24,6 +24,9 @@ export default function MyApp({ Component, pageProps }: AppProps) {
             textShadow: '0 0 2px #00f8f8',
             textTransform: 'none',
           },
+          h4: {
+            fontSize: '1.25rem',
+          },
         }}
       />
       <Component {...pageProps} />
