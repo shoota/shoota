@@ -40,8 +40,13 @@ const Meta: React.FC<{ ogImage?: string }> = ({ ogImage }) => {
       <link rel="alternate" type="application/rss+xml" href="/feed.xml" />
       <meta name="description" content="@shootaのブログ" />
       {/* OGP */}
-      <meta property="og:site_name" content="holoApp" />
+      <meta property="og:type" content="website" />
+      <meta property="og:url" content="https://shoota.work" />
+      <meta property="og:site_name" content="shoota works" />
+      <meta property="og:title" content="shoota works" />
       <meta property="og:image" content={ogImageContent} />
+      <meta name="twitter:title" content="shoota works" />
+      <meta name="twitter:text:title" content="shoota works" />
       <meta name="twitter:image" content={ogImageContent} />
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:description" content="@shootaのブログ" />
