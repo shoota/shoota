@@ -9,5 +9,15 @@ export const PostCard = styled(Card)`
     // element style has "opacity 1" statically
     opacity: 0.8 !important;
     filter: grayscale(1);
+    transition: opacity 0.6s;
+  }
+  :hover {
+    .arwes-card__image {
+      opacity: 1 !important;
+      filter: grayscale(0.4);
+      transition:
+        opacity 1.2s,
+        filter 1s 0.4s;
+    }
   }
 `
