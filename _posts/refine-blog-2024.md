@@ -20,7 +20,7 @@ ogImage:
 ブログを構築したのは2020年7月なので4年弱くらい前。
 
 当初の目的としては「Next.jsのSSGでいい感じのデザインシステムを使いながらブログを書く」だったので、PCくらいの画面幅で適当に始めて満足していた。
-だがブログを書いたらTwitter(現状はXだけどTwitterって表記する)でつぶやいたりしているのでせめてiPhoneサイズくらいではちゃんと表示されるようと思った。
+だがブログを書いたらTwitter(現状はXだけどTwitterって表記する)でつぶやいたりしているのでせめてiPhoneサイズくらいではちゃんと表示されるようにしようと思った。
 
 だいたいがFlex boxを当ててまわったり折り返し設定周りをCSSでいじるだけだったが、そこそこ数が多かった。
 
@@ -34,8 +34,8 @@ ogImage:
 [remarkjs](https://github.com/remarkjs)と[rehypejs](https://github.com/rehypejs)のストリームをガチョンとつなげて、markdownパースとhtmlパースの解釈をいい感じなるようにした。拡張できたのは以下。
 
 - GFM サポート: remark-gfm
-- 改行brタグに変換: remark-breaks
-- HTMLをmarkdownに直接: rehypeRaw
+- 改行をbrタグに変換: remark-breaks
+- HTMLをmarkdownに直接書けるように: rehypeRaw
 - Syntax Highlight + カラースキーマに導入: rehype-pretty-code
 
 現状のコードは[こんな感じ](https://github.com/shoota/shoota/blob/master/lib/markdownToHtml.ts)になっている。
@@ -51,8 +51,8 @@ GFMサポートで嬉しかったのはTable表現ができるようになった
 
 ## 被リンク（SNS）対策
 
-`og:image`の設定くらいは最低限しとこう、と思っていたが、や `og:title`などは結構適当にしていたので、この辺も改善した。
-特にTwitterのOGPは旧来のタグでは動かなくなっていて、Twitterでブログを書いたよ、とポストしても画像がでなくなっていてとても悲しかった。
+`og:image`の設定くらいは最低限しとこう、と思っていたが、`og:title`などはかなり適当にしていたので、この辺も改善した。
+特にTwitterのOGPは旧来のタグでは動かなくなっていて、Twitterでブログを書いたよ、とポストしてもOGP画像がでなくなっていてとても悲しかった。
 
 OGPの確認は[このサイト](https://ogp.buta3.net/)でやるとわかりやすかった。
 ただTwitter用OGPは上に書いた古い仕様のままのようで、このサイトでは表示できていてもTwitterではうまく表示されなかったので、Twitter用のOGPチェックを[このチェッカー](https://cards-dev.twitter.com/validator)を使ってやった。
