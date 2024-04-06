@@ -3,10 +3,15 @@ import Head from 'next/head'
 
 import { HOME_OG_IMAGE_URL } from '../lib/constants'
 
-const Meta: React.FC<{ ogImage?: string }> = ({ ogImage }) => {
+const Meta: React.FC<{ ogImage?: string; ogTitle?: string }> = ({
+  ogTitle,
+  ogImage,
+}) => {
   const ogImageContent = ogImage
     ? `https://shoota.work${ogImage}`
     : HOME_OG_IMAGE_URL
+
+  const ogTitleContent = ogTitle || 'shoota works'
 
   return (
     <Head>
@@ -40,13 +45,13 @@ const Meta: React.FC<{ ogImage?: string }> = ({ ogImage }) => {
       <link rel="alternate" type="application/rss+xml" href="/feed.xml" />
       <meta name="description" content="@shootaのブログ" />
       {/* OGP */}
-      <meta property="og:type" content="website" />
+      <meta property="og:type" content="article" />
       <meta property="og:url" content="https://shoota.work" />
       <meta property="og:site_name" content="shoota works" />
-      <meta property="og:title" content="shoota works" />
+      <meta property="og:title" content={ogTitleContent} />
       <meta property="og:image" content={ogImageContent} />
-      <meta name="twitter:title" content="shoota works" />
-      <meta name="twitter:text:title" content="shoota works" />
+      <meta name="twitter:title" content={ogTitleContent} />
+      <meta name="twitter:text:title" content={ogTitleContent} />
       <meta name="twitter:image" content={ogImageContent} />
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:description" content="@shootaのブログ" />
