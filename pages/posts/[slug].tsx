@@ -23,7 +23,7 @@ const Post: React.FC<Props> = ({ post }) => {
     return <ErrorPage statusCode={404} />
   }
   return (
-    <Layout ogImage={post.ogImage.url}>
+    <Layout ogImage={post.ogImage.url} ogTitle={post.title}>
       <ContainerBox>
         {router.isFallback ? (
           <PostTitle>Loading…</PostTitle>
