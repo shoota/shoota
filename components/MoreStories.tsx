@@ -1,5 +1,5 @@
 import React from 'react'
-import { Heading, Box, Flex } from 'rebass'
+import { Box, Flex } from 'rebass'
 
 import Post from '../types/post'
 
@@ -12,16 +12,13 @@ type Props = {
 export const MoreStories: React.FC<Props> = ({ posts }) => {
   return (
     <section>
-      <Heading mb={2} fontSize={[2, 2, 4]}>
-        More Articles
-      </Heading>
       <Flex>
         <Box
           sx={{
             display: 'grid',
             gridGap: 12,
             gridTemplateColumns: ['1fr', '1fr', '1fr', '1fr 1fr'],
-            margin: 'auto ',
+            margin: 'auto',
           }}
         >
           {posts.map((post) => (
