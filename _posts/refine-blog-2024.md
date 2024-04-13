@@ -3,7 +3,7 @@ title: ブログをちょっとずつ良くしている
 excerpt: '最近よく見てもらえているようなのでブログを直したりしています。'
 coverImage:
   url: '/assets/blog/renovation.jpg'
-  provider: 'Chris Montgomery'
+  provider: 'Karl Solano'
   providerUrl: https://unsplash.com/ja/@karlsolano
 date: '2024-04-07'
 ogImage:
