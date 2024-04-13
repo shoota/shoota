@@ -26,7 +26,9 @@ export const PostPreview: React.FC<Props> = ({
   const router = useRouter()
   return (
     <AnimatorGeneralProvider
-      animator={{ duration: { enter: 200, exit: 200, stagger: 30 } }}
+      animator={{
+        duration: { enter: 200, exit: 200, stagger: 40, delay: 200 },
+      }}
     >
       <PostCard
         animator={{ activate: true }}
@@ -49,7 +51,6 @@ export const PostPreview: React.FC<Props> = ({
             <Text>この記事を見る</Text>
           </Button>
         }
-        landscape
         hover
       >
         <Text as="div">{excerpt}</Text>
@@ -58,14 +59,19 @@ export const PostPreview: React.FC<Props> = ({
             as="p"
             style={{
               position: 'absolute',
-              top: 0,
-              right: 0,
+              top: '-18px',
+              right: '0px',
               display: 'block',
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              padding: '2px 4px',
               opacity: 1,
               fontSize: '12px',
             }}
           >
-            Photo by <a href={coverImage.providerUrl}>{coverImage.provider}</a>
+            Photo by{' '}
+            <a target="_blank" href={coverImage.providerUrl} rel="noreferrer">
+              {coverImage.provider}
+            </a>
           </Text>
         )}
       </PostCard>

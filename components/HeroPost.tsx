@@ -53,14 +53,19 @@ export const HeroPost: React.FC<Props> = ({
             as="p"
             style={{
               position: 'absolute',
-              top: '-1.2em',
-              right: '4px',
+              top: '-18px',
+              right: '0px',
               display: 'block',
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              padding: '2px 4px',
               opacity: 1,
               fontSize: '12px',
             }}
           >
-            Photo by <a href={coverImage.providerUrl}>{coverImage.provider}</a>
+            Photo by{' '}
+            <a href={coverImage.providerUrl} target="_blank" rel="noreferrer">
+              {coverImage.provider}
+            </a>
           </Text>
         </PostCard>
       </div>
