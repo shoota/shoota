@@ -1,7 +1,6 @@
-import { Card } from '@arwes/core'
 import styled from '@emotion/styled'
 
-export const PostCard = styled(Card)`
+export const PostCard = styled.div`
   .arwes-card__picture {
     background-color: #05c6c1;
   }

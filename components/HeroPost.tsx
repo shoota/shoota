@@ -1,6 +1,4 @@
 import React from 'react'
-import { AnimatorGeneralProvider } from '@arwes/animation'
-import { Text } from '@arwes/core'
 import { useRouter } from 'next/router'
 
 import PostType from '../types/post'
@@ -25,9 +23,7 @@ export const HeroPost: React.FC<Props> = ({
 }) => {
   const router = useRouter()
   return (
-    <AnimatorGeneralProvider
-      animator={{ duration: { enter: 200, exit: 200, stagger: 30 } }}
-    >
+    <>
       {/* eslint-disable-next-line */}
       <div
         onClick={() => router.push(`/posts/${slug}`)}
@@ -41,16 +37,15 @@ export const HeroPost: React.FC<Props> = ({
           title={
             <>
               {title}
-              <Text as="p" style={{ display: 'block', fontSize: '12px' }}>
+              <p style={{ display: 'block', fontSize: '12px' }}>
                 <DateFormatter dateString={date} />
-              </Text>
+              </p>
             </>
           }
           style={{ paddingBottom: '48px' }}
         >
-          <Text as="div">{excerpt}</Text>
-          <Text
-            as="p"
+          <div>{excerpt}</div>
+          <p
             style={{
               position: 'absolute',
               top: '-18px',
@@ -66,9 +61,9 @@ export const HeroPost: React.FC<Props> = ({
             <a href={coverImage.providerUrl} target="_blank" rel="noreferrer">
               {coverImage.provider}
             </a>
-          </Text>
+          </p>
         </PostCard>
       </div>
-    </AnimatorGeneralProvider>
+    </>
   )
 }

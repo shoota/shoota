@@ -7,26 +7,6 @@
   resolved "https://registry.yarnpkg.com/@aashutoshrathi/word-wrap/-/word-wrap-1.2.6.tgz#bd9154aec9983f77b3a034ecaa015c2e4201f6cf"
   integrity sha512-1Yjs2SvM8TflER/OD3cOjhWWOZb58A2t7wpE2S9XfBYTiIl+XFhQG2bjy4Pu1I+EAlCNUzRDYDdFwFYUKvXcIA==
 
-"@arwes/animation@1.0.0-alpha.19":
-  version "1.0.0-alpha.19"
-  resolved "https://registry.yarnpkg.com/@arwes/animation/-/animation-1.0.0-alpha.19.tgz#cb5c915e13971eb9630b13b020b4a8a6ea6ab18a"
-  integrity sha512-Sstj816JbAhoH6cy1nLb8sQ5L4AbgdeXbFhjWNj8ZODAYA+dS/CjfY30CoAwIKIg04lAOiVOJkB20fXFcigqlQ==
-
-"@arwes/core@1.0.0-alpha.19":
-  version "1.0.0-alpha.19"
-  resolved "https://registry.yarnpkg.com/@arwes/core/-/core-1.0.0-alpha.19.tgz#be7516d80fb934132ac1be2f6dde16b6e24b3862"
-  integrity sha512-gDLzxV/KWZKcoKNM1XFZBo3nr02aRODVpMXq57ylZcbkGN3U7fNq2ZdBT0ZrQHmU6SKPf1TTNZXSrMn3b6jiSg==
-
-"@arwes/design@1.0.0-alpha.19":
-  version "1.0.0-alpha.19"
-  resolved "https://registry.yarnpkg.com/@arwes/design/-/design-1.0.0-alpha.19.tgz#e8fe56c57277b74b10e54b16a97fea5132e01a8f"
-  integrity sha512-HVRgrGmcaDZ52UJFYZY3enQZcRThLIjDivFzPNo6h0LC4De8wxnbvGJJgL6B+qPJcb3FJvIJ6xaAp1Qd46itiQ==
-
-"@arwes/sounds@1.0.0-alpha.19":
-  version "1.0.0-alpha.19"
-  resolved "https://registry.yarnpkg.com/@arwes/sounds/-/sounds-1.0.0-alpha.19.tgz#329ac8d93eb66093bebb0d857a70623d800e012d"
-  integrity sha512-DtTR+jD9K0CVtx/75iuvVB5DuVo9Ao/QZqZxV9mMpOaPNZJI9HoI+E6mysjIMLTjORRLbPqzmwpqEgI9qOZUJg==
-
 "@babel/code-frame@^7.0.0":
   version "7.14.5"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.14.5.tgz#23b08d740e83f49c5e59945fbf1b43e80bbf4edb"

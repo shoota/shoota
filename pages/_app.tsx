@@ -1,6 +1,5 @@
 import React from 'react'
 import { AppProps } from 'next/app'
-import { ArwesThemeProvider, StylesBaseline } from '@arwes/core'
 import '../public/index.css'
 
 /*
@@ -13,23 +12,5 @@ import '../public/index.css'
 React.useLayoutEffect = React.useEffect
 
 export default function MyApp({ Component, pageProps }: AppProps) {
-  return (
-    <ArwesThemeProvider>
-      <StylesBaseline
-        styles={{
-          'h1,h2,h3,h4,h5,h6': {
-            fontWeight: 'bold',
-            color: '#00f8f8',
-            letterSpacing: '0.5px',
-            textShadow: '0 0 2px #00f8f8',
-            textTransform: 'none',
-          },
-          h4: {
-            fontSize: '1.25rem',
-          },
-        }}
-      />
-      <Component {...pageProps} />
-    </ArwesThemeProvider>
-  )
+  return <Component {...pageProps} />
 }
