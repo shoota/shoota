@@ -6,12 +6,13 @@ import Head from 'next/head'
 import { ContainerBox } from '../../components/ContainerBox'
 import PostBody from '../../components/PostBody'
 import PostHeader from '../../components/PostHeader'
-import Layout from '../../components/layout'
+import { AppLayout } from '../../components/AppLayout'
 import { getPostBySlug, getAllPosts } from '../../lib/api'
 import { PostTitle } from '../../components/PostTitle'
 import markdownToHtml from '../../lib/markdownToHtml'
 import PostType from '../../types/post'
 import { SITE_NAME } from '../../lib/constants'
+import styled from '@emotion/styled'
 
 type Props = {
   post: PostType
@@ -23,27 +24,29 @@ const Post: React.FC<Props> = ({ post }) => {
     return <ErrorPage statusCode={404} />
   }
   return (
-    <Layout ogImage={post.ogImage.url} ogTitle={post.title}>
+    <AppLayout ogImage={post.ogImage.url} ogTitle={post.title}>
       <ContainerBox>
         {router.isFallback ? (
           <PostTitle>Loading…</PostTitle>
         ) : (
-          <article>
+          <>
             <Head>
               <title>
                 {post.title} | {SITE_NAME}
               </title>
             </Head>
-            <PostHeader
-              title={post.title}
-              coverImage={post.coverImage}
-              date={post.date}
-            />
-            <PostBody content={post.content} />
-          </article>
+            <article>
+              <PostHeader
+                title={post.title}
+                coverImage={post.coverImage}
+                date={post.date}
+              />
+              <PostBody content={post.content} />
+            </article>
+          </>
         )}
       </ContainerBox>
-    </Layout>
+    </AppLayout>
   )
 }
 
@@ -76,7 +79,6 @@ export async function getStaticProps({ params }: Params) {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/require-await
 export async function getStaticPaths() {
   const posts = getAllPosts(['slug'])
   return {

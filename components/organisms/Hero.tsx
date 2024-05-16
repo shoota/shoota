@@ -1,5 +1,4 @@
-import React from 'react'
-import styled from '@emotion/styled'
+import React from "react";
 
 // const StyledFigure = styled(Figure)`
 //   .arwes-figure__asset {
@@ -27,7 +26,7 @@ const Hero: React.FC = () => {
     //     </DescriptionWrapper>
     //   </Animator>
     // </AnimatorGeneralProvider>
-  )
-}
+  );
+};
 
-export default Hero
+export default Hero;

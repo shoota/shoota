@@ -1,10 +1,8 @@
-import React from 'react'
-import { Box } from 'rebass'
+import styled from "@emotion/styled";
 
-export const ContainerBox: React.FC = ({ children }) => {
-  return (
-    <Box mx="auto" maxWidth={['1280px']} px={1} sx={{ width: '100%' }}>
-      {children}
-    </Box>
-  )
-}
+export const ContainerBox = styled.div`
+  margin: 0 auto;
+  max-width: 1280px;
+  padding: 0 1rem;
+  width: 100%;
+`;

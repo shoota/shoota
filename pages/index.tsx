@@ -1,26 +1,26 @@
-import React from 'react'
-import Head from 'next/head'
+import React from "react";
+import Head from "next/head";
 
-import Layout from '../components/layout'
-import { SITE_NAME } from '../lib/constants'
-import Hero from '../components/organisms/Hero'
+import { AppLayout } from "../components/AppLayout";
+import { SITE_NAME } from "../lib/constants";
+import Hero from "../components/organisms/Hero";
 
 const Index: React.FC = () => {
   return (
-    <Layout>
+    <AppLayout>
       <Head>
         <title>{`${SITE_NAME} | Home`}</title>
       </Head>
       <Hero />
-    </Layout>
-  )
-}
+    </AppLayout>
+  );
+};
 
-export default Index
+export default Index;
 
 // eslint-disable-next-line @typescript-eslint/require-await
 export const getStaticProps = async () => {
   return {
     props: {},
-  }
-}
+  };
+};

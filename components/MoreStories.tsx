@@ -1,26 +1,19 @@
-import React from 'react'
-import { Box, Flex } from 'rebass'
+import React from "react";
 
-import Post from '../types/post'
+import Post from "../types/post";
 
-import { PostPreview } from './PostPreview'
+import { PostPreview } from "./PostPreview";
+import styled from "@emotion/styled";
 
 type Props = {
-  posts: Post[]
-}
+  posts: Post[];
+};
 
 export const MoreStories: React.FC<Props> = ({ posts }) => {
   return (
     <section>
       <Flex>
-        <Box
-          sx={{
-            display: 'grid',
-            gridGap: 12,
-            gridTemplateColumns: ['1fr', '1fr', '1fr', '1fr 1fr'],
-            margin: 'auto',
-          }}
-        >
+        <Box>
           {posts.map((post) => (
             <PostPreview
               key={post.slug}
@@ -34,5 +27,34 @@ export const MoreStories: React.FC<Props> = ({ posts }) => {
         </Box>
       </Flex>
     </section>
-  )
-}
+  );
+};
+
+const Flex = styled.div`
+  box-sizing: border-box;
+  margin: 0;
+  min-width: 0;
+  display: flex;
+`;
+
+const Box = styled.div`
+  box-sizing: border-box;
+  margin: 0;
+  min-width: 0;
+  display: grid;
+  grid-gap: 12px;
+  grid-template-columns: 1fr;
+  margin: auto;
+
+  @media screen and (min-width: 64em) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media screen and (min-width: 52em) {
+    grid-template-columns: 1fr;
+  }
+
+  @media screen and (min-width: 40em) {
+    grid-template-columns: 1fr;
+  }
+`;

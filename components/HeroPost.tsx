@@ -1,69 +1,41 @@
-import React from 'react'
-import { useRouter } from 'next/router'
+import React from "react";
+import { useRouter } from "next/router";
 
-import PostType from '../types/post'
-
-import DateFormatter from './atoms/DateFormatter'
-import { PostCard } from './atoms/PostCard'
+import PostType from "../types/post";
+import { Card, DateTime } from "gymnopedies";
 
 type Props = {
-  title: string
-  coverImage: PostType['coverImage']
-  date: string
-  excerpt: string
-  slug: string
-}
+  title: string;
+  coverImage: PostType["coverImage"];
+  date: string;
+  excerpt: string;
+  slug: string;
+};
 
 export const HeroPost: React.FC<Props> = ({
   title,
-  coverImage,
+  coverImage: { url, provider, providerUrl },
   date,
   excerpt,
   slug,
 }) => {
-  const router = useRouter()
+  const router = useRouter();
   return (
-    <>
-      {/* eslint-disable-next-line */}
-      <div
-        onClick={() => router.push(`/posts/${slug}`)}
-        style={{ cursor: 'pointer' }}
-      >
-        <PostCard
-          animator={{ activate: true }}
-          image={{
-            src: coverImage.url,
-          }}
-          title={
-            <>
-              {title}
-              <p style={{ display: 'block', fontSize: '12px' }}>
-                <DateFormatter dateString={date} />
-              </p>
-            </>
-          }
-          style={{ paddingBottom: '48px' }}
-        >
-          <div>{excerpt}</div>
-          <p
-            style={{
-              position: 'absolute',
-              top: '-18px',
-              right: '0px',
-              display: 'block',
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              padding: '2px 4px',
-              opacity: 1,
-              fontSize: '12px',
-            }}
-          >
-            Photo by{' '}
-            <a href={coverImage.providerUrl} target="_blank" rel="noreferrer">
-              {coverImage.provider}
-            </a>
-          </p>
-        </PostCard>
-      </div>
-    </>
-  )
-}
+    <Card
+      title={title}
+      image={{ src: url }}
+      description={excerpt}
+      imageCaption={
+        <>
+          Photo by{" "}
+          <a target="_blank" href={providerUrl} rel="noreferrer">
+            {provider}
+          </a>
+        </>
+      }
+      onClick={() => router.push(`/posts/${slug}`)}
+    >
+      <DateTime dateString={date} />
+    </Card>
+  );
+};

@@ -1,11 +1,9 @@
 import React from 'react'
-import { Box } from 'rebass'
 
 import PostType from '../types/post'
 
-import DateFormatter from './atoms/DateFormatter'
-import { CoverImage } from './CoverImage'
 import { PostTitle } from './PostTitle'
+import { DateTime, Picture } from 'gymnopedies'
 
 type Props = {
   title: string
@@ -13,16 +11,30 @@ type Props = {
   date: string
 }
 
-const PostHeader: React.FC<Props> = ({ title, coverImage, date }) => {
+const PostHeader = ({
+  title,
+  coverImage: { url, provider, providerUrl },
+  date,
+}: Props) => {
   return (
     <>
       <PostTitle>{title}</PostTitle>
-      <Box sx={{ mb: 3 }}>
+      <Picture
+        transition
+        image={{ src: url }}
+        imageCaption={
+          <>
+            Photo by{' '}
+            <a target='_blank' href={providerUrl} rel='noreferrer'>
+              {provider}
+            </a>
+          </>
+        }
+      />
+      <DateTime dateString={date} />
+      {/* <Box sx={{ mb: 3 }}>
         <CoverImage title={title} coverImage={coverImage} />
-      </Box>
-      <Box sx={{ mb: 2, fontSize: 2 }}>
-        <DateFormatter dateString={date} />
-      </Box>
+      </Box> */}
     </>
   )
 }
