@@ -16,7 +16,7 @@ export default async function markdownToHtml(markdown: string) {
     })
     .use(rehypeRaw)
     .use(rehypePrettyCode, {
-      theme: 'poimandres',
+      theme: 'vitesse-dark',
       keepBackground: true,
     })
     .use(rehypeStringify)
