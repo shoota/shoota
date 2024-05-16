@@ -12,7 +12,6 @@ import { PostTitle } from '../../components/PostTitle'
 import markdownToHtml from '../../lib/markdownToHtml'
 import PostType from '../../types/post'
 import { SITE_NAME } from '../../lib/constants'
-import styled from '@emotion/styled'
 
 type Props = {
   post: PostType
