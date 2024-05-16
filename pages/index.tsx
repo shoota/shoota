@@ -18,7 +18,6 @@ const Index: React.FC = () => {
 
 export default Index;
 
-// eslint-disable-next-line @typescript-eslint/require-await
 export const getStaticProps = async () => {
   return {
     props: {},

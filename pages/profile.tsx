@@ -30,7 +30,6 @@ const Profile: React.FC<Props> = ({ name, picture }) => {
 
 export default Profile;
 
-// eslint-disable-next-line @typescript-eslint/require-await
 export const getStaticProps = async () => {
   // TODO get static markdown via graymatter
   return {

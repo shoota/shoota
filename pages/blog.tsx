@@ -38,7 +38,6 @@ function Index({ allPosts }: Props) {
 
 export default Index;
 
-// eslint-disable-next-line @typescript-eslint/require-await
 export const getStaticProps = async () => {
   // TODO author prop is unnessesary
   const allPosts = getAllPosts([
