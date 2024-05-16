@@ -1,16 +1,17 @@
-import React from "react";
-import { useRouter } from "next/router";
+import React from 'react'
+import { useRouter } from 'next/router'
 
-import PostType from "../types/post";
-import { Card, DateTime } from "gymnopedies";
+import PostType from '../types/post'
+import { Card, DateTime } from 'gymnopedies'
+import styled from '@emotion/styled'
 
 type Props = {
-  title: string;
-  coverImage: PostType["coverImage"];
-  date: string;
-  excerpt: string;
-  slug: string;
-};
+  title: string
+  coverImage: PostType['coverImage']
+  date: string
+  excerpt: string
+  slug: string
+}
 
 export const HeroPost: React.FC<Props> = ({
   title,
@@ -19,23 +20,29 @@ export const HeroPost: React.FC<Props> = ({
   excerpt,
   slug,
 }) => {
-  const router = useRouter();
+  const router = useRouter()
   return (
-    <Card
-      title={title}
-      image={{ src: url }}
-      description={excerpt}
-      imageCaption={
-        <>
-          Photo by{" "}
-          <a target="_blank" href={providerUrl} rel="noreferrer">
-            {provider}
-          </a>
-        </>
-      }
-      onClick={() => router.push(`/posts/${slug}`)}
-    >
-      <DateTime dateString={date} />
-    </Card>
-  );
-};
+    <Container>
+      <Card
+        transition
+        heading={<DateTime dateString={date} />}
+        title={title}
+        image={{ src: url }}
+        description={excerpt}
+        imageCaption={
+          <>
+            Photo by{' '}
+            <a target='_blank' href={providerUrl} rel='noreferrer'>
+              {provider}
+            </a>
+          </>
+        }
+        onClick={() => router.push(`/posts/${slug}`)}
+      />
+    </Container>
+  )
+}
+
+const Container = styled.div`
+  margin: 0 auto 32px auto;
+`
