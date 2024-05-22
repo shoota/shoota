@@ -1,7 +1,6 @@
 import React from 'react'
 import Head from 'next/head'
 
-import { ContainerBox } from '../components/ContainerBox'
 import { MoreStories } from '../components/MoreStories'
 import { HeroPost } from '../components/HeroPost'
 import { AppLayout } from '../components/AppLayout'
@@ -20,18 +19,16 @@ function Index({ allPosts }: Props) {
       <Head>
         <title>Blog</title>
       </Head>
-      <ContainerBox>
-        {heroPost && (
-          <HeroPost
-            title={heroPost.title}
-            coverImage={heroPost.coverImage}
-            date={heroPost.date}
-            slug={heroPost.slug}
-            excerpt={heroPost.excerpt}
-          />
-        )}
-        {morePosts.length > 0 && <MoreStories posts={morePosts} />}
-      </ContainerBox>
+      {heroPost && (
+        <HeroPost
+          title={heroPost.title}
+          coverImage={heroPost.coverImage}
+          date={heroPost.date}
+          slug={heroPost.slug}
+          excerpt={heroPost.excerpt}
+        />
+      )}
+      {morePosts.length > 0 && <MoreStories posts={morePosts} />}
     </AppLayout>
   )
 }

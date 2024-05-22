@@ -3,7 +3,6 @@ import { useRouter } from 'next/router'
 import ErrorPage from 'next/error'
 import Head from 'next/head'
 
-import { ContainerBox } from '../../components/ContainerBox'
 import PostBody from '../../components/PostBody'
 import PostHeader from '../../components/PostHeader'
 import { AppLayout } from '../../components/AppLayout'
@@ -24,27 +23,25 @@ const Post: React.FC<Props> = ({ post }) => {
   }
   return (
     <AppLayout ogImage={post.ogImage.url} ogTitle={post.title}>
-      <ContainerBox>
-        {router.isFallback ? (
-          <PostTitle>Loading…</PostTitle>
-        ) : (
-          <>
-            <Head>
-              <title>
-                {post.title} | {SITE_NAME}
-              </title>
-            </Head>
-            <article>
-              <PostHeader
-                title={post.title}
-                coverImage={post.coverImage}
-                date={post.date}
-              />
-              <PostBody content={post.content} />
-            </article>
-          </>
-        )}
-      </ContainerBox>
+      {router.isFallback ? (
+        <PostTitle>Loading…</PostTitle>
+      ) : (
+        <>
+          <Head>
+            <title>
+              {post.title} | {SITE_NAME}
+            </title>
+          </Head>
+          <article>
+            <PostHeader
+              title={post.title}
+              coverImage={post.coverImage}
+              date={post.date}
+            />
+            <PostBody content={post.content} />
+          </article>
+        </>
+      )}
     </AppLayout>
   )
 }

@@ -3,7 +3,7 @@ import React from 'react'
 import PostType from '../types/post'
 
 import { PostTitle } from './PostTitle'
-import { DateTime, Picture } from 'gymnopedies'
+import { Content, DateTime, Picture } from 'gymnopedies'
 
 type Props = {
   title: string
@@ -17,7 +17,7 @@ const PostHeader = ({
   date,
 }: Props) => {
   return (
-    <>
+    <Content>
       <PostTitle>{title}</PostTitle>
       <Picture
         transition
@@ -32,10 +32,7 @@ const PostHeader = ({
         }
       />
       <DateTime dateString={date} />
-      {/* <Box sx={{ mb: 3 }}>
-        <CoverImage title={title} coverImage={coverImage} />
-      </Box> */}
-    </>
+    </Content>
   )
 }
 
