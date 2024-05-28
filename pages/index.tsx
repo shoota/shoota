@@ -1,9 +1,9 @@
-import React from "react";
-import Head from "next/head";
+import React from 'react'
+import Head from 'next/head'
 
-import { AppLayout } from "../components/AppLayout";
-import { SITE_NAME } from "../lib/constants";
-import Hero from "../components/organisms/Hero";
+import { AppLayout } from '../components/AppLayout'
+import { SITE_NAME } from '../lib/constants'
+import Hero from '../components/organisms/Hero'
 
 const Index: React.FC = () => {
   return (
@@ -13,13 +13,13 @@ const Index: React.FC = () => {
       </Head>
       <Hero />
     </AppLayout>
-  );
-};
+  )
+}
 
-export default Index;
+export default Index
 
 export const getStaticProps = async () => {
   return {
     props: {},
-  };
-};
+  }
+}

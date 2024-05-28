@@ -28,9 +28,7 @@ const Post: React.FC<Props> = ({ post }) => {
       ) : (
         <>
           <Head>
-            <title>
-              {post.title} | {SITE_NAME}
-            </title>
+            <title>{`${post.title} | ${SITE_NAME}`}</title>
           </Head>
           <article>
             <PostHeader
