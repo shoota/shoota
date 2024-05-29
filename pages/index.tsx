@@ -8,7 +8,7 @@ import { Content } from 'gymnopedies'
 
 const Index: React.FC = () => {
   return (
-    <AppLayout>
+    <AppLayout currentIndex={0}>
       <Head>
         <title>{`${SITE_NAME} | Home`}</title>
       </Head>
