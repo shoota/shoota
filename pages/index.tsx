@@ -4,6 +4,7 @@ import Head from 'next/head'
 import { AppLayout } from '../components/AppLayout'
 import { SITE_NAME } from '../lib/constants'
 import Hero from '../components/organisms/Hero'
+import { Content } from 'gymnopedies'
 
 const Index: React.FC = () => {
   return (
@@ -11,7 +12,9 @@ const Index: React.FC = () => {
       <Head>
         <title>{`${SITE_NAME} | Home`}</title>
       </Head>
-      <Hero />
+      <Content>
+        <Hero />
+      </Content>
     </AppLayout>
   )
 }
