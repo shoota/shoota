@@ -10,8 +10,10 @@ type Props = {
   currentIndex?: number
 }
 
-const Box = styled.div`
-  margin: 32px 0;
+const Box = styled.main`
+  margin: 4rem auto;
+  width: 90vw;
+  max-width: 1820px;
 `
 
 export const AppLayout = ({
