@@ -31,7 +31,6 @@ export function getPostBySlug(slug: string, fields: string[] = []) {
     }
 
     if (data[field]) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       items[field] = data[field]
     }
   })

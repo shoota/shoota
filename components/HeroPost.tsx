@@ -1,12 +1,9 @@
 import React from 'react'
-import { AnimatorGeneralProvider } from '@arwes/animation'
-import { Text } from '@arwes/core'
 import { useRouter } from 'next/router'
 
 import PostType from '../types/post'
-
-import DateFormatter from './atoms/DateFormatter'
-import { PostCard } from './atoms/PostCard'
+import { Card, DateTime } from 'gymnopedies'
+import styled from '@emotion/styled'
 
 type Props = {
   title: string
@@ -18,57 +15,34 @@ type Props = {
 
 export const HeroPost: React.FC<Props> = ({
   title,
-  coverImage,
+  coverImage: { url, provider, providerUrl },
   date,
   excerpt,
   slug,
 }) => {
   const router = useRouter()
   return (
-    <AnimatorGeneralProvider
-      animator={{ duration: { enter: 200, exit: 200, stagger: 30 } }}
-    >
-      {/* eslint-disable-next-line */}
-      <div
-        onClick={() => router.push(`/posts/${slug}`)}
-        style={{ cursor: 'pointer' }}
-      >
-        <PostCard
-          animator={{ activate: true }}
-          image={{
-            src: coverImage.url,
-          }}
-          title={
-            <>
-              {title}
-              <Text as="p" style={{ display: 'block', fontSize: '12px' }}>
-                <DateFormatter dateString={date} />
-              </Text>
-            </>
-          }
-          style={{ paddingBottom: '48px' }}
-        >
-          <Text as="div">{excerpt}</Text>
-          <Text
-            as="p"
-            style={{
-              position: 'absolute',
-              top: '-18px',
-              right: '0px',
-              display: 'block',
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              padding: '2px 4px',
-              opacity: 1,
-              fontSize: '12px',
-            }}
-          >
+    <Container>
+      <Card
+        transition
+        heading={<DateTime dateString={date} />}
+        title={title}
+        image={{ src: url }}
+        description={excerpt}
+        imageCaption={
+          <>
             Photo by{' '}
-            <a href={coverImage.providerUrl} target="_blank" rel="noreferrer">
-              {coverImage.provider}
+            <a target='_blank' href={providerUrl} rel='noreferrer'>
+              {provider}
             </a>
-          </Text>
-        </PostCard>
-      </div>
-    </AnimatorGeneralProvider>
+          </>
+        }
+        onClick={() => router.push(`/posts/${slug}`)}
+      />
+    </Container>
   )
 }
+
+const Container = styled.div`
+  padding-bottom: 2rem;
+`
