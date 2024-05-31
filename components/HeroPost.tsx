@@ -44,5 +44,5 @@ export const HeroPost: React.FC<Props> = ({
 }
 
 const Container = styled.div`
-  margin: 0 auto 32px auto;
+  padding-bottom: 2rem;
 `
