@@ -1,5 +1,3 @@
-import React from 'react'
-
 import Post from '../types/post'
 
 import { PostPreview } from './PostPreview'
@@ -13,7 +11,7 @@ export const MoreStories: React.FC<Props> = ({ posts }) => {
   return (
     <section>
       <Flex>
-        <Box>
+        <Grid>
           {posts.map((post) => (
             <PostPreview
               key={post.slug}
@@ -24,7 +22,7 @@ export const MoreStories: React.FC<Props> = ({ posts }) => {
               excerpt={post.excerpt}
             />
           ))}
-        </Box>
+        </Grid>
       </Flex>
     </section>
   )
@@ -37,7 +35,7 @@ const Flex = styled.div`
   display: flex;
 `
 
-const Box = styled.div`
+const Grid = styled.div`
   box-sizing: border-box;
   margin: 0;
   min-width: 0;

@@ -1,5 +1,3 @@
-import React from 'react'
-
 import { Content } from 'gymnopedies'
 import markdownStyles from './markdown-styles.module.css'
 

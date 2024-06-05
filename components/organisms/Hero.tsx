@@ -1,5 +1,4 @@
 import { Hero as HeroComponent } from 'gymnopedies'
-import React from 'react'
 
 const Hero = () => {
   return (

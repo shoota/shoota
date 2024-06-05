@@ -1,5 +1,3 @@
-import React from 'react'
-
 import PostType from '../types/post'
 
 import { PostTitle } from './PostTitle'

@@ -1,5 +1,4 @@
 import { Content } from 'gymnopedies'
-import React from 'react'
 
 export const PageFooter: React.FC = () => {
   return (

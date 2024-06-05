@@ -1,4 +1,3 @@
-import React from 'react'
 import { useRouter } from 'next/router'
 
 import PostType from '../types/post'
@@ -13,13 +12,13 @@ type Props = {
   slug: string
 }
 
-export const HeroPost: React.FC<Props> = ({
+export const HeroPost = ({
   title,
   coverImage: { url, provider, providerUrl },
   date,
   excerpt,
   slug,
-}) => {
+}: Props) => {
   const router = useRouter()
   return (
     <Container>
@@ -29,6 +28,8 @@ export const HeroPost: React.FC<Props> = ({
         title={title}
         image={{ src: url }}
         description={excerpt}
+        width='90vw'
+        maxWidth='800px'
         imageCaption={
           <>
             Photo by{' '}
@@ -38,11 +39,20 @@ export const HeroPost: React.FC<Props> = ({
           </>
         }
         onClick={() => router.push(`/posts/${slug}`)}
-      />
+      >
+        <Caption>最新の記事</Caption>
+      </Card>
     </Container>
   )
 }
 
+const Caption = styled.p`
+  text-align: center;
+`
+
 const Container = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
   padding-bottom: 2rem;
 `
