@@ -1,4 +1,3 @@
-import React from 'react'
 import { useRouter } from 'next/router'
 import { Card, DateTime } from 'gymnopedies'
 
@@ -36,7 +35,6 @@ export const PostPreview: React.FC<Props> = ({
         </>
       }
       onClick={() => router.push(`/posts/${slug}`)}
-    >
-    </Card>
+    ></Card>
   )
 }
