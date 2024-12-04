@@ -7,7 +7,7 @@ coverImage:
   providerUrl: https://unsplash.com/ja/@ilferrets
 date: '2024-12-05'
 ogImage:
-  url: '/assets/blog/ai-human.jpg'
+  url: '/assets/blog/ccd-og.png'
 ---
 
 ## はじめに
