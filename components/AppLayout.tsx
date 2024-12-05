@@ -7,6 +7,7 @@ import { HeaderNavigation } from 'gymnopedies'
 type Props = {
   ogImage?: string
   ogTitle?: string
+  path?: string
   currentIndex?: number
 }
 
@@ -22,13 +23,14 @@ const Content = styled.article`
 export const AppLayout = ({
   ogImage,
   ogTitle,
+  path,
   currentIndex,
   children,
 }: PropsWithChildren<Props>) => {
   const router = useRouter()
   return (
     <>
-      <Meta ogImage={ogImage} ogTitle={ogTitle} />
+      <Meta ogImage={ogImage} ogTitle={ogTitle} path={path} />
       <Layout>
         <HeaderNavigation
           title='shoota works'

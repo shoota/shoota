@@ -2,15 +2,18 @@ import Head from 'next/head'
 
 import { HOME_OG_IMAGE_URL } from '../lib/constants'
 
-const Meta: React.FC<{ ogImage?: string; ogTitle?: string }> = ({
+const Meta: React.FC<{ ogImage?: string; ogTitle?: string; path?: string }> = ({
   ogTitle,
   ogImage,
+  path,
 }) => {
   const ogImageContent = ogImage
     ? `https://shoota.work${ogImage}`
     : HOME_OG_IMAGE_URL
 
   const ogTitleContent = ogTitle || 'shoota works'
+
+  const ogUrl = path ? `https://shoota.work${path}` : 'https://shoota.work'
 
   return (
     <Head>
@@ -45,10 +48,11 @@ const Meta: React.FC<{ ogImage?: string; ogTitle?: string }> = ({
       <meta name='description' content='@shootaのブログ' />
       {/* OGP */}
       <meta property='og:type' content='article' />
-      <meta property='og:url' content='https://shoota.work' />
+      <meta property='og:url' content={ogUrl} />
       <meta property='og:site_name' content='shoota works' />
       <meta property='og:title' content={ogTitleContent} />
       <meta property='og:image' content={ogImageContent} />
+      <meta property='og:description' content='@shootaのブログ' />
       <meta name='twitter:title' content={ogTitleContent} />
       <meta name='twitter:text:title' content={ogTitleContent} />
       <meta name='twitter:image' content={ogImageContent} />
