@@ -25,7 +25,7 @@ export const HeroPost = ({
       <Card
         heading={<DateTime dateString={date} />}
         title={title}
-        image={{ src: url, transition: true }}
+        image={{ src: url, transition: true, height: '20vh' }}
         description={excerpt}
         width='90vw'
         maxWidth='800px'

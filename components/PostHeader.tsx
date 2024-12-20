@@ -18,7 +18,7 @@ const PostHeader = ({
     <Content>
       <PostTitle>{title}</PostTitle>
       <Picture
-        image={{ src: url, transition: true }}
+        image={{ src: url, transition: true, height: '20vh' }}
         imageCaption={
           <>
             Photo by{' '}
