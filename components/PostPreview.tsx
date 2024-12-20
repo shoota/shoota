@@ -21,10 +21,9 @@ export const PostPreview: React.FC<Props> = ({
   const router = useRouter()
   return (
     <Card
-      transition
       heading={<DateTime dateString={date} />}
       title={title}
-      image={{ src: url }}
+      image={{ src: url, transition: true }}
       description={excerpt}
       imageCaption={
         <>
