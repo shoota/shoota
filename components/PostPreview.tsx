@@ -23,7 +23,7 @@ export const PostPreview: React.FC<Props> = ({
     <Card
       heading={<DateTime dateString={date} />}
       title={title}
-      image={{ src: url, transition: true }}
+      image={{ src: url, transition: true, height: '200px' }}
       description={excerpt}
       imageCaption={
         <>
