@@ -233,16 +233,11 @@ AIが生産性にもたらした影響はプログラミングだけでなく、
 エンジニアリングについて考え、見直す機会となるように、いくつかのセッションの言葉ももういちど反芻して考えるのは楽しいかもしれません。
 
 <div style="display: flex; flex-direction:column; gap: 24px; margin-bottom: 24px;">
-  <div style="display: flex; flex-direction:row; gap: 12px">
   <iframe style="max-width: 100%;" width="560" height="315" frameborder="0" src="https://hirokidaichi.github.io/presentation/prod.html#35" allowfullscreen="true" style="border: 0px; background: padding-box padding-box rgba(0, 0, 0, 0.1); margin: 0px; padding: 0px; border-radius: 6px; box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 40px; width: 100%; height: auto; aspect-ratio: 560 / 315;" ></iframe>
   <iframe style="max-width: 100%;" width="560" height="315" class="speakerdeck-iframe" frameborder="0" src="https://speakerdeck.com/player/7d644c5a8a0b4a6eb64eaf25cab95f7d?slide=112" title="ペアプロ × 生成AI  現場での実践と課題について / generative-ai-in-pair-programming" allowfullscreen="true" style="border: 0px; background: padding-box padding-box rgba(0, 0, 0, 0.1); margin: 0px; padding: 0px; border-radius: 6px; box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 40px; width: 100%; height: auto; aspect-ratio: 560 / 315;" data-ratio="1.7777777777777777"></iframe>
-  </div>
-
-  <div style="display: flex; flex-direction:row; gap: 12px">
   <iframe style="max-width: 100%;" width="560" height="315" class="speakerdeck-iframe" frameborder="0" src="https://speakerdeck.com/player/a7272742fa8a4c09a2d90700ba7299d7?slide=15" title="AIエージェントが変える開発組織のEnabling #開発生産性con_findy" allowfullscreen="true" style="border: 0px; background: padding-box padding-box rgba(0, 0, 0, 0.1); margin: 0px; padding: 0px; border-radius: 6px; box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 40px; width: 100%; height: auto; aspect-ratio: 560 / 315;" data-ratio="1.7777777777777777"></iframe>
 
   <iframe style="max-width: 100%;" width="560" height="315" class="speakerdeck-iframe" frameborder="0" src="https://speakerdeck.com/player/1a2bf35b2d3d406a94658c0fbdd01f2a?slide=25" title="無意味な開発生産性の議論から抜け出すための予兆検知とお金とAI" allowfullscreen="true" style="border: 0px; background: padding-box padding-box rgba(0, 0, 0, 0.1); margin: 0px; padding: 0px; border-radius: 6px; box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 40px; width: 100%; height: auto; aspect-ratio: 560 / 315;" data-ratio="1.7777777777777777"></iframe>
-  </div>
 </div>
 
 そして直前まで内容を変更してくださったt-wada氏のセッションも、もういちど、見直して考えたいと思います。
