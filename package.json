@@ -16,7 +16,7 @@
     "@icons-pack/react-simple-icons": "9.7.0",
     "date-fns": "3.6.0",
     "gray-matter": "4.0.3",
-    "gymnopedies": "0.1.16",
+    "gymnopedies": "0.1.17",
     "next": "^14.2.21",
     "polished": "4.3.1",
     "prop-types": "15.8.1",
