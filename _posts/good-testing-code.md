@@ -90,7 +90,7 @@ eslint-pluginのアップグレードのために分岐したテストを分解�
 
 下から上に読めるテストはあきらかにわかりやすいなぁと思って2日ほどたったころ、ちょうど似たような話が目に止まりました。
 
-<iframe class="speakerdeck-iframe" frameborder="0" src="https://speakerdeck.com/player/985f1208d06f4103a4712673d64a0b2b" title="「コードは上から下へ読むのが一番」と思った時に、思い出してほしい話" allowfullscreen="true" style="border: 0px; background: padding-box padding-box rgba(0, 0, 0, 0.1); margin: 0px; padding: 0px; border-radius: 6px; box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 40px; width: 100%; height: auto; aspect-ratio: 560 / 315;" data-ratio="1.7777777777777777"></iframe>
+<iframe style="max-width: 100%;" width="560" height="315" class="speakerdeck-iframe" frameborder="0" src="https://speakerdeck.com/player/985f1208d06f4103a4712673d64a0b2b" title="「コードは上から下へ読むのが一番」と思った時に、思い出してほしい話" allowfullscreen="true" style="border: 0px; background: padding-box padding-box rgba(0, 0, 0, 0.1); margin: 0px; padding: 0px; border-radius: 6px; box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 40px; width: 100%; height: auto; aspect-ratio: 560 / 315;" data-ratio="1.7777777777777777"></iframe>
 
 ---
 
