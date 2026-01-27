@@ -33,16 +33,16 @@
     "shiki": "1.29.2"
   },
   "devDependencies": {
-    "@types/node": "22.18.12",
-    "@types/react": "19.2.2",
-    "@types/react-dom": "19.2.2",
+    "@types/node": "22.19.7",
+    "@types/react": "19.2.10",
+    "@types/react-dom": "19.2.3",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^9.0.0",
-    "eslint-config-next": "16.0.0",
+    "eslint-config-next": "16.1.6",
     "eslint-config-prettier": "10.1.8",
     "local-ssl-proxy": "2.0.5",
-    "prettier": "3.2.5",
-    "typescript": "5.3.3"
+    "prettier": "3.8.1",
+    "typescript": "5.9.3"
   }
 }
