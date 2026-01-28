@@ -33,7 +33,7 @@
     "shiki": "1.29.2"
   },
   "devDependencies": {
-    "@types/node": "22.19.7",
+    "@types/node": "24.10.9",
     "@types/react": "19.2.10",
     "@types/react-dom": "19.2.3",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
