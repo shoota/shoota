@@ -2,14 +2,13 @@ import { useRouter } from 'next/router'
 import ErrorPage from 'next/error'
 import Head from 'next/head'
 
-import PostBody from '../../components/PostBody'
-import PostHeader from '../../components/PostHeader'
-import { AppLayout } from '../../components/AppLayout'
-import { getPostBySlug, getAllPosts } from '../../lib/api'
-import { PostTitle } from '../../components/PostTitle'
-import markdownToHtml from '../../lib/markdownToHtml'
-import PostType from '../../types/post'
-import { SITE_NAME } from '../../lib/constants'
+import PostBody from '@/components/PostBody'
+import PostHeader from '@/components/PostHeader'
+import { AppLayout } from '@/components/AppLayout'
+import { getPostBySlug, getAllPosts } from '@/lib/api'
+import markdownToHtml from '@/lib/markdownToHtml'
+import PostType from '@/types/post'
+import { SITE_NAME } from '@/lib/constants'
 
 type Props = {
   post: PostType
@@ -25,15 +24,16 @@ const Post: React.FC<Props> = ({ post }) => {
       ogImage={post.ogImage.url}
       ogTitle={post.title}
       path={`/posts/${post.slug}`}
+      currentIndex={1}
     >
       {router.isFallback ? (
-        <PostTitle>Loading…</PostTitle>
+        <h1 className='m-0 text-center text-2xl'>Loading…</h1>
       ) : (
         <>
           <Head>
             <title>{`${post.title} | ${SITE_NAME}`}</title>
           </Head>
-          <article>
+          <article className='mx-auto w-full max-w-3xl px-4 pt-6 sm:px-6'>
             <PostHeader
               title={post.title}
               coverImage={post.coverImage}

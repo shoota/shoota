@@ -1,9 +1,8 @@
 import Head from 'next/head'
 
-import { AppLayout } from '../components/AppLayout'
-import { SITE_NAME } from '../lib/constants'
-import Hero from '../components/organisms/Hero'
-import { Content } from 'gymnopedies'
+import { AppLayout } from '@/components/AppLayout'
+import Hero from '@/components/organisms/Hero'
+import { SITE_NAME } from '@/lib/constants'
 
 const Index: React.FC = () => {
   return (
@@ -11,9 +10,17 @@ const Index: React.FC = () => {
       <Head>
         <title>{`${SITE_NAME} | Home`}</title>
       </Head>
-      <Content>
+      <section className='mx-auto w-full'>
         <Hero />
-      </Content>
+        <div className='mx-auto mt-16 max-w-2xl text-center'>
+          <p className='m-0 text-xs uppercase tracking-[0.3em] text-primary'>
+            Welcome
+          </p>
+          <p className='mx-auto mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg'>
+            shoota の個人サイトです。日々考えたこと・撮ったもの・書いたものを置いています。
+          </p>
+        </div>
+      </section>
     </AppLayout>
   )
 }
