@@ -18,20 +18,20 @@ function Index({ allPosts }: Props) {
       <Head>
         <title>Blog</title>
       </Head>
-      <header className='mb-10 text-center'>
-        <p className='m-0 text-xs uppercase tracking-[0.3em] text-primary'>
-          Articles
-        </p>
-        <h2 className='m-0 mt-3 text-3xl sm:text-4xl'>Blog</h2>
-      </header>
       {heroPost && (
-        <HeroPost
-          title={heroPost.title}
-          coverImage={heroPost.coverImage}
-          date={heroPost.date}
-          slug={heroPost.slug}
-          excerpt={heroPost.excerpt}
-        />
+        <>
+          <h2 className='mb-8 text-center text-xs uppercase tracking-[0.3em] text-primary'>
+            最新の記事
+          </h2>
+          <hr className='mx-auto mb-12 w-full max-w-3xl border-t border-muted-foreground/40' />
+          <HeroPost
+            title={heroPost.title}
+            coverImage={heroPost.coverImage}
+            date={heroPost.date}
+            slug={heroPost.slug}
+            excerpt={heroPost.excerpt}
+          />
+        </>
       )}
       {morePosts.length > 0 && <MoreStories posts={morePosts} />}
     </AppLayout>

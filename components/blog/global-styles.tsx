@@ -262,6 +262,7 @@ const GLOBAL_CSS = /* css */ `
   }
 `
 
-export function GlobalStyles() {
-  return <style dangerouslySetInnerHTML={{ __html: GLOBAL_CSS }} />
+export function GlobalStyles({ scope }: { scope?: string } = {}) {
+  const css = scope ? `${scope} {\n${GLOBAL_CSS}\n}` : GLOBAL_CSS
+  return <style dangerouslySetInnerHTML={{ __html: css }} />
 }

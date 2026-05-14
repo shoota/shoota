@@ -7,8 +7,8 @@ type Props = {
 
 const PostBody: React.FC<Props> = ({ content }) => {
   return (
-    <Content className='leading-[1.85]'>
-      <GlobalStyles />
+    <Content className='post-body mx-auto max-w-5xl leading-[1.85]'>
+      <GlobalStyles scope='.post-body' />
       <div dangerouslySetInnerHTML={{ __html: content }} />
     </Content>
   )

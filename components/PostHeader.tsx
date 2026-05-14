@@ -15,7 +15,7 @@ const PostHeader = ({
   date,
 }: Props) => {
   return (
-    <header className='mx-auto mb-10 flex w-full flex-col items-center gap-6'>
+    <header className='mx-auto mb-10 flex w-full max-w-5xl flex-col items-center gap-6'>
       <h1 className='m-0 text-center text-2xl leading-snug sm:text-3xl md:text-4xl'>
         {title}
       </h1>
@@ -24,7 +24,7 @@ const PostHeader = ({
         formatStr='yyyy.MM.dd'
         className='text-xs uppercase tracking-[0.2em]'
       />
-      <Picture className='w-full max-w-3xl'>
+      <Picture className='w-full'>
         <Picture.Image
           src={url}
           alt={title}

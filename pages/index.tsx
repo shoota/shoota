@@ -1,4 +1,5 @@
 import Head from 'next/head'
+import Link from 'next/link'
 
 import { AppLayout } from '@/components/AppLayout'
 import Hero from '@/components/organisms/Hero'
@@ -16,9 +17,20 @@ const Index: React.FC = () => {
           <p className='m-0 text-xs uppercase tracking-[0.3em] text-primary'>
             Welcome
           </p>
-          <p className='mx-auto mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg'>
-            shoota の個人サイトです。日々考えたこと・撮ったもの・書いたものを置いています。
-          </p>
+          <div className='mt-6 flex flex-wrap justify-center gap-3'>
+            <Link
+              href='/blog'
+              className='inline-block rounded-full border border-border px-5 py-2 text-sm text-foreground transition-colors hover:border-primary hover:text-primary'
+            >
+              Blog →
+            </Link>
+            <Link
+              href='/profile'
+              className='inline-block rounded-full border border-border px-5 py-2 text-sm text-foreground transition-colors hover:border-primary hover:text-primary'
+            >
+              About →
+            </Link>
+          </div>
         </div>
       </section>
     </AppLayout>

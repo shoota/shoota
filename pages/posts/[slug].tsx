@@ -33,7 +33,7 @@ const Post: React.FC<Props> = ({ post }) => {
           <Head>
             <title>{`${post.title} | ${SITE_NAME}`}</title>
           </Head>
-          <article className='mx-auto w-full max-w-3xl px-4 pt-6 sm:px-6'>
+          <article className='mx-auto w-full'>
             <PostHeader
               title={post.title}
               coverImage={post.coverImage}
