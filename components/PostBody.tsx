@@ -1,5 +1,5 @@
-import { Content } from 'gymnopedies'
-import markdownStyles from './markdown-styles.module.css'
+import { Content } from '@/components/blog/content'
+import { GlobalStyles } from '@/components/blog/global-styles'
 
 type Props = {
   content: string
@@ -7,12 +7,9 @@ type Props = {
 
 const PostBody: React.FC<Props> = ({ content }) => {
   return (
-    <Content>
-      <div
-        className={markdownStyles.markdown}
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: content }}
-      />
+    <Content className='post-body mx-auto max-w-5xl leading-[1.85]'>
+      <GlobalStyles scope='.post-body' />
+      <div dangerouslySetInnerHTML={{ __html: content }} />
     </Content>
   )
 }

@@ -1,11 +1,11 @@
-import { Hero as HeroComponent } from 'gymnopedies'
+import { Hero as HeroComponent } from '@/components/blog/hero'
 
 const Hero = () => {
   return (
     <HeroComponent
       cover='Leap before you look.'
       size='lg'
-      imgProps={{ src: '/assets/img/run.jpg' }}
+      imgProps={{ src: '/assets/img/run.jpg', alt: 'Leap before you look.' }}
     />
   )
 }

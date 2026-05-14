@@ -1,8 +1,8 @@
 import { useRouter } from 'next/router'
+import { format, parseISO } from 'date-fns'
 
-import PostType from '../types/post'
-import { Card, DateTime } from 'gymnopedies'
-import styled from '@emotion/styled'
+import PostType from '@/types/post'
+import { Article } from '@/components/blog/article'
 
 type Props = {
   title: string
@@ -21,37 +21,38 @@ export const HeroPost = ({
 }: Props) => {
   const router = useRouter()
   return (
-    <Container>
-      <Card
-        heading={<DateTime dateString={date} />}
-        title={title}
-        image={{ src: url, transition: true, height: '20vh' }}
-        description={excerpt}
-        width='90vw'
-        maxWidth='800px'
-        imageCaption={
-          <>
-            Photo by{' '}
-            <a target='_blank' href={providerUrl} rel='noreferrer'>
-              {provider}
-            </a>
-          </>
-        }
+    <section className='mx-auto mb-16 w-full max-w-3xl'>
+      <button
+        type='button'
         onClick={() => router.push(`/posts/${slug}`)}
+        className='group block w-full cursor-pointer text-left'
+        aria-label={`Read ${title}`}
       >
-        <Caption>最新の記事</Caption>
-      </Card>
-    </Container>
+        <Article
+          size='xl'
+          className='max-w-none transition-shadow duration-[1500ms] group-hover:shadow-strong-glow group-focus:shadow-strong-glow'
+          title={title}
+          description={excerpt}
+          content={format(parseISO(date), 'yyyy.MM.dd')}
+          image={{
+            src: url,
+            alt: title,
+            caption: (
+              <>
+                Photo by{' '}
+                <a
+                  target='_blank'
+                  href={providerUrl}
+                  rel='noreferrer'
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {provider}
+                </a>
+              </>
+            ),
+          }}
+        />
+      </button>
+    </section>
   )
 }
-
-const Caption = styled.p`
-  text-align: center;
-`
-
-const Container = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding-bottom: 2rem;
-`
