@@ -5,7 +5,7 @@ coverImage:
   url: '/assets/blog/thanks.jpg'
   provider: 'Kelly Sikkema'
   providerUrl: https://unsplash.com/@kellysikkema
-date: '2026-07-08'
+date: '2026-07-09'
 ogImage:
   url: '/assets/blog/thanks.jpg'
 ---
