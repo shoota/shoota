@@ -38,7 +38,7 @@
     "eslint-config-next": "16.1.6",
     "eslint-config-prettier": "10.1.8",
     "local-ssl-proxy": "2.0.5",
-    "postcss": "8.5.0",
+    "postcss": "8.5.10",
     "prettier": "3.8.1",
     "tailwindcss": "4.3.0",
     "typescript": "5.9.3"
