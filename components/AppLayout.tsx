@@ -29,6 +29,7 @@ export const AppLayout = ({
           menuItems={[
             { name: 'Home', onClick: () => router.push('/') },
             { name: 'Blog', onClick: () => router.push('/blog') },
+            { name: 'Ideas', onClick: () => router.push('/ideas') },
             { name: 'Profile', onClick: () => router.push('/profile') },
           ]}
         />

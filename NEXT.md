@@ -61,6 +61,13 @@ npx vercel env pull .env.local
 
 `.env.local` (and any other `.env*.local` file) is ignored by git. Never commit it, and never paste its contents into an Issue, PR, or log.
 
+Variables used by the ideas feed (`/ideas`):
+
+| Variable                | Purpose                                                                                          |
+| ----------------------- | ------------------------------------------------------------------------------------------------ |
+| `BLOB_READ_WRITE_TOKEN` | Injected by the Vercel Blob integration. When it is missing the feed builds with an empty state. |
+| `IDEAS_BLOB_ACCESS`     | `public` or `private`, matching how the Blob store was created. Defaults to `private`.           |
+
 ### Tests
 
 Unit tests use [Vitest](https://vitest.dev/), which requires Node.js 22.12 or later. Test files live next to the code they cover as `*.test.ts`, and `vitest.config.ts` resolves the `@/` path alias from `tsconfig.json`.

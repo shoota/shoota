@@ -11,7 +11,7 @@ type Props = {
 
 const Profile: React.FC<Props> = ({ name, picture }) => {
   return (
-    <AppLayout currentIndex={2}>
+    <AppLayout currentIndex={3}>
       <Head>
         <title>{`${SITE_NAME} | Profile`}</title>
       </Head>
