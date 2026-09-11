@@ -63,7 +63,7 @@ npx vercel env pull .env.local
 
 ### Tests
 
-Unit tests use [Vitest](https://vitest.dev/). Test files live next to the code they cover as `*.test.ts`.
+Unit tests use [Vitest](https://vitest.dev/), which requires Node.js 22.12 or later. Test files live next to the code they cover as `*.test.ts`, and `vitest.config.ts` resolves the `@/` path alias from `tsconfig.json`.
 
 ```bash
 npm test
