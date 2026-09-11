@@ -7,6 +7,7 @@
     "dev:proxy": "next dev & local-ssl-proxy --key localhost-key.pem --cert localhost.pem --source 3001 --target 3000",
     "build": "next build",
     "lint": "eslint . --cache",
+    "test": "vitest run",
     "start": "next start"
   },
   "dependencies": {
@@ -41,6 +42,7 @@
     "postcss": "8.5.0",
     "prettier": "3.8.1",
     "tailwindcss": "4.3.0",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "vitest": "5.0.0"
   }
 }

@@ -47,3 +47,24 @@ This is an amalgamation of the 2 existing examples:
 
 - [with-typescript](https://github.com/vercel/next.js/tree/canary/examples/with-typescript)
 - [with-styled-components](https://github.com/vercel/next.js/tree/canary/examples/with-styled-components)
+
+## Local development
+
+### Environment variables
+
+Runtime secrets are managed on Vercel and are not committed to this repository.
+Pull them into `.env.local` with the Vercel CLI:
+
+```bash
+npx vercel env pull .env.local
+```
+
+`.env.local` (and any other `.env*.local` file) is ignored by git. Never commit it, and never paste its contents into an Issue, PR, or log.
+
+### Tests
+
+Unit tests use [Vitest](https://vitest.dev/), which requires Node.js 22.12 or later. Test files live next to the code they cover as `*.test.ts`, and `vitest.config.ts` resolves the `@/` path alias from `tsconfig.json`.
+
+```bash
+npm test
+```
