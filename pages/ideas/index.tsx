@@ -3,6 +3,9 @@ import Head from 'next/head'
 import { AppLayout } from '@/components/AppLayout'
 import { IdeaFeed, IdeaFeedItem } from '@/components/ideas/IdeaFeed'
 import { SITE_NAME } from '@/lib/constants'
+import { formatIdeaTimestamp } from '@/lib/ideas/format'
+import { ideaMarkdownToHtml } from '@/lib/ideas/markdown'
+import { loadLatest } from '@/lib/ideas/store'
 
 type Props = {
   ideas: IdeaFeedItem[]
@@ -26,9 +29,6 @@ const IdeasPage: React.FC<Props> = ({ ideas }) => {
 export default IdeasPage
 
 export const getStaticProps = async () => {
-  const { loadLatest } = await import('@/lib/ideas/store')
-  const { ideaMarkdownToHtml } = await import('@/lib/ideas/markdown')
-
   const stored = await loadLatest()
   const sorted = [...stored].sort((a, b) =>
     a.createdAt < b.createdAt ? 1 : a.createdAt > b.createdAt ? -1 : 0
@@ -37,6 +37,7 @@ export const getStaticProps = async () => {
     sorted.map(async (idea) => ({
       id: idea.id,
       createdAt: idea.createdAt,
+      createdAtLabel: formatIdeaTimestamp(idea.createdAt),
       html: await ideaMarkdownToHtml(idea.body),
     }))
   )

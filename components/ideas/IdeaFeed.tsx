@@ -1,10 +1,12 @@
 import { Content } from '@/components/blog/content'
-import { DateTime } from '@/components/blog/date-time'
 import { GlobalStyles } from '@/components/blog/global-styles'
 
 export type IdeaFeedItem = {
   id: string
+  /** ISO 8601 timestamp, used for the machine-readable `dateTime`. */
   createdAt: string
+  /** Pre-formatted display text produced by `formatIdeaTimestamp`. */
+  createdAtLabel: string
   /** Sanitized HTML produced by `ideaMarkdownToHtml`. */
   html: string
 }
@@ -29,11 +31,12 @@ export const IdeaFeed: React.FC<Props> = ({ ideas }) => {
           <li key={idea.id} className='m-0 p-0'>
             <article className='overflow-hidden rounded-lg bg-card shadow-soft-glow'>
               <header className='px-6 pt-5'>
-                <DateTime
-                  dateString={idea.createdAt}
-                  formatStr='yyyy.MM.dd HH:mm'
+                <time
+                  dateTime={idea.createdAt}
                   className='text-xs tracking-wider text-accent'
-                />
+                >
+                  {idea.createdAtLabel}
+                </time>
               </header>
               <Content className='idea-body px-6 pt-3 pb-6 leading-[1.85] [&_p:last-child]:mb-0'>
                 <div dangerouslySetInnerHTML={{ __html: idea.html }} />

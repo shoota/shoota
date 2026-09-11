@@ -10,6 +10,15 @@ export type Idea = {
   updatedAt: string
 }
 
+function isDateString(value: unknown): value is string {
+  return typeof value === 'string' && !Number.isNaN(Date.parse(value))
+}
+
+/**
+ * Type guard for snapshot entries. Timestamps must parse as dates, because a
+ * string that merely looks like one would pass the type check and then throw
+ * while formatting during render.
+ */
 export function isIdea(value: unknown): value is Idea {
   if (typeof value !== 'object' || value === null) {
     return false
@@ -19,7 +28,7 @@ export function isIdea(value: unknown): value is Idea {
     typeof record.id === 'string' &&
     record.id.length > 0 &&
     typeof record.body === 'string' &&
-    typeof record.createdAt === 'string' &&
-    typeof record.updatedAt === 'string'
+    isDateString(record.createdAt) &&
+    isDateString(record.updatedAt)
   )
 }
