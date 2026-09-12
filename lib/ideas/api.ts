@@ -7,6 +7,7 @@ import { Idea } from '@/lib/ideas/types'
 
 export const IDEAS_PATH = '/ideas'
 
+/** Response body of `POST /api/ideas`. Errors carry a short code only. */
 export type PostIdeaResponse =
   | { id: string; createdAt: string; revalidated: boolean }
   | { error: string }
@@ -27,16 +28,23 @@ function readBody(payload: unknown): string | undefined {
   return body
 }
 
+/** Logs must not carry the message (it may quote input) or a stack trace. */
+function errorName(error: unknown): string {
+  return error instanceof Error ? error.name : 'UnknownError'
+}
+
 /**
  * POST /api/ideas — appends one idea to the latest snapshot and regenerates
  * the feed. Only the write path is authenticated; reads stay public.
  *
- * Order matters: the method and the shared secret are checked before the
+ * Within the handler the method and the shared secret are checked before the
  * request body is looked at, and `res.revalidate()` runs only after a
  * successful save. Errors never echo the request or a stack trace.
  *
- * The body size limit (20 KB) lives in the route file's `config` export
- * because Next.js requires that object to be a literal.
+ * Next.js parses the JSON body before the handler runs, so malformed JSON
+ * (400) and bodies over the 20 KB limit (413) are rejected upstream, ahead of
+ * the 401 check. The limit lives in the route file's `config` export because
+ * Next.js requires that object to be a literal.
  */
 export async function handlePostIdea(
   req: NextApiRequest,
@@ -93,8 +101,4 @@ export async function handlePostIdea(
   }
 
   res.status(201).json({ id: idea.id, createdAt: idea.createdAt, revalidated })
-}
-
-function errorName(error: unknown): string {
-  return error instanceof Error ? error.name : 'UnknownError'
 }

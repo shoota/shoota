@@ -1,16 +1,34 @@
-import { describe, expect, it } from 'vitest'
+import { timingSafeEqual } from 'crypto'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { isAuthorized } from '@/lib/ideas/auth'
 
+vi.mock('crypto', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('crypto')>()
+  return { ...actual, timingSafeEqual: vi.fn(actual.timingSafeEqual) }
+})
+
 const SECRET = 'correct-horse-battery-staple'
+
+afterEach(() => {
+  vi.mocked(timingSafeEqual).mockClear()
+})
 
 describe('isAuthorized', () => {
   it('accepts the matching bearer token', () => {
     expect(isAuthorized(`Bearer ${SECRET}`, SECRET)).toBe(true)
   })
 
-  it('accepts a lower-case scheme and surrounding whitespace', () => {
-    expect(isAuthorized(`  bearer ${SECRET}  `, SECRET)).toBe(true)
+  it('compares with timingSafeEqual', () => {
+    isAuthorized(`Bearer ${SECRET}`, SECRET)
+    expect(timingSafeEqual).toHaveBeenCalledTimes(1)
+  })
+
+  it.each([
+    ['lower-case scheme', `bearer ${SECRET}`],
+    ['surrounding whitespace', `  Bearer ${SECRET}  `],
+  ])('accepts %s', (_, header) => {
+    expect(isAuthorized(header, SECRET)).toBe(true)
   })
 
   it('rejects a wrong token of the same length', () => {
@@ -19,23 +37,31 @@ describe('isAuthorized', () => {
     expect(isAuthorized(`Bearer ${wrong}`, SECRET)).toBe(false)
   })
 
-  it('rejects a token of a different length without throwing', () => {
-    expect(isAuthorized(`Bearer ${SECRET}x`, SECRET)).toBe(false)
-    expect(isAuthorized('Bearer a', SECRET)).toBe(false)
+  it.each([
+    ['one character longer', `Bearer ${SECRET}x`],
+    ['much shorter', 'Bearer a'],
+  ])('rejects a token that is %s without calling timingSafeEqual', (_, h) => {
+    expect(isAuthorized(h, SECRET)).toBe(false)
+    expect(timingSafeEqual).not.toHaveBeenCalled()
   })
 
-  it('rejects a missing or malformed header', () => {
-    expect(isAuthorized(undefined, SECRET)).toBe(false)
-    expect(isAuthorized('', SECRET)).toBe(false)
-    expect(isAuthorized(SECRET, SECRET)).toBe(false)
-    expect(isAuthorized(`Basic ${SECRET}`, SECRET)).toBe(false)
-    expect(isAuthorized('Bearer', SECRET)).toBe(false)
-    expect(isAuthorized([`Bearer ${SECRET}`], SECRET)).toBe(false)
+  it.each([
+    ['undefined', undefined],
+    ['empty string', ''],
+    ['bare secret without scheme', SECRET],
+    ['Basic scheme', `Basic ${SECRET}`],
+    ['scheme only', 'Bearer'],
+    ['array header', [`Bearer ${SECRET}`]],
+  ])('rejects a %s header', (_, header) => {
+    expect(isAuthorized(header, SECRET)).toBe(false)
   })
 
-  it('fails closed when the secret is not configured', () => {
-    expect(isAuthorized(`Bearer ${SECRET}`, undefined)).toBe(false)
-    expect(isAuthorized('Bearer ', '')).toBe(false)
-    expect(isAuthorized('Bearer x', '')).toBe(false)
+  it.each([
+    ['undefined secret', `Bearer ${SECRET}`, undefined],
+    ['empty secret with empty token', 'Bearer ', ''],
+    ['empty secret with a token', 'Bearer x', ''],
+  ])('fails closed with %s', (_, header, secret) => {
+    expect(isAuthorized(header, secret)).toBe(false)
+    expect(timingSafeEqual).not.toHaveBeenCalled()
   })
 })
