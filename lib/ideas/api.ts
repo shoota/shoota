@@ -102,3 +102,43 @@ export async function handlePostIdea(
 
   res.status(201).json({ id: idea.id, createdAt: idea.createdAt, revalidated })
 }
+
+export type GetSnapshotResponse = Idea[] | { error: string }
+
+/**
+ * GET /api/ideas/snapshot — returns the latest snapshot for backup. The Blob
+ * store is private, so the admin page cannot link to the blob directly and
+ * downloads through this authenticated endpoint instead.
+ */
+export async function handleGetSnapshot(
+  req: NextApiRequest,
+  res: NextApiResponse<GetSnapshotResponse>
+): Promise<void> {
+  if (req.method !== 'GET') {
+    res.setHeader('Allow', 'GET')
+    res.status(405).json({ error: 'method_not_allowed' })
+    return
+  }
+
+  if (!isAuthorized(req.headers.authorization, process.env.IDEAS_POST_SECRET)) {
+    res.setHeader('WWW-Authenticate', 'Bearer')
+    res.status(401).json({ error: 'unauthorized' })
+    return
+  }
+
+  let ideas: Idea[]
+  try {
+    ideas = await loadLatest()
+  } catch (error) {
+    console.error('ideas: failed to load snapshot', errorName(error))
+    res.status(500).json({ error: 'internal' })
+    return
+  }
+
+  res.setHeader('Cache-Control', 'no-store')
+  res.setHeader(
+    'Content-Disposition',
+    `attachment; filename="ideas-${new Date().toISOString().replace(/[-:.]/g, '')}.json"`
+  )
+  res.status(200).json(ideas)
+}
