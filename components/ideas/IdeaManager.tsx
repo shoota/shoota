@@ -1,6 +1,12 @@
 import Link from 'next/link'
 import * as React from 'react'
 
+import {
+  dangerButtonClass,
+  fieldClass,
+  primaryButtonClass,
+  secondaryButtonClass,
+} from '@/components/ideas/styles'
 import { cn } from '@/lib/utils'
 import {
   MAX_BODY_BYTES,
@@ -10,7 +16,7 @@ import {
   requestByteLength,
   updateIdea,
 } from '@/lib/ideas/client'
-import { formatIdeaTimestamp } from '@/lib/ideas/format'
+import { formatIdeaTimestamp, ideaExcerpt } from '@/lib/ideas/format'
 import type { Idea } from '@/lib/ideas/types'
 
 type ListState =
@@ -23,27 +29,6 @@ type Props = {
   /** The stored secret; the list is only offered once one exists. */
   secret: string
 }
-
-const buttonClass =
-  'inline-flex min-h-11 items-center justify-center rounded-md border px-4 py-2 text-base transition-colors disabled:cursor-not-allowed disabled:opacity-40'
-
-const primaryButtonClass = cn(
-  buttonClass,
-  'border-primary bg-primary text-primary-foreground hover:opacity-90'
-)
-
-const secondaryButtonClass = cn(
-  buttonClass,
-  'border-border bg-transparent text-foreground hover:border-primary hover:text-primary'
-)
-
-const dangerButtonClass = cn(
-  buttonClass,
-  'border-destructive bg-transparent text-destructive hover:bg-destructive hover:text-destructive-foreground'
-)
-
-const fieldClass =
-  'w-full rounded-md border border-input bg-background px-3 py-3 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none'
 
 /**
  * Admin list of posted ideas with inline edit and two-step delete. The list
@@ -151,15 +136,6 @@ type RowProps = {
   onDeleted: (id: string) => void
 }
 
-/** The first non-empty line of the body, used as the row's caption. */
-function excerpt(body: string): string {
-  const line = body
-    .split('\n')
-    .map((part) => part.replace(/^#+\s*/, '').trim())
-    .find((part) => part.length > 0)
-  return line ?? '(本文なし)'
-}
-
 const IdeaRow: React.FC<RowProps> = ({
   idea,
   secret,
@@ -188,7 +164,14 @@ const IdeaRow: React.FC<RowProps> = ({
       return
     }
     setMode({ kind: 'saving', draft })
-    const result = await updateIdea(secret, idea.id, draft, fetch)
+    // `updatedAt` from the loaded list is sent as a precondition, so a stale
+    // row cannot silently overwrite an edit made from another device.
+    const result = await updateIdea(
+      secret,
+      { id: idea.id, expectedUpdatedAt: idea.updatedAt },
+      draft,
+      fetch
+    )
     if (result.ok) {
       onUpdated(idea.id, draft, result.updatedAt)
       setNotice({ kind: 'saved', revalidated: result.revalidated })
@@ -206,7 +189,11 @@ const IdeaRow: React.FC<RowProps> = ({
 
   const handleConfirmDelete = async () => {
     setMode({ kind: 'deleting' })
-    const result = await deleteIdea(secret, idea.id, fetch)
+    const result = await deleteIdea(
+      secret,
+      { id: idea.id, expectedUpdatedAt: idea.updatedAt },
+      fetch
+    )
     if (result.ok) {
       // The row unmounts when the parent drops the idea from its list.
       onDeleted(idea.id)
@@ -272,7 +259,7 @@ const IdeaRow: React.FC<RowProps> = ({
   return (
     <div className='flex flex-col gap-3 rounded-lg bg-card p-4 shadow-soft-glow'>
       <RowHeader idea={idea} />
-      <p className='m-0 truncate text-sm'>{excerpt(idea.body)}</p>
+      <p className='m-0 truncate text-sm'>{ideaExcerpt(idea.body)}</p>
       {mode.kind === 'view' && (
         <div className='flex flex-wrap gap-2'>
           <button

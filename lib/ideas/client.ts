@@ -4,6 +4,7 @@
  * storage are passed in.
  */
 
+import { sortNewestFirst } from '@/lib/ideas/sort'
 import { Idea, isIdea } from '@/lib/ideas/types'
 
 export const SECRET_STORAGE_KEY = 'ideas.postSecret'
@@ -21,6 +22,21 @@ export const SNAPSHOT_PATH = '/api/ideas/snapshot'
 /** Path of the edit/delete endpoint for one idea. */
 export function ideaApiPath(id: string): string {
   return `${POST_IDEA_PATH}/${encodeURIComponent(id)}`
+}
+
+/**
+ * Identifies the idea an edit or delete applies to. `expectedUpdatedAt` is
+ * the `updatedAt` the caller last saw; the server refuses the write with 412
+ * when the idea has changed since, so a stale list never overwrites an edit
+ * made elsewhere.
+ */
+export type IdeaTarget = {
+  id: string
+  expectedUpdatedAt: string
+}
+
+function preconditionHeaders(target: IdeaTarget): Record<string, string> {
+  return { 'If-Match': `"${target.expectedUpdatedAt}"` }
 }
 
 export type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>
@@ -116,6 +132,8 @@ export function messageForStatus(status: number): string {
       return '本文が空か、形式が正しくありません。'
     case 404:
       return 'そのアイデアは見つかりません。一覧を読み込み直してください。'
+    case 412:
+      return '他の端末で更新されています。一覧を読み込み直してください。'
     case 413:
       return '本文が 20 KB を超えています。'
     case 415:
@@ -208,17 +226,18 @@ function isUpdateIdeaSuccess(
  */
 export async function updateIdea(
   secret: string,
-  id: string,
+  target: IdeaTarget,
   body: string,
   fetchImpl: FetchLike
 ): Promise<UpdateIdeaResult> {
   let response: Awaited<ReturnType<FetchLike>>
   try {
-    response = await fetchImpl(ideaApiPath(id), {
+    response = await fetchImpl(ideaApiPath(target.id), {
       method: 'PUT',
       headers: {
         Authorization: `Bearer ${secret}`,
         'Content-Type': 'application/json',
+        ...preconditionHeaders(target),
       },
       body: requestBody(body),
     })
@@ -263,14 +282,17 @@ function isDeleteIdeaSuccess(
 
 export async function deleteIdea(
   secret: string,
-  id: string,
+  target: IdeaTarget,
   fetchImpl: FetchLike
 ): Promise<DeleteIdeaResult> {
   let response: Awaited<ReturnType<FetchLike>>
   try {
-    response = await fetchImpl(ideaApiPath(id), {
+    response = await fetchImpl(ideaApiPath(target.id), {
       method: 'DELETE',
-      headers: { Authorization: `Bearer ${secret}` },
+      headers: {
+        Authorization: `Bearer ${secret}`,
+        ...preconditionHeaders(target),
+      },
     })
   } catch {
     return { ok: false, message: NETWORK_ERROR_MESSAGE }
@@ -324,12 +346,7 @@ export async function fetchIdeas(
   if (!Array.isArray(payload)) {
     return { ok: false, message: UNREADABLE_RESPONSE_MESSAGE }
   }
-  const ideas = payload
-    .filter(isIdea)
-    .sort((a, b) =>
-      a.createdAt < b.createdAt ? 1 : a.createdAt > b.createdAt ? -1 : 0
-    )
-  return { ok: true, ideas }
+  return { ok: true, ideas: sortNewestFirst(payload.filter(isIdea)) }
 }
 
 export type SnapshotResult =

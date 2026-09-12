@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
 import { Idea } from '@/lib/ideas/types'
-import { sortNewestFirst, toIdeaView } from '@/lib/ideas/view'
+import { sortNewestFirst } from '@/lib/ideas/sort'
+import { toIdeaView } from '@/lib/ideas/view'
 
 function idea(id: string, createdAt: string, body = id): Idea {
   return { id, body, createdAt, updatedAt: createdAt }

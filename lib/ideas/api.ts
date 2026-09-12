@@ -33,6 +33,23 @@ function errorName(error: unknown): string {
 }
 
 /**
+ * Reads an `If-Match` precondition. The admin page sends the `updatedAt` it
+ * last saw as a quoted entity tag; the write is refused with 412 when the
+ * idea has changed since. Absent header means no check (curl users).
+ * Returns `null` when the header is present but not a single quoted tag.
+ */
+function readIfMatch(
+  header: string | string[] | undefined
+): string | undefined | null {
+  if (header === undefined) {
+    return undefined
+  }
+  const value = Array.isArray(header) ? header.join(',') : header
+  const match = /^\s*(?:W\/)?"([^"]*)"\s*$/.exec(value)
+  return match ? match[1] : null
+}
+
+/**
  * Regenerates each path on its own so a failure on one does not skip the
  * others. Returns false when any of them failed; the data is already durable
  * at that point and the ISR fallback catches up within the hour.
@@ -140,6 +157,12 @@ export type IdeaByIdResponse = PutIdeaResponse | DeleteIdeaResponse
  * pass `isIdeaId` before the store is read or a path is built from it; a
  * malformed id is a plain 404 without a Blob call. PUT replaces `body` and
  * `updatedAt` only; `id` and `createdAt` never change.
+ *
+ * Writes are read-modify-write on the whole snapshot and the store has no
+ * compare-and-swap, so an optional `If-Match: "<updatedAt>"` precondition
+ * lets a client refuse to overwrite an edit it has not seen (412). Two
+ * writes racing within the same instant can still lose one of them; that
+ * window is accepted for a single-user store.
  */
 export async function handleIdeaById(
   req: NextApiRequest,
@@ -163,17 +186,25 @@ export async function handleIdeaById(
     return
   }
 
-  let body: string | undefined
-  if (req.method === 'PUT') {
+  const expectedUpdatedAt = readIfMatch(req.headers['if-match'])
+  if (expectedUpdatedAt === null) {
+    res.status(400).json({ error: 'invalid_if_match' })
+    return
+  }
+
+  const isDelete = req.method === 'DELETE'
+  let body = ''
+  if (!isDelete) {
     if (mediaType(req.headers['content-type']) !== 'application/json') {
       res.status(415).json({ error: 'unsupported_media_type' })
       return
     }
-    body = readBody(req.body)
-    if (body === undefined) {
+    const read = readBody(req.body)
+    if (read === undefined) {
       res.status(400).json({ error: 'body_required' })
       return
     }
+    body = read
   }
 
   const now = new Date()
@@ -185,8 +216,15 @@ export async function handleIdeaById(
       res.status(404).json({ error: 'not_found' })
       return
     }
+    if (
+      expectedUpdatedAt !== undefined &&
+      expectedUpdatedAt !== current.updatedAt
+    ) {
+      res.status(412).json({ error: 'precondition_failed' })
+      return
+    }
     let next: Idea[]
-    if (body === undefined) {
+    if (isDelete) {
       next = ideas.filter((candidate) => candidate.id !== id)
     } else {
       const edited: Idea = { ...current, body, updatedAt: now.toISOString() }

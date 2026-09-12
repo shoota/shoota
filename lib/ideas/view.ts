@@ -29,9 +29,4 @@ export async function toIdeaView(idea: Idea): Promise<IdeaView> {
   }
 }
 
-/** Returns a copy ordered newest first. */
-export function sortNewestFirst(ideas: Idea[]): Idea[] {
-  return [...ideas].sort((a, b) =>
-    a.createdAt < b.createdAt ? 1 : a.createdAt > b.createdAt ? -1 : 0
-  )
-}
+export { sortNewestFirst } from '@/lib/ideas/sort'

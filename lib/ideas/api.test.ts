@@ -2,8 +2,8 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
-  IdeaByIdResponse,
   GetSnapshotResponse,
+  IdeaByIdResponse,
   PostIdeaResponse,
   handleGetSnapshot,
   handleIdeaById,
@@ -500,14 +500,18 @@ describe('handleIdeaById', () => {
       expect(saveSnapshot).not.toHaveBeenCalled()
     })
 
-    it('returns 401 for DELETE without a secret', async () => {
+    it.each([
+      ['no header', undefined],
+      ['a wrong secret', 'Bearer nope'],
+      ['a non-bearer scheme', `Basic ${SECRET}`],
+    ])('returns 401 for DELETE with %s', async (_, authorization) => {
       const { res, state } = makeResponse<IdeaByIdResponse>()
-      await handleIdeaById(
-        deleteRequest(existing.id, { authorization: undefined }),
-        res
-      )
+      await handleIdeaById(deleteRequest(existing.id, { authorization }), res)
       expect(state.statusCode).toBe(401)
+      expect(state.headers['WWW-Authenticate']).toBe('Bearer')
+      expect(state.json).toEqual({ error: 'unauthorized' })
       expect(loadLatest).not.toHaveBeenCalled()
+      expect(saveSnapshot).not.toHaveBeenCalled()
     })
 
     it('checks the secret before the id, so a bad id is still a 401', async () => {
@@ -555,9 +559,90 @@ describe('handleIdeaById', () => {
         const { res, state } = makeResponse<IdeaByIdResponse>()
         await handleIdeaById(request, res)
         expect(state.statusCode).toBe(404)
+        expect(state.json).toEqual({ error: 'not_found' })
         expect(state.revalidate).not.toHaveBeenCalled()
       }
       expect(saveSnapshot).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('If-Match precondition', () => {
+    const tag = `"${existing.updatedAt}"`
+
+    it.each([
+      ['PUT', () => putRequest(existing.id, undefined, { 'if-match': tag })],
+      ['DELETE', () => deleteRequest(existing.id, { 'if-match': tag })],
+    ])('%s goes through when the tag matches updatedAt', async (_, make) => {
+      const { res, state } = makeResponse<IdeaByIdResponse>()
+      state.revalidate.mockResolvedValue()
+      await handleIdeaById(make(), res)
+      expect(state.statusCode).toBe(200)
+      expect(saveSnapshot).toHaveBeenCalledTimes(1)
+    })
+
+    it('accepts a weak tag', async () => {
+      const { res, state } = makeResponse<IdeaByIdResponse>()
+      state.revalidate.mockResolvedValue()
+      await handleIdeaById(
+        putRequest(existing.id, undefined, { 'if-match': `W/${tag}` }),
+        res
+      )
+      expect(state.statusCode).toBe(200)
+    })
+
+    it.each([
+      [
+        'PUT',
+        () =>
+          putRequest(existing.id, undefined, {
+            'if-match': '"2026-09-10T00:00:00.000Z"',
+          }),
+      ],
+      [
+        'DELETE',
+        () =>
+          deleteRequest(existing.id, {
+            'if-match': '"2026-09-10T00:00:00.000Z"',
+          }),
+      ],
+    ])(
+      '%s is refused with 412 when the idea changed since',
+      async (_, make) => {
+        const { res, state } = makeResponse<IdeaByIdResponse>()
+        await handleIdeaById(make(), res)
+        expect(state.statusCode).toBe(412)
+        expect(state.json).toEqual({ error: 'precondition_failed' })
+        expect(loadLatest).toHaveBeenCalledTimes(1)
+        expect(saveSnapshot).not.toHaveBeenCalled()
+        expect(state.revalidate).not.toHaveBeenCalled()
+      }
+    )
+
+    it.each([
+      ['an unquoted value', existing.updatedAt],
+      ['an empty header', ''],
+      ['a list of tags', `${tag}, "other"`],
+      ['a wildcard', '*'],
+    ])('returns 400 for %s without reading the store', async (_, value) => {
+      const { res, state } = makeResponse<IdeaByIdResponse>()
+      await handleIdeaById(
+        putRequest(existing.id, undefined, { 'if-match': value }),
+        res
+      )
+      expect(state.statusCode).toBe(400)
+      expect(state.json).toEqual({ error: 'invalid_if_match' })
+      expect(loadLatest).not.toHaveBeenCalled()
+    })
+
+    it('is checked after the id exists, so an unknown id stays 404', async () => {
+      const { res, state } = makeResponse<IdeaByIdResponse>()
+      await handleIdeaById(
+        putRequest('20260912T000000000Z-000000', undefined, {
+          'if-match': '"whatever"',
+        }),
+        res
+      )
+      expect(state.statusCode).toBe(404)
     })
   })
 
@@ -610,20 +695,30 @@ describe('handleIdeaById', () => {
       ])
     })
 
-    it('reports revalidated: false when either page fails, after saving', async () => {
-      const { res, state } = makeResponse<IdeaByIdResponse>()
-      state.revalidate
-        .mockResolvedValueOnce()
-        .mockRejectedValueOnce(new Error('detail down'))
+    it.each([
+      ['the feed', [new Error('feed down'), undefined]],
+      ['the detail page', [undefined, new Error('detail down')]],
+    ])(
+      'reports revalidated: false when %s fails, after saving',
+      async (_, outcomes) => {
+        const { res, state } = makeResponse<IdeaByIdResponse>()
+        for (const outcome of outcomes) {
+          if (outcome === undefined) {
+            state.revalidate.mockResolvedValueOnce()
+          } else {
+            state.revalidate.mockRejectedValueOnce(outcome)
+          }
+        }
 
-      await handleIdeaById(putRequest(existing.id), res)
+        await handleIdeaById(putRequest(existing.id), res)
 
-      expect(state.statusCode).toBe(200)
-      expect(state.json).toMatchObject({ revalidated: false })
-      expect(saveSnapshot).toHaveBeenCalledTimes(1)
-      expect(state.revalidate).toHaveBeenCalledTimes(2)
-      expect(loggedText()).not.toContain('detail down')
-    })
+        expect(state.statusCode).toBe(200)
+        expect(state.json).toMatchObject({ revalidated: false })
+        expect(saveSnapshot).toHaveBeenCalledTimes(1)
+        expect(state.revalidate).toHaveBeenCalledTimes(2)
+        expect(loggedText()).not.toContain('down')
+      }
+    )
   })
 
   describe('DELETE success', () => {
@@ -666,18 +761,29 @@ describe('handleIdeaById', () => {
       expect(saveSnapshot).toHaveBeenCalledWith([existing], NOW)
     })
 
-    it('reports revalidated: false when the feed fails, after saving', async () => {
-      const { res, state } = makeResponse<IdeaByIdResponse>()
-      state.revalidate
-        .mockRejectedValueOnce(new Error('feed down'))
-        .mockResolvedValueOnce()
+    it.each([
+      ['the feed', [new Error('feed down'), undefined]],
+      ['the detail page', [undefined, new Error('detail down')]],
+    ])(
+      'reports revalidated: false when %s fails, after saving',
+      async (_, outcomes) => {
+        const { res, state } = makeResponse<IdeaByIdResponse>()
+        for (const outcome of outcomes) {
+          if (outcome === undefined) {
+            state.revalidate.mockResolvedValueOnce()
+          } else {
+            state.revalidate.mockRejectedValueOnce(outcome)
+          }
+        }
 
-      await handleIdeaById(deleteRequest(existing.id), res)
+        await handleIdeaById(deleteRequest(existing.id), res)
 
-      expect(state.statusCode).toBe(200)
-      expect(state.json).toEqual({ id: existing.id, revalidated: false })
-      expect(state.revalidate).toHaveBeenCalledTimes(2)
-    })
+        expect(state.statusCode).toBe(200)
+        expect(state.json).toEqual({ id: existing.id, revalidated: false })
+        expect(saveSnapshot).toHaveBeenCalledTimes(1)
+        expect(state.revalidate).toHaveBeenCalledTimes(2)
+      }
+    )
   })
 
   describe('failure', () => {
