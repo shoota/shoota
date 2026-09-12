@@ -1,10 +1,16 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { PostIdeaResponse, handlePostIdea } from '@/lib/ideas/api'
+import {
+  GetSnapshotResponse,
+  PostIdeaResponse,
+  handleGetSnapshot,
+  handlePostIdea,
+} from '@/lib/ideas/api'
 import { loadLatest, saveSnapshot } from '@/lib/ideas/store'
 import { Idea } from '@/lib/ideas/types'
 import route, { config } from '@/pages/api/ideas'
+import snapshotRoute from '@/pages/api/ideas/snapshot'
 
 vi.mock('@/lib/ideas/store', () => ({
   loadLatest: vi.fn(),
@@ -39,11 +45,11 @@ function makeRequest({
   return { method, headers, body, query, url } as unknown as NextApiRequest
 }
 
-function makeResponse() {
+function makeResponse<T = PostIdeaResponse>() {
   const state = {
     statusCode: 0,
     headers: {} as Record<string, string>,
-    json: undefined as PostIdeaResponse | undefined,
+    json: undefined as T | undefined,
     revalidate: vi.fn<(path: string) => Promise<void>>(),
   }
   const res = {
@@ -51,7 +57,7 @@ function makeResponse() {
       state.statusCode = code
       return res
     },
-    json(payload: PostIdeaResponse) {
+    json(payload: T) {
       state.json = payload
       return res
     },
@@ -61,7 +67,7 @@ function makeResponse() {
     },
     revalidate: state.revalidate,
   }
-  return { res: res as unknown as NextApiResponse<PostIdeaResponse>, state }
+  return { res: res as unknown as NextApiResponse<T>, state }
 }
 
 function authorized(extra: FakeRequest = {}) {
@@ -100,6 +106,10 @@ afterEach(() => {
 describe('route wiring', () => {
   it('exports the handler as the default export', () => {
     expect(route).toBe(handlePostIdea)
+  })
+
+  it('exports the snapshot handler from /api/ideas/snapshot', () => {
+    expect(snapshotRoute).toBe(handleGetSnapshot)
   })
 
   it('caps the request body at 20kb through the body parser', () => {
@@ -291,5 +301,82 @@ describe('handlePostIdea', () => {
       expect(loggedText()).not.toContain('blob exploded')
       expect(loggedText()).not.toContain(SECRET)
     })
+  })
+})
+
+describe('handleGetSnapshot', () => {
+  function getRequest(headers: Record<string, string | undefined> = {}) {
+    return makeRequest({ method: 'GET', headers })
+  }
+
+  it('rejects non-GET methods with 405 and Allow', async () => {
+    const { res, state } = makeResponse<GetSnapshotResponse>()
+    await handleGetSnapshot(makeRequest({ method: 'POST' }), res)
+    expect(state.statusCode).toBe(405)
+    expect(state.json).toEqual({ error: 'method_not_allowed' })
+    expect(state.headers.Allow).toBe('GET')
+    expect(loadLatest).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    ['no header', {}],
+    ['wrong secret', { authorization: 'Bearer not-the-secret' }],
+    ['missing Bearer scheme', { authorization: SECRET }],
+  ])('returns 401 with %s and does not read the store', async (_, headers) => {
+    const { res, state } = makeResponse<GetSnapshotResponse>()
+    await handleGetSnapshot(getRequest(headers), res)
+    expect(state.statusCode).toBe(401)
+    expect(state.json).toEqual({ error: 'unauthorized' })
+    expect(state.headers['WWW-Authenticate']).toBe('Bearer')
+    expect(loadLatest).not.toHaveBeenCalled()
+  })
+
+  it('returns 401 when IDEAS_POST_SECRET is unset', async () => {
+    vi.stubEnv('IDEAS_POST_SECRET', undefined)
+    const { res, state } = makeResponse<GetSnapshotResponse>()
+    await handleGetSnapshot(
+      getRequest({ authorization: `Bearer ${SECRET}` }),
+      res
+    )
+    expect(state.statusCode).toBe(401)
+    expect(loadLatest).not.toHaveBeenCalled()
+  })
+
+  it('returns the latest snapshot as a downloadable JSON array', async () => {
+    const { res, state } = makeResponse<GetSnapshotResponse>()
+    await handleGetSnapshot(
+      getRequest({ authorization: `Bearer ${SECRET}` }),
+      res
+    )
+    expect(state.statusCode).toBe(200)
+    expect(state.json).toEqual([existing])
+    expect(state.headers['Cache-Control']).toBe('no-store')
+    expect(state.headers['Content-Disposition']).toBe(
+      'attachment; filename="ideas-20260912T010203456Z.json"'
+    )
+  })
+
+  it('returns an empty array when there are no ideas', async () => {
+    vi.mocked(loadLatest).mockResolvedValue([])
+    const { res, state } = makeResponse<GetSnapshotResponse>()
+    await handleGetSnapshot(
+      getRequest({ authorization: `Bearer ${SECRET}` }),
+      res
+    )
+    expect(state.statusCode).toBe(200)
+    expect(state.json).toEqual([])
+  })
+
+  it('returns 500 without details when loading fails', async () => {
+    vi.mocked(loadLatest).mockRejectedValue(new Error('blob exploded'))
+    const { res, state } = makeResponse<GetSnapshotResponse>()
+    await handleGetSnapshot(
+      getRequest({ authorization: `Bearer ${SECRET}` }),
+      res
+    )
+    expect(state.statusCode).toBe(500)
+    expect(state.json).toEqual({ error: 'internal' })
+    expect(loggedText()).not.toContain('blob exploded')
+    expect(loggedText()).not.toContain(SECRET)
   })
 })

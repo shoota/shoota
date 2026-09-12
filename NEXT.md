@@ -82,6 +82,10 @@ curl -sS -X POST https://shoota.work/api/ideas \
 
 Responses: `201 { id, createdAt, revalidated }` on success, `401` for a missing or wrong secret, `415` for a non-JSON content type, `400` for an empty `body`, `413` when the body exceeds 20 KB.
 
+### Admin page
+
+`/ideas/new` is a small form for posting from a phone. It is not linked from the navigation and carries `<meta name="robots" content="noindex">`; the path itself is not a secret, the API's Bearer check is the boundary. The page keeps the secret in that browser's `localStorage` (enter it once per device, clear it from the same page) and sends it as the `Authorization` header. The "download snapshot" button calls `GET /api/ideas/snapshot`, which requires the same Bearer secret and returns the latest snapshot as a JSON array, because the Blob store is private and cannot be linked directly.
+
 ### Tests
 
 Unit tests use [Vitest](https://vitest.dev/), which requires Node.js 22.12 or later. Test files live next to the code they cover as `*.test.ts`, and `vitest.config.ts` resolves the `@/` path alias from `tsconfig.json`.
