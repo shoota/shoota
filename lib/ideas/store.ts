@@ -115,7 +115,9 @@ export function selectStaleSnapshots<T extends { pathname: string }>(
   policy: RetentionPolicy = SNAPSHOT_RETENTION
 ): T[] {
   const keepAlways = Math.max(1, Math.floor(policy.keepAlways))
-  const keepRecent = Math.max(keepAlways, Math.floor(policy.keepRecent))
+  // No need to clamp keepRecent against keepAlways: the keepAlways check
+  // below runs first, so a smaller keepRecent cannot reach those ranks.
+  const keepRecent = Math.floor(policy.keepRecent)
   const cutoff = now.getTime() - policy.maxAgeMs
   const snapshots = blobs
     .map((blob) => ({ blob, time: snapshotTimestamp(blob.pathname) }))
