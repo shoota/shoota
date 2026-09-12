@@ -1,11 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 import { isAuthorized } from '@/lib/ideas/auth'
+import { IDEAS_PATH, ideaPath } from '@/lib/ideas/detail'
 import { generateIdeaId } from '@/lib/ideas/id'
 import { loadLatest, saveSnapshot } from '@/lib/ideas/store'
 import { Idea } from '@/lib/ideas/types'
-
-export const IDEAS_PATH = '/ideas'
 
 /** Response body of `POST /api/ideas`. Errors carry a short code only. */
 export type PostIdeaResponse =
@@ -35,7 +34,8 @@ function errorName(error: unknown): string {
 
 /**
  * POST /api/ideas — appends one idea to the latest snapshot and regenerates
- * the feed. Only the write path is authenticated; reads stay public.
+ * the feed and the new idea's detail page. Only the write path is
+ * authenticated; reads stay public.
  *
  * Within the handler the method and the shared secret are checked before the
  * request body is looked at, and `res.revalidate()` runs only after a
@@ -92,12 +92,17 @@ export async function handlePostIdea(
 
   // The idea is durable at this point. If regeneration fails the ISR
   // fallback picks it up within the hour, so report success either way.
+  // The detail path is revalidated too, because ISR caches a 404 for an id
+  // that was requested before it existed. Each path is attempted on its own
+  // so a failure on one does not skip the other.
   let revalidated = true
-  try {
-    await res.revalidate(IDEAS_PATH)
-  } catch (error) {
-    revalidated = false
-    console.error('ideas: failed to revalidate feed', errorName(error))
+  for (const path of [IDEAS_PATH, ideaPath(idea.id)]) {
+    try {
+      await res.revalidate(path)
+    } catch (error) {
+      revalidated = false
+      console.error('ideas: failed to revalidate', path, errorName(error))
+    }
   }
 
   res.status(201).json({ id: idea.id, createdAt: idea.createdAt, revalidated })

@@ -232,7 +232,7 @@ describe('handlePostIdea', () => {
       updatedAt: '2026-09-12T01:02:03.456Z',
     }
 
-    it('appends the idea, saves a snapshot, and revalidates the feed', async () => {
+    it('appends the idea, saves a snapshot, and revalidates the feed and the detail page', async () => {
       const { res, state } = makeResponse()
       state.revalidate.mockResolvedValue()
 
@@ -251,8 +251,10 @@ describe('handlePostIdea', () => {
         [existing, { id, ...created }],
         NOW
       )
-      expect(state.revalidate).toHaveBeenCalledTimes(1)
-      expect(state.revalidate).toHaveBeenCalledWith('/ideas')
+      expect(state.revalidate.mock.calls).toEqual([
+        ['/ideas'],
+        [`/ideas/${id}`],
+      ])
     })
 
     it('starts a snapshot from scratch when there are no ideas yet', async () => {
@@ -281,6 +283,37 @@ describe('handlePostIdea', () => {
       expect(saveSnapshot).toHaveBeenCalledTimes(1)
       expect(loggedText()).not.toContain('revalidate down')
       expect(loggedText()).not.toContain(SECRET)
+    })
+
+    it('still revalidates the detail page when the feed fails, and reports false', async () => {
+      const { res, state } = makeResponse()
+      state.revalidate
+        .mockRejectedValueOnce(new Error('feed down'))
+        .mockResolvedValueOnce()
+
+      await handlePostIdea(authorized({ body: { body: '# new idea' } }), res)
+
+      const id = (state.json as { id: string }).id
+      expect(state.json).toMatchObject({ revalidated: false })
+      expect(state.revalidate.mock.calls).toEqual([
+        ['/ideas'],
+        [`/ideas/${id}`],
+      ])
+      expect(loggedText()).toContain('/ideas')
+      expect(loggedText()).not.toContain('feed down')
+    })
+
+    it('reports false when only the detail page fails', async () => {
+      const { res, state } = makeResponse()
+      state.revalidate
+        .mockResolvedValueOnce()
+        .mockRejectedValueOnce(new Error('detail down'))
+
+      await handlePostIdea(authorized({ body: { body: '# new idea' } }), res)
+
+      expect(state.statusCode).toBe(201)
+      expect(state.json).toMatchObject({ revalidated: false })
+      expect(state.revalidate).toHaveBeenCalledTimes(2)
     })
   })
 
