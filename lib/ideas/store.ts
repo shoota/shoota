@@ -11,12 +11,31 @@ import { Idea, isIdea } from '@/lib/ideas/types'
 export const SNAPSHOT_PREFIX = 'ideas/'
 
 /**
- * How many snapshots to keep. Every save adds one, so without a cap the
- * store grows forever and eats the free tier; older ones are only history.
+ * Retention policy. Every save adds a snapshot, so without pruning the store
+ * grows forever. Older snapshots are only history, but a few are kept as a
+ * safety net against data loss on the store's side:
+ *
+ * - the newest `keepAlways` snapshots are never deleted;
+ * - beyond those, a snapshot is deleted once it is at least `maxAgeMs` old
+ *   or falls outside the newest `keepRecent`.
  */
-export const SNAPSHOT_RETENTION = 50
+export type RetentionPolicy = {
+  keepAlways: number
+  keepRecent: number
+  maxAgeMs: number
+}
+
+export const SNAPSHOT_RETENTION: RetentionPolicy = {
+  keepAlways: 5,
+  keepRecent: 30,
+  // "One month", taken as 30 days.
+  maxAgeMs: 30 * 24 * 60 * 60 * 1000,
+}
 
 const SNAPSHOT_PATHNAME = /^ideas\/[^/]+\.json$/
+
+const SNAPSHOT_TIMESTAMP =
+  /^ideas\/(\d{4}-\d{2}-\d{2})T(\d{2})-(\d{2})-(\d{2}\.\d{3})Z\.json$/
 
 type BlobAccess = 'public' | 'private'
 
@@ -72,21 +91,47 @@ export function selectLatestSnapshot<T extends { pathname: string }>(
 }
 
 /**
- * Picks the snapshots that fall outside the newest `keep`, oldest first.
- * Uses the same pathname shape as `selectLatestSnapshot`, so unrelated
- * objects under the prefix are never returned. `keep` is clamped to at least
- * 1 so the newest snapshot can never be selected.
+ * Recovers the time a snapshot was taken from its pathname (the inverse of
+ * `snapshotPathname`). Returns `undefined` for anything else.
+ */
+export function snapshotTimestamp(pathname: string): number | undefined {
+  const match = SNAPSHOT_TIMESTAMP.exec(pathname)
+  if (!match) {
+    return undefined
+  }
+  const time = Date.parse(`${match[1]}T${match[2]}:${match[3]}:${match[4]}Z`)
+  return Number.isNaN(time) ? undefined : time
+}
+
+/**
+ * Picks the snapshots the policy no longer keeps, oldest first. Only
+ * pathnames that `snapshotTimestamp` understands are considered, so
+ * unrelated objects under the prefix are never returned. `keepAlways` is
+ * clamped to at least 1 so the newest snapshot can never be selected.
  */
 export function selectStaleSnapshots<T extends { pathname: string }>(
   blobs: T[],
-  keep: number = SNAPSHOT_RETENTION
+  now: Date,
+  policy: RetentionPolicy = SNAPSHOT_RETENTION
 ): T[] {
-  const retained = Math.max(1, Math.floor(keep))
+  const keepAlways = Math.max(1, Math.floor(policy.keepAlways))
+  const keepRecent = Math.max(keepAlways, Math.floor(policy.keepRecent))
+  const cutoff = now.getTime() - policy.maxAgeMs
   const snapshots = blobs
-    .filter((blob) => SNAPSHOT_PATHNAME.test(blob.pathname))
-    .sort((a, b) => (a.pathname < b.pathname ? -1 : 1))
-  const excess = snapshots.length - retained
-  return excess > 0 ? snapshots.slice(0, excess) : []
+    .map((blob) => ({ blob, time: snapshotTimestamp(blob.pathname) }))
+    .filter(
+      (entry): entry is { blob: T; time: number } => entry.time !== undefined
+    )
+    .sort((a, b) => b.time - a.time)
+  return snapshots
+    .filter((entry, rank) => {
+      if (rank < keepAlways) {
+        return false
+      }
+      return rank >= keepRecent || entry.time <= cutoff
+    })
+    .map((entry) => entry.blob)
+    .reverse()
 }
 
 /**
@@ -159,18 +204,19 @@ export async function saveSnapshot(
 }
 
 /**
- * Deletes snapshots beyond the newest `keep` and returns their pathnames.
- * Meant to run right after a successful `saveSnapshot`. Failures propagate;
- * callers decide whether they matter. Without a token there is nothing to
- * prune.
+ * Deletes the snapshots the policy no longer keeps and returns their
+ * pathnames. Meant to run right after a successful `saveSnapshot`. Failures
+ * propagate; callers decide whether they matter. Without a token there is
+ * nothing to prune.
  */
 export async function pruneSnapshots(
-  keep: number = SNAPSHOT_RETENTION
+  now: Date = new Date(),
+  policy: RetentionPolicy = SNAPSHOT_RETENTION
 ): Promise<string[]> {
   if (!blobToken()) {
     return []
   }
-  const stale = selectStaleSnapshots(await listSnapshots(), keep)
+  const stale = selectStaleSnapshots(await listSnapshots(), now, policy)
   if (stale.length === 0) {
     return []
   }

@@ -102,7 +102,12 @@ Both accept an optional `If-Match: "<updatedAt>"` header carrying the `updatedAt
 
 ### Snapshot retention
 
-Every save writes a new `ideas/<timestamp>.json`, so after each successful save the API lists the prefix and deletes the snapshots beyond the newest 50 (`SNAPSHOT_RETENTION` in `lib/ideas/store.ts`). The newest one is never deleted. If pruning fails the request still succeeds (the new snapshot is already stored) and the failure is only logged; the next save prunes again. Older snapshots are history, not a backup: use the admin page's download button for that.
+Every save writes a new `ideas/<timestamp>.json`, so after each successful save the API lists the prefix and deletes the snapshots the retention policy (`SNAPSHOT_RETENTION` in `lib/ideas/store.ts`) no longer keeps:
+
+- the newest 5 snapshots are always kept, as a safety net against data loss on the store's side;
+- beyond those, a snapshot is deleted once it is older than 30 days or falls outside the newest 30.
+
+At one post a week nothing is deleted for about a month, and the store settles at 5 to 30 snapshots. Only the newest snapshot is ever read; the rest are history. If pruning fails the request still succeeds (the new snapshot is already stored) and the failure is only logged; the next save prunes again. For a real backup use the admin page's download button.
 
 ### Idea pages
 

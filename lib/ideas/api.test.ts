@@ -262,6 +262,7 @@ describe('handlePostIdea', () => {
         NOW
       )
       expect(pruneSnapshots).toHaveBeenCalledTimes(1)
+      expect(pruneSnapshots).toHaveBeenCalledWith(NOW)
       expect(
         vi.mocked(pruneSnapshots).mock.invocationCallOrder[0]
       ).toBeGreaterThan(vi.mocked(saveSnapshot).mock.invocationCallOrder[0])
@@ -746,6 +747,7 @@ describe('handleIdeaById', () => {
         NOW
       )
       expect(pruneSnapshots).toHaveBeenCalledTimes(1)
+      expect(pruneSnapshots).toHaveBeenCalledWith(NOW)
       expect(
         vi.mocked(pruneSnapshots).mock.invocationCallOrder[0]
       ).toBeGreaterThan(vi.mocked(saveSnapshot).mock.invocationCallOrder[0])
@@ -792,6 +794,7 @@ describe('handleIdeaById', () => {
       expect(state.json).toEqual({ id: existing.id, revalidated: true })
       expect(saveSnapshot).toHaveBeenCalledWith([second], NOW)
       expect(pruneSnapshots).toHaveBeenCalledTimes(1)
+      expect(pruneSnapshots).toHaveBeenCalledWith(NOW)
       expect(
         vi.mocked(pruneSnapshots).mock.invocationCallOrder[0]
       ).toBeGreaterThan(vi.mocked(saveSnapshot).mock.invocationCallOrder[0])

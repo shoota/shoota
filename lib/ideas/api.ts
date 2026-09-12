@@ -58,7 +58,7 @@ function readIfMatch(
 async function saveAndPrune(ideas: Idea[], now: Date): Promise<void> {
   await saveSnapshot(ideas, now)
   try {
-    await pruneSnapshots()
+    await pruneSnapshots(now)
   } catch (error) {
     console.error('ideas: failed to prune snapshots', errorName(error))
   }
