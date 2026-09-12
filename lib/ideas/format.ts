@@ -1,5 +1,19 @@
 export const IDEAS_TIME_ZONE = 'Asia/Tokyo'
 
+export const EMPTY_EXCERPT = '(本文なし)'
+
+/**
+ * The first non-empty line of a Markdown body with any heading marker
+ * removed, used as a one-line caption in the admin list.
+ */
+export function ideaExcerpt(body: string): string {
+  const line = body
+    .split('\n')
+    .map((part) => part.replace(/^#+\s*/, '').trim())
+    .find((part) => part.length > 0)
+  return line ?? EMPTY_EXCERPT
+}
+
 /**
  * Formats an ISO timestamp as `yyyy.MM.dd HH:mm` in a fixed time zone.
  * Formatting happens in `getStaticProps`, so the markup is identical on the

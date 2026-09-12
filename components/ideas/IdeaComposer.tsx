@@ -1,6 +1,12 @@
 import Link from 'next/link'
 import * as React from 'react'
 
+import { IdeaManager } from '@/components/ideas/IdeaManager'
+import {
+  fieldClass,
+  primaryButtonClass,
+  secondaryButtonClass,
+} from '@/components/ideas/styles'
 import { cn } from '@/lib/utils'
 import {
   MAX_BODY_BYTES,
@@ -72,22 +78,6 @@ function downloadJson(json: string, filename: string) {
   // Revoke after the click has been dispatched so the download can start.
   window.setTimeout(() => URL.revokeObjectURL(url), 0)
 }
-
-const fieldClass =
-  'w-full rounded-md border border-input bg-background px-3 py-3 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none'
-
-const buttonClass =
-  'inline-flex min-h-11 items-center justify-center rounded-md border px-4 py-2 text-base transition-colors disabled:cursor-not-allowed disabled:opacity-40'
-
-const primaryButtonClass = cn(
-  buttonClass,
-  'border-primary bg-primary text-primary-foreground hover:opacity-90'
-)
-
-const secondaryButtonClass = cn(
-  buttonClass,
-  'border-border bg-transparent text-foreground hover:border-primary hover:text-primary'
-)
 
 export const IdeaComposer: React.FC = () => {
   // Secret: lives in this browser's localStorage. The server snapshot is
@@ -262,6 +252,8 @@ export const IdeaComposer: React.FC = () => {
           )}
         </div>
       </section>
+
+      {secret !== undefined && <IdeaManager secret={secret} />}
     </div>
   )
 }

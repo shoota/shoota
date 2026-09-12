@@ -4,6 +4,9 @@
  * storage are passed in.
  */
 
+import { sortNewestFirst } from '@/lib/ideas/sort'
+import { Idea, isIdea } from '@/lib/ideas/types'
+
 export const SECRET_STORAGE_KEY = 'ideas.postSecret'
 
 /**
@@ -15,6 +18,26 @@ export const MAX_BODY_BYTES = 20 * 1024
 
 export const POST_IDEA_PATH = '/api/ideas'
 export const SNAPSHOT_PATH = '/api/ideas/snapshot'
+
+/** Path of the edit/delete endpoint for one idea. */
+export function ideaApiPath(id: string): string {
+  return `${POST_IDEA_PATH}/${encodeURIComponent(id)}`
+}
+
+/**
+ * Identifies the idea an edit or delete applies to. `expectedUpdatedAt` is
+ * the `updatedAt` the caller last saw; the server refuses the write with 412
+ * when the idea has changed since, so a stale list never overwrites an edit
+ * made elsewhere.
+ */
+export type IdeaTarget = {
+  id: string
+  expectedUpdatedAt: string
+}
+
+function preconditionHeaders(target: IdeaTarget): Record<string, string> {
+  return { 'If-Match': `"${target.expectedUpdatedAt}"` }
+}
 
 export type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>
 
@@ -107,6 +130,10 @@ export function messageForStatus(status: number): string {
       return '秘密が違います。保存し直してください。'
     case 400:
       return '本文が空か、形式が正しくありません。'
+    case 404:
+      return 'そのアイデアは見つかりません。一覧を読み込み直してください。'
+    case 412:
+      return '他の端末で更新されています。一覧を読み込み直してください。'
     case 413:
       return '本文が 20 KB を超えています。'
     case 415:
@@ -172,6 +199,154 @@ export async function postIdea(
     createdAt: payload.createdAt,
     revalidated: payload.revalidated,
   }
+}
+
+export type UpdateIdeaResult =
+  | { ok: true; id: string; updatedAt: string; revalidated: boolean }
+  | { ok: false; message: string }
+
+function isUpdateIdeaSuccess(
+  value: unknown
+): value is { id: string; updatedAt: string; revalidated: boolean } {
+  if (typeof value !== 'object' || value === null) {
+    return false
+  }
+  const record = value as Record<string, unknown>
+  return (
+    typeof record.id === 'string' &&
+    typeof record.updatedAt === 'string' &&
+    typeof record.revalidated === 'boolean'
+  )
+}
+
+/**
+ * Replaces the body of one idea. The request is the same `{ body }` JSON as
+ * `postIdea`, so `requestByteLength` measures it exactly and the client-side
+ * 20 KB check stays in step with the server's 413.
+ */
+export async function updateIdea(
+  secret: string,
+  target: IdeaTarget,
+  body: string,
+  fetchImpl: FetchLike
+): Promise<UpdateIdeaResult> {
+  let response: Awaited<ReturnType<FetchLike>>
+  try {
+    response = await fetchImpl(ideaApiPath(target.id), {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${secret}`,
+        'Content-Type': 'application/json',
+        ...preconditionHeaders(target),
+      },
+      body: requestBody(body),
+    })
+  } catch {
+    return { ok: false, message: NETWORK_ERROR_MESSAGE }
+  }
+  if (!response.ok) {
+    return { ok: false, message: messageForStatus(response.status) }
+  }
+  let payload: unknown
+  try {
+    payload = await response.json()
+  } catch {
+    return { ok: false, message: UNREADABLE_RESPONSE_MESSAGE }
+  }
+  if (!isUpdateIdeaSuccess(payload)) {
+    return { ok: false, message: UNREADABLE_RESPONSE_MESSAGE }
+  }
+  return {
+    ok: true,
+    id: payload.id,
+    updatedAt: payload.updatedAt,
+    revalidated: payload.revalidated,
+  }
+}
+
+export type DeleteIdeaResult =
+  | { ok: true; id: string; revalidated: boolean }
+  | { ok: false; message: string }
+
+function isDeleteIdeaSuccess(
+  value: unknown
+): value is { id: string; revalidated: boolean } {
+  if (typeof value !== 'object' || value === null) {
+    return false
+  }
+  const record = value as Record<string, unknown>
+  return (
+    typeof record.id === 'string' && typeof record.revalidated === 'boolean'
+  )
+}
+
+export async function deleteIdea(
+  secret: string,
+  target: IdeaTarget,
+  fetchImpl: FetchLike
+): Promise<DeleteIdeaResult> {
+  let response: Awaited<ReturnType<FetchLike>>
+  try {
+    response = await fetchImpl(ideaApiPath(target.id), {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${secret}`,
+        ...preconditionHeaders(target),
+      },
+    })
+  } catch {
+    return { ok: false, message: NETWORK_ERROR_MESSAGE }
+  }
+  if (!response.ok) {
+    return { ok: false, message: messageForStatus(response.status) }
+  }
+  let payload: unknown
+  try {
+    payload = await response.json()
+  } catch {
+    return { ok: false, message: UNREADABLE_RESPONSE_MESSAGE }
+  }
+  if (!isDeleteIdeaSuccess(payload)) {
+    return { ok: false, message: UNREADABLE_RESPONSE_MESSAGE }
+  }
+  return { ok: true, id: payload.id, revalidated: payload.revalidated }
+}
+
+export type IdeaListResult =
+  | { ok: true; ideas: Idea[] }
+  | { ok: false; message: string }
+
+/**
+ * Loads the ideas for the admin list through the authenticated snapshot
+ * endpoint (there is no public read API). Entries that are not ideas are
+ * dropped, and the result is ordered newest first like the feed.
+ */
+export async function fetchIdeas(
+  secret: string,
+  fetchImpl: FetchLike
+): Promise<IdeaListResult> {
+  let response: Awaited<ReturnType<FetchLike>>
+  try {
+    response = await fetchImpl(SNAPSHOT_PATH, {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${secret}` },
+    })
+  } catch {
+    return { ok: false, message: NETWORK_ERROR_MESSAGE }
+  }
+  if (!response.ok) {
+    return { ok: false, message: messageForStatus(response.status) }
+  }
+  let payload: unknown
+  try {
+    payload = await response.json()
+  } catch {
+    return { ok: false, message: UNREADABLE_RESPONSE_MESSAGE }
+  }
+  if (!Array.isArray(payload)) {
+    return { ok: false, message: UNREADABLE_RESPONSE_MESSAGE }
+  }
+  return { ok: true, ideas: sortNewestFirst(payload.filter(isIdea)) }
 }
 
 export type SnapshotResult =

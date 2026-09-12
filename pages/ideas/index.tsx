@@ -3,12 +3,9 @@ import Head from 'next/head'
 import { AppLayout } from '@/components/AppLayout'
 import { IdeaFeed, IdeaFeedItem } from '@/components/ideas/IdeaFeed'
 import { SITE_NAME } from '@/lib/constants'
+import { sortNewestFirst } from '@/lib/ideas/sort'
 import { loadLatest } from '@/lib/ideas/store'
-import {
-  IDEAS_REVALIDATE_SECONDS,
-  sortNewestFirst,
-  toIdeaView,
-} from '@/lib/ideas/view'
+import { IDEAS_REVALIDATE_SECONDS, toIdeaView } from '@/lib/ideas/view'
 
 type Props = {
   ideas: IdeaFeedItem[]

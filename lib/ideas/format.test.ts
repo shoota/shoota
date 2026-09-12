@@ -1,6 +1,31 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatIdeaTimestamp } from '@/lib/ideas/format'
+import {
+  EMPTY_EXCERPT,
+  formatIdeaTimestamp,
+  ideaExcerpt,
+} from '@/lib/ideas/format'
+
+describe('ideaExcerpt', () => {
+  it.each([
+    ['a heading', '# Title\n\nbody', 'Title'],
+    ['a deeper heading', '### Title', 'Title'],
+    ['a plain first line', 'first\nsecond', 'first'],
+    ['leading blank lines', '\n\n  \n  text  \n', 'text'],
+    ['a heading marker without text, then a line', '#\nnext', 'next'],
+    ['a hash inside the line', 'issue #12', 'issue #12'],
+  ])('takes the first non-empty line from %s', (_, body, expected) => {
+    expect(ideaExcerpt(body)).toBe(expected)
+  })
+
+  it.each([
+    ['an empty body', ''],
+    ['only whitespace', ' \n\t\n'],
+    ['only heading markers', '#\n##'],
+  ])('falls back for %s', (_, body) => {
+    expect(ideaExcerpt(body)).toBe(EMPTY_EXCERPT)
+  })
+})
 
 describe('formatIdeaTimestamp', () => {
   it('formats in Asia/Tokyo by default', () => {
