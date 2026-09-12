@@ -160,10 +160,9 @@ export async function saveSnapshot(
 
 /**
  * Deletes snapshots beyond the newest `keep` and returns their pathnames.
- * Meant to run right after a successful `saveSnapshot`; the caller decides
- * what a failure means (the API logs it and still reports the save as a
- * success, because the new snapshot is already durable). Without a token
- * there is nothing to prune.
+ * Meant to run right after a successful `saveSnapshot`. Failures propagate;
+ * callers decide whether they matter. Without a token there is nothing to
+ * prune.
  */
 export async function pruneSnapshots(
   keep: number = SNAPSHOT_RETENTION

@@ -340,7 +340,11 @@ describe('handlePostIdea', () => {
       await handlePostIdea(authorized({ body: { body: 'x' } }), res)
 
       expect(state.statusCode).toBe(201)
-      expect(state.json).toMatchObject({ revalidated: true })
+      expect(state.json).toEqual({
+        id: expect.stringMatching(/^20260912T010203456Z-[0-9a-f]{6}$/),
+        createdAt: NOW.toISOString(),
+        revalidated: true,
+      })
       expect(state.revalidate).toHaveBeenCalledTimes(2)
       expect(loggedText()).toContain('prune')
       expect(loggedText()).toContain('Error')
@@ -706,6 +710,25 @@ describe('handleIdeaById', () => {
   })
 
   describe('PUT success', () => {
+    it('still returns 200 when pruning fails after the update', async () => {
+      vi.mocked(pruneSnapshots).mockRejectedValue(new Error('blob exploded'))
+      const { res, state } = makeResponse<IdeaByIdResponse>()
+      state.revalidate.mockResolvedValue()
+
+      await handleIdeaById(putRequest(existing.id), res)
+
+      expect(state.statusCode).toBe(200)
+      expect(state.json).toEqual({
+        id: existing.id,
+        updatedAt: NOW.toISOString(),
+        revalidated: true,
+      })
+      expect(state.revalidate).toHaveBeenCalledTimes(2)
+      expect(loggedText()).toContain('prune')
+      expect(loggedText()).toContain('Error')
+      expect(loggedText()).not.toContain('blob exploded')
+    })
+
     it('replaces body and updatedAt only, keeps the rest, and revalidates both pages', async () => {
       const { res, state } = makeResponse<IdeaByIdResponse>()
       state.revalidate.mockResolvedValue()
@@ -723,6 +746,9 @@ describe('handleIdeaById', () => {
         NOW
       )
       expect(pruneSnapshots).toHaveBeenCalledTimes(1)
+      expect(
+        vi.mocked(pruneSnapshots).mock.invocationCallOrder[0]
+      ).toBeGreaterThan(vi.mocked(saveSnapshot).mock.invocationCallOrder[0])
       expect(state.revalidate.mock.calls).toEqual([
         ['/ideas'],
         [`/ideas/${existing.id}`],
@@ -766,6 +792,9 @@ describe('handleIdeaById', () => {
       expect(state.json).toEqual({ id: existing.id, revalidated: true })
       expect(saveSnapshot).toHaveBeenCalledWith([second], NOW)
       expect(pruneSnapshots).toHaveBeenCalledTimes(1)
+      expect(
+        vi.mocked(pruneSnapshots).mock.invocationCallOrder[0]
+      ).toBeGreaterThan(vi.mocked(saveSnapshot).mock.invocationCallOrder[0])
       expect(state.revalidate.mock.calls).toEqual([
         ['/ideas'],
         [`/ideas/${existing.id}`],
@@ -781,6 +810,9 @@ describe('handleIdeaById', () => {
 
       expect(state.statusCode).toBe(200)
       expect(state.json).toEqual({ id: existing.id, revalidated: true })
+      expect(state.revalidate).toHaveBeenCalledTimes(2)
+      expect(loggedText()).toContain('prune')
+      expect(loggedText()).toContain('Error')
       expect(loggedText()).not.toContain('blob exploded')
     })
 

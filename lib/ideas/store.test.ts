@@ -290,6 +290,29 @@ describe('selectStaleSnapshots', () => {
   it('returns an empty array for an empty list', () => {
     expect(selectStaleSnapshots([], 1)).toEqual([])
   })
+
+  it('brings a store far over the limit back to exactly the limit', () => {
+    const names = snapshotNames(60)
+    const stale = selectStaleSnapshots(blobs(names))
+    expect(stale.map((blob) => blob.pathname)).toEqual(names.slice(0, 10))
+    const remaining = names.filter(
+      (name) => !stale.some((blob) => blob.pathname === name)
+    )
+    expect(remaining).toHaveLength(SNAPSHOT_RETENTION)
+    expect(remaining[remaining.length - 1]).toBe(names[59])
+  })
+
+  it('keeps the count at the limit across repeated saves', () => {
+    let names = snapshotNames(SNAPSHOT_RETENTION)
+    for (let day = 1; day <= 5; day += 1) {
+      names = [...names, `ideas/2026-10-0${day}T00-00-00.000Z.json`]
+      const stale = selectStaleSnapshots(blobs(names))
+      expect(stale).toHaveLength(1)
+      names = names.filter((name) => name !== stale[0].pathname)
+      expect(names).toHaveLength(SNAPSHOT_RETENTION)
+    }
+    expect(names[names.length - 1]).toBe('ideas/2026-10-05T00-00-00.000Z.json')
+  })
 })
 
 describe('pruneSnapshots with a store', () => {
