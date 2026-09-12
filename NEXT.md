@@ -63,10 +63,24 @@ npx vercel env pull .env.local
 
 Variables used by the ideas feed (`/ideas`):
 
-| Variable                | Purpose                                                                                          |
-| ----------------------- | ------------------------------------------------------------------------------------------------ |
-| `BLOB_READ_WRITE_TOKEN` | Injected by the Vercel Blob integration. When it is missing the feed builds with an empty state. |
-| `IDEAS_BLOB_ACCESS`     | `public` or `private`, matching how the Blob store was created. Defaults to `private`.           |
+| Variable                | Purpose                                                                                                             |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `BLOB_READ_WRITE_TOKEN` | Injected by the Vercel Blob integration. When it is missing the feed builds with an empty state.                    |
+| `IDEAS_BLOB_ACCESS`     | `public` or `private`, matching how the Blob store was created. Defaults to `private`.                              |
+| `IDEAS_POST_SECRET`     | Shared secret for `POST /api/ideas`. Production only, marked Sensitive. When it is missing every write is rejected. |
+
+### Posting an idea
+
+`POST /api/ideas` appends one idea and regenerates `/ideas`. Keep the secret in a shell variable rather than typing it into the command:
+
+```bash
+curl -sS -X POST https://shoota.work/api/ideas \
+  -H "Authorization: Bearer $IDEAS_POST_SECRET" \
+  -H 'Content-Type: application/json' \
+  -d '{"body":"# Title\n\nMarkdown body"}'
+```
+
+Responses: `201 { id, createdAt, revalidated }` on success, `401` for a missing or wrong secret, `415` for a non-JSON content type, `400` for an empty `body`, `413` when the body exceeds 20 KB.
 
 ### Tests
 
