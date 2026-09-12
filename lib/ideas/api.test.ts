@@ -321,6 +321,7 @@ describe('handleGetSnapshot', () => {
   it.each([
     ['no header', {}],
     ['wrong secret', { authorization: 'Bearer not-the-secret' }],
+    ['missing Bearer scheme', { authorization: SECRET }],
   ])('returns 401 with %s and does not read the store', async (_, headers) => {
     const { res, state } = makeResponse<GetSnapshotResponse>()
     await handleGetSnapshot(getRequest(headers), res)

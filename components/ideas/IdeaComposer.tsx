@@ -1,16 +1,15 @@
 import Link from 'next/link'
 import * as React from 'react'
-import { useState, useSyncExternalStore } from 'react'
 
 import { cn } from '@/lib/utils'
 import {
   MAX_BODY_BYTES,
-  bodyByteLength,
   canSubmit,
   clearSecret,
   fetchSnapshot,
   postIdea,
   readSecret,
+  requestByteLength,
   writeSecret,
 } from '@/lib/ideas/client'
 
@@ -59,6 +58,21 @@ function getServerSecretSnapshot() {
   return undefined
 }
 
+/** Hands `json` to the browser as a file download. */
+function downloadJson(json: string, filename: string) {
+  const url = URL.createObjectURL(
+    new Blob([json], { type: 'application/json' })
+  )
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = filename
+  document.body.appendChild(anchor)
+  anchor.click()
+  anchor.remove()
+  // Revoke after the click has been dispatched so the download can start.
+  window.setTimeout(() => URL.revokeObjectURL(url), 0)
+}
+
 const fieldClass =
   'w-full rounded-md border border-input bg-background px-3 py-3 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none'
 
@@ -76,24 +90,14 @@ const secondaryButtonClass = cn(
 )
 
 export const IdeaComposer: React.FC = () => {
-  // The secret lives in this browser's localStorage. The server snapshot is
+  // Secret: lives in this browser's localStorage. The server snapshot is
   // always undefined, so server-rendered markup never depends on it.
-  const secret = useSyncExternalStore(
+  const secret = React.useSyncExternalStore(
     subscribeSecret,
     getSecretSnapshot,
     getServerSecretSnapshot
   )
-  const [secretInput, setSecretInput] = useState('')
-
-  const [body, setBody] = useState('')
-  const [submitState, setSubmitState] = useState<SubmitState>({ kind: 'idle' })
-  const [downloadState, setDownloadState] = useState<DownloadState>({
-    kind: 'idle',
-  })
-
-  const busy = submitState.kind === 'submitting'
-  const bytes = bodyByteLength(body)
-  const submittable = canSubmit({ secret, body, busy })
+  const [secretInput, setSecretInput] = React.useState('')
 
   const handleSaveSecret = (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -107,6 +111,15 @@ export const IdeaComposer: React.FC = () => {
     emitSecretChange()
     setSecretInput('')
   }
+
+  // Posting
+  const [body, setBody] = React.useState('')
+  const [submitState, setSubmitState] = React.useState<SubmitState>({
+    kind: 'idle',
+  })
+  const busy = submitState.kind === 'submitting'
+  const bytes = requestByteLength(body)
+  const submittable = canSubmit({ secret, body, busy })
 
   const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -127,6 +140,12 @@ export const IdeaComposer: React.FC = () => {
     setSubmitState({ kind: 'error', message: result.message })
   }
 
+  // Backup download. The store is private, so the file is fetched with the
+  // secret instead of linking to the blob.
+  const [downloadState, setDownloadState] = React.useState<DownloadState>({
+    kind: 'idle',
+  })
+
   const handleDownload = async () => {
     if (secret === undefined || downloadState.kind === 'downloading') {
       return
@@ -137,16 +156,7 @@ export const IdeaComposer: React.FC = () => {
       setDownloadState({ kind: 'error', message: result.message })
       return
     }
-    // The store is private, so the file is fetched with the secret and
-    // handed to the browser as a temporary object URL.
-    const url = URL.createObjectURL(
-      new Blob([result.json], { type: 'application/json' })
-    )
-    const anchor = document.createElement('a')
-    anchor.href = url
-    anchor.download = result.filename
-    anchor.click()
-    URL.revokeObjectURL(url)
+    downloadJson(result.json, result.filename)
     setDownloadState({ kind: 'idle' })
   }
 
@@ -208,7 +218,8 @@ export const IdeaComposer: React.FC = () => {
                 : 'text-muted-foreground'
             )}
           >
-            {bytes.toLocaleString()} / {MAX_BODY_BYTES.toLocaleString()} bytes
+            送信サイズ {bytes.toLocaleString()} /{' '}
+            {MAX_BODY_BYTES.toLocaleString()} bytes
           </span>
           <button
             type='submit'
@@ -255,7 +266,11 @@ export const IdeaComposer: React.FC = () => {
   )
 }
 
-const SubmitStatus: React.FC<{ state: SubmitState }> = ({ state }) => {
+type SubmitStatusProps = {
+  state: SubmitState
+}
+
+const SubmitStatus: React.FC<SubmitStatusProps> = ({ state }) => {
   if (state.kind === 'idle' || state.kind === 'submitting') {
     return null
   }

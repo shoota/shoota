@@ -6,7 +6,11 @@
 
 export const SECRET_STORAGE_KEY = 'ideas.postSecret'
 
-/** Mirrors the body parser limit on `POST /api/ideas`. */
+/**
+ * Mirrors the body parser limit on `POST /api/ideas`. The limit applies to
+ * the JSON request body, so it is compared against `requestByteLength`, not
+ * the raw Markdown.
+ */
 export const MAX_BODY_BYTES = 20 * 1024
 
 export const POST_IDEA_PATH = '/api/ideas'
@@ -19,6 +23,11 @@ export type FetchLike = (
   init?: RequestInit
 ) => Promise<Pick<Response, 'ok' | 'status' | 'json' | 'text'>>
 
+const UNREADABLE_RESPONSE_MESSAGE = '応答を読み取れませんでした。'
+
+export const NETWORK_ERROR_MESSAGE =
+  '通信に失敗しました。接続を確認してください。'
+
 export function readSecret(
   storage: StorageLike | undefined
 ): string | undefined {
@@ -26,7 +35,7 @@ export function readSecret(
     return undefined
   }
   try {
-    const value = storage.getItem(SECRET_STORAGE_KEY)
+    const value = storage.getItem(SECRET_STORAGE_KEY)?.trim()
     return value && value.length > 0 ? value : undefined
   } catch {
     return undefined
@@ -62,9 +71,20 @@ export function clearSecret(storage: StorageLike | undefined): void {
   }
 }
 
-/** UTF-8 size of the Markdown body, shown next to the 20 KB limit. */
-export function bodyByteLength(body: string): number {
-  return new TextEncoder().encode(body).length
+function utf8ByteLength(text: string): number {
+  return new TextEncoder().encode(text).length
+}
+
+function requestBody(body: string): string {
+  return JSON.stringify({ body })
+}
+
+/**
+ * Size of the JSON request the browser will send, which is what the server's
+ * 20 KB limit measures. JSON escaping makes this larger than the raw text.
+ */
+export function requestByteLength(body: string): number {
+  return utf8ByteLength(requestBody(body))
 }
 
 export function canSubmit(input: {
@@ -77,7 +97,7 @@ export function canSubmit(input: {
     input.secret !== undefined &&
     input.secret.length > 0 &&
     input.body.trim().length > 0 &&
-    bodyByteLength(input.body) <= MAX_BODY_BYTES
+    requestByteLength(input.body) <= MAX_BODY_BYTES
   )
 }
 
@@ -92,14 +112,11 @@ export function messageForStatus(status: number): string {
     case 415:
       return 'リクエストの形式が正しくありません。'
     case 500:
-      return '保存に失敗しました。時間をおいて再試行してください。'
+      return 'サーバーでエラーが起きました。時間をおいて再試行してください。'
     default:
-      return `送信に失敗しました（HTTP ${status}）。`
+      return `失敗しました（HTTP ${status}）。`
   }
 }
-
-export const NETWORK_ERROR_MESSAGE =
-  '通信に失敗しました。接続を確認してください。'
 
 export type PostIdeaResult =
   | { ok: true; id: string; createdAt: string; revalidated: boolean }
@@ -132,7 +149,7 @@ export async function postIdea(
         Authorization: `Bearer ${secret}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ body }),
+      body: requestBody(body),
     })
   } catch {
     return { ok: false, message: NETWORK_ERROR_MESSAGE }
@@ -144,10 +161,10 @@ export async function postIdea(
   try {
     payload = await response.json()
   } catch {
-    return { ok: false, message: '応答を読み取れませんでした。' }
+    return { ok: false, message: UNREADABLE_RESPONSE_MESSAGE }
   }
   if (!isPostIdeaSuccess(payload)) {
-    return { ok: false, message: '応答を読み取れませんでした。' }
+    return { ok: false, message: UNREADABLE_RESPONSE_MESSAGE }
   }
   return {
     ok: true,
@@ -189,6 +206,6 @@ export async function fetchSnapshot(
       filename: snapshotFilename(now),
     }
   } catch {
-    return { ok: false, message: '応答を読み取れませんでした。' }
+    return { ok: false, message: UNREADABLE_RESPONSE_MESSAGE }
   }
 }
