@@ -10,14 +10,19 @@ import {
   StorageLike,
   canSubmit,
   clearSecret,
+  deleteIdea,
+  fetchIdeas,
   fetchSnapshot,
+  ideaApiPath,
   messageForStatus,
   postIdea,
   readSecret,
   requestByteLength,
   snapshotFilename,
+  updateIdea,
   writeSecret,
 } from '@/lib/ideas/client'
+import { Idea } from '@/lib/ideas/types'
 
 /** Bytes the JSON envelope `{"body":""}` adds around the Markdown. */
 const ENVELOPE_BYTES = requestByteLength('')
@@ -275,5 +280,168 @@ describe('fetchSnapshot', () => {
     expect(snapshotFilename(new Date('2026-09-12T01:02:03.456Z'))).toMatch(
       /^ideas-\d{8}T\d{9}Z\.json$/
     )
+  })
+})
+
+describe('ideaApiPath', () => {
+  it('nests the id under the post path', () => {
+    expect(ideaApiPath('20260912T010203456Z-9f3a1b')).toBe(
+      '/api/ideas/20260912T010203456Z-9f3a1b'
+    )
+  })
+
+  it('escapes an id so it cannot change the path', () => {
+    expect(ideaApiPath('a/b?c')).toBe('/api/ideas/a%2Fb%3Fc')
+  })
+})
+
+describe('updateIdea', () => {
+  it('PUTs the same { body } JSON as a post, with the bearer secret', async () => {
+    const fetchImpl = vi.fn<FetchLike>().mockResolvedValue(
+      response(200, {
+        id: 'x',
+        updatedAt: '2026-09-12T00:00:00.000Z',
+        revalidated: true,
+      })
+    )
+    await expect(updateIdea('s3cret', 'x', '# hi', fetchImpl)).resolves.toEqual(
+      {
+        ok: true,
+        id: 'x',
+        updatedAt: '2026-09-12T00:00:00.000Z',
+        revalidated: true,
+      }
+    )
+    expect(fetchImpl).toHaveBeenCalledWith('/api/ideas/x', {
+      method: 'PUT',
+      headers: {
+        Authorization: 'Bearer s3cret',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ body: '# hi' }),
+    })
+  })
+
+  it('has a message for a missing idea', async () => {
+    const fetchImpl = vi.fn<FetchLike>().mockResolvedValue(response(404, {}))
+    const result = await updateIdea('s', 'x', 'b', fetchImpl)
+    expect(result).toEqual({ ok: false, message: messageForStatus(404) })
+    expect(messageForStatus(404)).not.toContain('HTTP')
+  })
+
+  it('reports a network failure', async () => {
+    const fetchImpl = vi.fn<FetchLike>().mockRejectedValue(new Error('down'))
+    await expect(updateIdea('s', 'x', 'b', fetchImpl)).resolves.toEqual({
+      ok: false,
+      message: NETWORK_ERROR_MESSAGE,
+    })
+  })
+
+  it('fails when the response is not the expected shape', async () => {
+    const fetchImpl = vi
+      .fn<FetchLike>()
+      .mockResolvedValue(response(200, { id: 'x' }))
+    const result = await updateIdea('s', 'x', 'b', fetchImpl)
+    expect(result.ok).toBe(false)
+  })
+})
+
+describe('deleteIdea', () => {
+  it('DELETEs with the bearer secret and no body', async () => {
+    const fetchImpl = vi
+      .fn<FetchLike>()
+      .mockResolvedValue(response(200, { id: 'x', revalidated: false }))
+    await expect(deleteIdea('s3cret', 'x', fetchImpl)).resolves.toEqual({
+      ok: true,
+      id: 'x',
+      revalidated: false,
+    })
+    expect(fetchImpl).toHaveBeenCalledWith('/api/ideas/x', {
+      method: 'DELETE',
+      headers: { Authorization: 'Bearer s3cret' },
+    })
+  })
+
+  it('maps an error status to a message', async () => {
+    const fetchImpl = vi.fn<FetchLike>().mockResolvedValue(response(401, {}))
+    await expect(deleteIdea('s', 'x', fetchImpl)).resolves.toEqual({
+      ok: false,
+      message: messageForStatus(401),
+    })
+  })
+
+  it('reports a network failure', async () => {
+    const fetchImpl = vi.fn<FetchLike>().mockRejectedValue(new Error('down'))
+    const result = await deleteIdea('s', 'x', fetchImpl)
+    expect(result).toEqual({ ok: false, message: NETWORK_ERROR_MESSAGE })
+  })
+
+  it('fails when the response body cannot be read', async () => {
+    const fetchImpl = vi.fn<FetchLike>().mockResolvedValue(unreadableResponse())
+    const result = await deleteIdea('s', 'x', fetchImpl)
+    expect(result.ok).toBe(false)
+  })
+})
+
+describe('fetchIdeas', () => {
+  const older: Idea = {
+    id: 'older',
+    body: 'first',
+    createdAt: '2026-09-11T00:00:00.000Z',
+    updatedAt: '2026-09-11T00:00:00.000Z',
+  }
+  const newer: Idea = {
+    id: 'newer',
+    body: 'second',
+    createdAt: '2026-09-12T00:00:00.000Z',
+    updatedAt: '2026-09-12T00:00:00.000Z',
+  }
+
+  it('loads the snapshot with the secret and orders it newest first', async () => {
+    const fetchImpl = vi
+      .fn<FetchLike>()
+      .mockResolvedValue(response(200, [older, newer]))
+    await expect(fetchIdeas('s3cret', fetchImpl)).resolves.toEqual({
+      ok: true,
+      ideas: [newer, older],
+    })
+    expect(fetchImpl).toHaveBeenCalledWith(SNAPSHOT_PATH, {
+      method: 'GET',
+      headers: { Authorization: 'Bearer s3cret' },
+    })
+  })
+
+  it('drops entries that are not ideas', async () => {
+    const fetchImpl = vi
+      .fn<FetchLike>()
+      .mockResolvedValue(response(200, [older, { id: 'broken' }, null, 'text']))
+    await expect(fetchIdeas('s', fetchImpl)).resolves.toEqual({
+      ok: true,
+      ideas: [older],
+    })
+  })
+
+  it('fails when the payload is not an array', async () => {
+    const fetchImpl = vi
+      .fn<FetchLike>()
+      .mockResolvedValue(response(200, { ideas: [] }))
+    const result = await fetchIdeas('s', fetchImpl)
+    expect(result.ok).toBe(false)
+  })
+
+  it('maps an error status to a message', async () => {
+    const fetchImpl = vi.fn<FetchLike>().mockResolvedValue(response(401, {}))
+    await expect(fetchIdeas('s', fetchImpl)).resolves.toEqual({
+      ok: false,
+      message: messageForStatus(401),
+    })
+  })
+
+  it('reports a network failure', async () => {
+    const fetchImpl = vi.fn<FetchLike>().mockRejectedValue(new Error('down'))
+    await expect(fetchIdeas('s', fetchImpl)).resolves.toEqual({
+      ok: false,
+      message: NETWORK_ERROR_MESSAGE,
+    })
   })
 })

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import * as React from 'react'
 
+import { IdeaManager } from '@/components/ideas/IdeaManager'
 import { cn } from '@/lib/utils'
 import {
   MAX_BODY_BYTES,
@@ -262,6 +263,8 @@ export const IdeaComposer: React.FC = () => {
           )}
         </div>
       </section>
+
+      {secret !== undefined && <IdeaManager secret={secret} />}
     </div>
   )
 }

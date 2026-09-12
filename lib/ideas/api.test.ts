@@ -2,14 +2,17 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
+  IdeaByIdResponse,
   GetSnapshotResponse,
   PostIdeaResponse,
   handleGetSnapshot,
+  handleIdeaById,
   handlePostIdea,
 } from '@/lib/ideas/api'
 import { loadLatest, saveSnapshot } from '@/lib/ideas/store'
 import { Idea } from '@/lib/ideas/types'
 import route, { config } from '@/pages/api/ideas'
+import byIdRoute, { config as byIdConfig } from '@/pages/api/ideas/[id]'
 import snapshotRoute from '@/pages/api/ideas/snapshot'
 
 vi.mock('@/lib/ideas/store', () => ({
@@ -31,7 +34,7 @@ type FakeRequest = {
   method?: string
   headers?: Record<string, string | string[] | undefined>
   body?: unknown
-  query?: Record<string, string>
+  query?: Record<string, string | string[] | undefined>
   url?: string
 }
 
@@ -114,6 +117,11 @@ describe('route wiring', () => {
 
   it('caps the request body at 20kb through the body parser', () => {
     expect(config).toEqual({ api: { bodyParser: { sizeLimit: '20kb' } } })
+  })
+
+  it('exports the by-id handler from /api/ideas/[id] with the same body cap', () => {
+    expect(byIdRoute).toBe(handleIdeaById)
+    expect(byIdConfig).toEqual({ api: { bodyParser: { sizeLimit: '20kb' } } })
   })
 })
 
@@ -411,5 +419,290 @@ describe('handleGetSnapshot', () => {
     expect(state.json).toEqual({ error: 'internal' })
     expect(loggedText()).not.toContain('blob exploded')
     expect(loggedText()).not.toContain(SECRET)
+  })
+})
+
+describe('handleIdeaById', () => {
+  const second: Idea = {
+    id: '20260912T010203456Z-9f3a1b',
+    body: 'newer',
+    createdAt: '2026-09-12T01:02:03.456Z',
+    updatedAt: '2026-09-12T01:02:03.456Z',
+  }
+
+  function putRequest(
+    id: string | string[] | undefined,
+    body: unknown = { body: 'edited' },
+    headers: Record<string, string | undefined> = {}
+  ) {
+    return makeRequest({
+      method: 'PUT',
+      url: `/api/ideas/${String(id)}`,
+      query: { id },
+      body,
+      headers: {
+        authorization: `Bearer ${SECRET}`,
+        'content-type': 'application/json',
+        ...headers,
+      },
+    })
+  }
+
+  function deleteRequest(
+    id: string | string[] | undefined,
+    headers: Record<string, string | undefined> = {}
+  ) {
+    return makeRequest({
+      method: 'DELETE',
+      url: `/api/ideas/${String(id)}`,
+      query: { id },
+      headers: { authorization: `Bearer ${SECRET}`, ...headers },
+    })
+  }
+
+  beforeEach(() => {
+    vi.mocked(loadLatest).mockResolvedValue([existing, second])
+  })
+
+  it.each(['GET', 'POST', 'PATCH'])(
+    'rejects %s with 405 and Allow',
+    async (method) => {
+      const { res, state } = makeResponse<IdeaByIdResponse>()
+      await handleIdeaById(
+        makeRequest({
+          method,
+          query: { id: existing.id },
+          headers: { authorization: `Bearer ${SECRET}` },
+        }),
+        res
+      )
+      expect(state.statusCode).toBe(405)
+      expect(state.headers.Allow).toBe('PUT, DELETE')
+      expect(loadLatest).not.toHaveBeenCalled()
+    }
+  )
+
+  describe('authentication', () => {
+    it.each([
+      ['no header', undefined],
+      ['a wrong secret', 'Bearer nope'],
+      ['a non-bearer scheme', `Basic ${SECRET}`],
+    ])('returns 401 for PUT with %s', async (_, authorization) => {
+      const { res, state } = makeResponse<IdeaByIdResponse>()
+      await handleIdeaById(
+        putRequest(existing.id, undefined, { authorization }),
+        res
+      )
+      expect(state.statusCode).toBe(401)
+      expect(state.headers['WWW-Authenticate']).toBe('Bearer')
+      expect(state.json).toEqual({ error: 'unauthorized' })
+      expect(loadLatest).not.toHaveBeenCalled()
+      expect(saveSnapshot).not.toHaveBeenCalled()
+    })
+
+    it('returns 401 for DELETE without a secret', async () => {
+      const { res, state } = makeResponse<IdeaByIdResponse>()
+      await handleIdeaById(
+        deleteRequest(existing.id, { authorization: undefined }),
+        res
+      )
+      expect(state.statusCode).toBe(401)
+      expect(loadLatest).not.toHaveBeenCalled()
+    })
+
+    it('checks the secret before the id, so a bad id is still a 401', async () => {
+      const { res, state } = makeResponse<IdeaByIdResponse>()
+      await handleIdeaById(
+        putRequest('../etc', undefined, { authorization: undefined }),
+        res
+      )
+      expect(state.statusCode).toBe(401)
+    })
+
+    it('returns the same 401 when IDEAS_POST_SECRET is unset', async () => {
+      vi.stubEnv('IDEAS_POST_SECRET', '')
+      const { res, state } = makeResponse<IdeaByIdResponse>()
+      await handleIdeaById(putRequest(existing.id), res)
+      expect(state.statusCode).toBe(401)
+    })
+  })
+
+  describe('id validation', () => {
+    it.each([
+      ['an empty id', ''],
+      ['a path traversal', '..'],
+      ['a dot', `${existing.id}.json`],
+      ['a slash', 'a/b'],
+      ['an over-long id', 'x'.repeat(65)],
+      ['an undefined id', undefined],
+      ['a catch-all array', [existing.id]],
+    ])('returns 404 for %s without reading the store', async (_, id) => {
+      for (const request of [putRequest(id), deleteRequest(id)]) {
+        const { res, state } = makeResponse<IdeaByIdResponse>()
+        await handleIdeaById(request, res)
+        expect(state.statusCode).toBe(404)
+        expect(state.json).toEqual({ error: 'not_found' })
+      }
+      expect(loadLatest).not.toHaveBeenCalled()
+      expect(saveSnapshot).not.toHaveBeenCalled()
+    })
+
+    it('returns 404 for a well-formed id that does not exist', async () => {
+      for (const request of [
+        putRequest('20260912T000000000Z-000000'),
+        deleteRequest('20260912T000000000Z-000000'),
+      ]) {
+        const { res, state } = makeResponse<IdeaByIdResponse>()
+        await handleIdeaById(request, res)
+        expect(state.statusCode).toBe(404)
+        expect(state.revalidate).not.toHaveBeenCalled()
+      }
+      expect(saveSnapshot).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('PUT validation', () => {
+    it('returns 415 for a non-JSON content type', async () => {
+      const { res, state } = makeResponse<IdeaByIdResponse>()
+      await handleIdeaById(
+        putRequest(existing.id, 'body=x', { 'content-type': 'text/plain' }),
+        res
+      )
+      expect(state.statusCode).toBe(415)
+      expect(loadLatest).not.toHaveBeenCalled()
+    })
+
+    it.each([
+      ['a missing body', {}],
+      ['an empty body', { body: '' }],
+      ['a whitespace body', { body: '  \n' }],
+      ['a non-string body', { body: 1 }],
+      ['a non-object payload', 'edited'],
+    ])('returns 400 for %s', async (_, body) => {
+      const { res, state } = makeResponse<IdeaByIdResponse>()
+      await handleIdeaById(putRequest(existing.id, body), res)
+      expect(state.statusCode).toBe(400)
+      expect(state.json).toEqual({ error: 'body_required' })
+      expect(loadLatest).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('PUT success', () => {
+    it('replaces body and updatedAt only, keeps the rest, and revalidates both pages', async () => {
+      const { res, state } = makeResponse<IdeaByIdResponse>()
+      state.revalidate.mockResolvedValue()
+
+      await handleIdeaById(putRequest(existing.id, { body: 'edited' }), res)
+
+      expect(state.statusCode).toBe(200)
+      expect(state.json).toEqual({
+        id: existing.id,
+        updatedAt: NOW.toISOString(),
+        revalidated: true,
+      })
+      expect(saveSnapshot).toHaveBeenCalledWith(
+        [{ ...existing, body: 'edited', updatedAt: NOW.toISOString() }, second],
+        NOW
+      )
+      expect(state.revalidate.mock.calls).toEqual([
+        ['/ideas'],
+        [`/ideas/${existing.id}`],
+      ])
+    })
+
+    it('reports revalidated: false when either page fails, after saving', async () => {
+      const { res, state } = makeResponse<IdeaByIdResponse>()
+      state.revalidate
+        .mockResolvedValueOnce()
+        .mockRejectedValueOnce(new Error('detail down'))
+
+      await handleIdeaById(putRequest(existing.id), res)
+
+      expect(state.statusCode).toBe(200)
+      expect(state.json).toMatchObject({ revalidated: false })
+      expect(saveSnapshot).toHaveBeenCalledTimes(1)
+      expect(state.revalidate).toHaveBeenCalledTimes(2)
+      expect(loggedText()).not.toContain('detail down')
+    })
+  })
+
+  describe('DELETE success', () => {
+    it('removes the idea, saves the rest, and revalidates both pages', async () => {
+      const { res, state } = makeResponse<IdeaByIdResponse>()
+      state.revalidate.mockResolvedValue()
+
+      await handleIdeaById(deleteRequest(existing.id), res)
+
+      expect(state.statusCode).toBe(200)
+      expect(state.json).toEqual({ id: existing.id, revalidated: true })
+      expect(saveSnapshot).toHaveBeenCalledWith([second], NOW)
+      expect(state.revalidate.mock.calls).toEqual([
+        ['/ideas'],
+        [`/ideas/${existing.id}`],
+      ])
+    })
+
+    it('saves an empty snapshot when the last idea is deleted', async () => {
+      vi.mocked(loadLatest).mockResolvedValue([existing])
+      const { res, state } = makeResponse<IdeaByIdResponse>()
+      state.revalidate.mockResolvedValue()
+
+      await handleIdeaById(deleteRequest(existing.id), res)
+
+      expect(state.statusCode).toBe(200)
+      expect(saveSnapshot).toHaveBeenCalledWith([], NOW)
+    })
+
+    it('does not require a content type', async () => {
+      const { res, state } = makeResponse<IdeaByIdResponse>()
+      state.revalidate.mockResolvedValue()
+
+      await handleIdeaById(
+        deleteRequest(second.id, { 'content-type': undefined }),
+        res
+      )
+
+      expect(state.statusCode).toBe(200)
+      expect(saveSnapshot).toHaveBeenCalledWith([existing], NOW)
+    })
+
+    it('reports revalidated: false when the feed fails, after saving', async () => {
+      const { res, state } = makeResponse<IdeaByIdResponse>()
+      state.revalidate
+        .mockRejectedValueOnce(new Error('feed down'))
+        .mockResolvedValueOnce()
+
+      await handleIdeaById(deleteRequest(existing.id), res)
+
+      expect(state.statusCode).toBe(200)
+      expect(state.json).toEqual({ id: existing.id, revalidated: false })
+      expect(state.revalidate).toHaveBeenCalledTimes(2)
+    })
+  })
+
+  describe('failure', () => {
+    it.each([
+      [
+        'loading',
+        () =>
+          vi.mocked(loadLatest).mockRejectedValue(new Error('blob exploded')),
+      ],
+      [
+        'saving',
+        () =>
+          vi.mocked(saveSnapshot).mockRejectedValue(new Error('blob exploded')),
+      ],
+    ])('returns 500 without details when %s fails', async (_, arrange) => {
+      arrange()
+      const { res, state } = makeResponse<IdeaByIdResponse>()
+
+      await handleIdeaById(putRequest(existing.id), res)
+
+      expect(state.statusCode).toBe(500)
+      expect(state.json).toEqual({ error: 'internal' })
+      expect(state.revalidate).not.toHaveBeenCalled()
+      expect(loggedText()).not.toContain('blob exploded')
+      expect(loggedText()).not.toContain(SECRET)
+    })
   })
 })
