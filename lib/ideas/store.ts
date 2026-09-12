@@ -1,4 +1,4 @@
-import { get, list, put } from '@vercel/blob'
+import { del, get, list, put } from '@vercel/blob'
 
 import { Idea, isIdea } from '@/lib/ideas/types'
 
@@ -9,6 +9,12 @@ import { Idea, isIdea } from '@/lib/ideas/types'
  * prefix and pick the newest pathname.
  */
 export const SNAPSHOT_PREFIX = 'ideas/'
+
+/**
+ * How many snapshots to keep. Every save adds one, so without a cap the
+ * store grows forever and eats the free tier; older ones are only history.
+ */
+export const SNAPSHOT_RETENTION = 50
 
 const SNAPSHOT_PATHNAME = /^ideas\/[^/]+\.json$/
 
@@ -63,6 +69,24 @@ export function selectLatestSnapshot<T extends { pathname: string }>(
     }
   }
   return latest
+}
+
+/**
+ * Picks the snapshots that fall outside the newest `keep`, oldest first.
+ * Uses the same pathname shape as `selectLatestSnapshot`, so unrelated
+ * objects under the prefix are never returned. `keep` is clamped to at least
+ * 1 so the newest snapshot can never be selected.
+ */
+export function selectStaleSnapshots<T extends { pathname: string }>(
+  blobs: T[],
+  keep: number = SNAPSHOT_RETENTION
+): T[] {
+  const retained = Math.max(1, Math.floor(keep))
+  const snapshots = blobs
+    .filter((blob) => SNAPSHOT_PATHNAME.test(blob.pathname))
+    .sort((a, b) => (a.pathname < b.pathname ? -1 : 1))
+  const excess = snapshots.length - retained
+  return excess > 0 ? snapshots.slice(0, excess) : []
 }
 
 /**
@@ -132,4 +156,25 @@ export async function saveSnapshot(
     addRandomSuffix: false,
   })
   return pathname
+}
+
+/**
+ * Deletes snapshots beyond the newest `keep` and returns their pathnames.
+ * Meant to run right after a successful `saveSnapshot`; the caller decides
+ * what a failure means (the API logs it and still reports the save as a
+ * success, because the new snapshot is already durable). Without a token
+ * there is nothing to prune.
+ */
+export async function pruneSnapshots(
+  keep: number = SNAPSHOT_RETENTION
+): Promise<string[]> {
+  if (!blobToken()) {
+    return []
+  }
+  const stale = selectStaleSnapshots(await listSnapshots(), keep)
+  if (stale.length === 0) {
+    return []
+  }
+  await del(stale.map((blob) => blob.url))
+  return stale.map((blob) => blob.pathname)
 }

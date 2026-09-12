@@ -1,18 +1,22 @@
-import { get, list, put } from '@vercel/blob'
+import { del, get, list, put } from '@vercel/blob'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   SNAPSHOT_PREFIX,
+  SNAPSHOT_RETENTION,
   blobAccess,
   loadLatest,
   parseSnapshot,
+  pruneSnapshots,
   saveSnapshot,
   selectLatestSnapshot,
+  selectStaleSnapshots,
   snapshotPathname,
 } from '@/lib/ideas/store'
 import { Idea } from '@/lib/ideas/types'
 
 vi.mock('@vercel/blob', () => ({
+  del: vi.fn(),
   get: vi.fn(),
   list: vi.fn(),
   put: vi.fn(),
@@ -79,6 +83,7 @@ function putResult(pathname: string): PutResult {
 }
 
 beforeEach(() => {
+  vi.mocked(del).mockReset()
   vi.mocked(get).mockReset()
   vi.mocked(list).mockReset()
   vi.mocked(put).mockReset()
@@ -214,6 +219,120 @@ describe('without BLOB_READ_WRITE_TOKEN', () => {
     vi.stubEnv('BLOB_READ_WRITE_TOKEN', undefined)
     await expect(saveSnapshot([])).rejects.toThrow(/BLOB_READ_WRITE_TOKEN/)
     expect(put).not.toHaveBeenCalled()
+  })
+
+  it('pruneSnapshots does nothing', async () => {
+    vi.stubEnv('BLOB_READ_WRITE_TOKEN', undefined)
+    await expect(pruneSnapshots()).resolves.toEqual([])
+    expect(list).not.toHaveBeenCalled()
+    expect(del).not.toHaveBeenCalled()
+  })
+})
+
+/** `count` snapshot pathnames one day apart, oldest first. */
+function snapshotNames(count: number): string[] {
+  return Array.from({ length: count }, (_, index) => {
+    const day = String(index + 1).padStart(2, '0')
+    return `ideas/2026-09-${day}T00-00-00.000Z.json`
+  })
+}
+
+describe('selectStaleSnapshots', () => {
+  const blobs = (pathnames: string[]) =>
+    pathnames.map((pathname) => ({ pathname }))
+
+  it('keeps 50 by default', () => {
+    expect(SNAPSHOT_RETENTION).toBe(50)
+    expect(selectStaleSnapshots(blobs(snapshotNames(50)))).toEqual([])
+    expect(selectStaleSnapshots(blobs(snapshotNames(51)))).toEqual([
+      { pathname: snapshotNames(1)[0] },
+    ])
+  })
+
+  it.each([
+    ['fewer than the limit', 2],
+    ['exactly the limit', 3],
+  ])('selects nothing with %s', (_, count) => {
+    expect(selectStaleSnapshots(blobs(snapshotNames(count)), 3)).toEqual([])
+  })
+
+  it('selects only the excess, oldest first, regardless of list order', () => {
+    const names = snapshotNames(5)
+    const shuffled = [names[3], names[0], names[4], names[2], names[1]]
+    expect(selectStaleSnapshots(blobs(shuffled), 3)).toEqual([
+      { pathname: names[0] },
+      { pathname: names[1] },
+    ])
+  })
+
+  it('never selects the newest snapshot, even when keep is 0 or negative', () => {
+    const names = snapshotNames(3)
+    expect(selectStaleSnapshots(blobs(names), 0)).toEqual([
+      { pathname: names[0] },
+      { pathname: names[1] },
+    ])
+    expect(selectStaleSnapshots(blobs(names), -5)).toEqual([
+      { pathname: names[0] },
+      { pathname: names[1] },
+    ])
+  })
+
+  it('ignores objects that are not snapshots when counting and selecting', () => {
+    const names = snapshotNames(2)
+    const mixed = blobs([
+      'ideas/notes.txt',
+      'ideas/nested/2026-01-01T00-00-00.000Z.json',
+      ...names,
+    ])
+    expect(selectStaleSnapshots(mixed, 1)).toEqual([{ pathname: names[0] }])
+  })
+
+  it('returns an empty array for an empty list', () => {
+    expect(selectStaleSnapshots([], 1)).toEqual([])
+  })
+})
+
+describe('pruneSnapshots with a store', () => {
+  beforeEach(() => {
+    vi.stubEnv('BLOB_READ_WRITE_TOKEN', 'test-token')
+  })
+
+  it('deletes the excess by url and returns their pathnames', async () => {
+    const names = snapshotNames(5)
+    vi.mocked(list).mockResolvedValueOnce(listPage(names))
+    vi.mocked(del).mockResolvedValueOnce()
+
+    await expect(pruneSnapshots(3)).resolves.toEqual([names[0], names[1]])
+    expect(del).toHaveBeenCalledTimes(1)
+    expect(del).toHaveBeenCalledWith([
+      `https://blob.example/${names[0]}`,
+      `https://blob.example/${names[1]}`,
+    ])
+  })
+
+  it('does not call del when nothing is stale', async () => {
+    vi.mocked(list).mockResolvedValueOnce(listPage(snapshotNames(3)))
+    await expect(pruneSnapshots(3)).resolves.toEqual([])
+    expect(del).not.toHaveBeenCalled()
+  })
+
+  it('counts snapshots across list pages', async () => {
+    const names = snapshotNames(4)
+    vi.mocked(list)
+      .mockResolvedValueOnce(
+        listPage([names[2], names[3]], { cursor: 'next', hasMore: true })
+      )
+      .mockResolvedValueOnce(listPage([names[0], names[1]]))
+    vi.mocked(del).mockResolvedValueOnce()
+
+    await expect(pruneSnapshots(3)).resolves.toEqual([names[0]])
+    expect(list).toHaveBeenCalledTimes(2)
+  })
+
+  it('propagates a delete failure so the caller can decide', async () => {
+    vi.mocked(list).mockResolvedValueOnce(listPage(snapshotNames(2)))
+    vi.mocked(del).mockRejectedValueOnce(new Error('blob exploded'))
+    await expect(pruneSnapshots(1)).rejects.toThrow('blob exploded')
   })
 })
 

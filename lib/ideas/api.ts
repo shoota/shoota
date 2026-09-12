@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { isAuthorized } from '@/lib/ideas/auth'
 import { IDEAS_PATH, ideaPath } from '@/lib/ideas/detail'
 import { generateIdeaId, isIdeaId } from '@/lib/ideas/id'
-import { loadLatest, saveSnapshot } from '@/lib/ideas/store'
+import { loadLatest, pruneSnapshots, saveSnapshot } from '@/lib/ideas/store'
 import { Idea } from '@/lib/ideas/types'
 
 /** Response body of `POST /api/ideas`. Errors carry a short code only. */
@@ -47,6 +47,21 @@ function readIfMatch(
   const value = Array.isArray(header) ? header.join(',') : header
   const match = /^\s*(?:W\/)?"([^"]*)"\s*$/.exec(value)
   return match ? match[1] : null
+}
+
+/**
+ * Saves a snapshot and then trims the store to its retention limit. Pruning
+ * runs only after the save succeeded, and a pruning failure is logged
+ * rather than thrown: the new snapshot is already durable, so the request
+ * is a success either way and the next save gets another chance to prune.
+ */
+async function saveAndPrune(ideas: Idea[], now: Date): Promise<void> {
+  await saveSnapshot(ideas, now)
+  try {
+    await pruneSnapshots()
+  } catch (error) {
+    console.error('ideas: failed to prune snapshots', errorName(error))
+  }
 }
 
 /**
@@ -121,7 +136,7 @@ export async function handlePostIdea(
 
   try {
     const ideas = await loadLatest()
-    await saveSnapshot([...ideas, idea], now)
+    await saveAndPrune([...ideas, idea], now)
   } catch (error) {
     console.error('ideas: failed to save snapshot', errorName(error))
     res.status(500).json({ error: 'internal' })
@@ -233,7 +248,7 @@ export async function handleIdeaById(
         candidate.id === id ? edited : candidate
       )
     }
-    await saveSnapshot(next, now)
+    await saveAndPrune(next, now)
   } catch (error) {
     console.error('ideas: failed to save snapshot', errorName(error))
     res.status(500).json({ error: 'internal' })
