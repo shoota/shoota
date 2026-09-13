@@ -33,20 +33,28 @@ function errorName(error: unknown): string {
 }
 
 /**
- * Reads an `If-Match` precondition. The admin page sends the `updatedAt` it
- * last saw as a quoted entity tag; the write is refused with 412 when the
- * idea has changed since. Absent header means no check (curl users).
- * Returns `null` when the header is present but not a single quoted tag.
+ * Request header carrying the `updatedAt` the caller last saw. A custom
+ * header on purpose: the standard `If-Match` is evaluated by Vercel's CDN
+ * against the response ETag, which turned every successful write into a 412
+ * on the way back to the browser (#177).
  */
-function readIfMatch(
+export const EXPECTED_UPDATED_AT_HEADER = 'x-ideas-expected-updated-at'
+
+/**
+ * Reads the precondition header. Absent means no check (curl users).
+ * Returns `null` when the header is present but empty or repeated.
+ */
+function readExpectedUpdatedAt(
   header: string | string[] | undefined
 ): string | undefined | null {
   if (header === undefined) {
     return undefined
   }
-  const value = Array.isArray(header) ? header.join(',') : header
-  const match = /^\s*(?:W\/)?"([^"]*)"\s*$/.exec(value)
-  return match ? match[1] : null
+  if (Array.isArray(header)) {
+    return null
+  }
+  const value = header.trim()
+  return value.length > 0 ? value : null
 }
 
 /**
@@ -174,10 +182,10 @@ export type IdeaByIdResponse = PutIdeaResponse | DeleteIdeaResponse
  * `updatedAt` only; `id` and `createdAt` never change.
  *
  * Writes are read-modify-write on the whole snapshot and the store has no
- * compare-and-swap, so an optional `If-Match: "<updatedAt>"` precondition
- * lets a client refuse to overwrite an edit it has not seen (412). Two
- * writes racing within the same instant can still lose one of them; that
- * window is accepted for a single-user store.
+ * compare-and-swap, so an optional `X-Ideas-Expected-Updated-At: <updatedAt>`
+ * precondition lets a client refuse to overwrite an edit it has not seen
+ * (409). Two writes racing within the same instant can still lose one of
+ * them; that window is accepted for a single-user store.
  */
 export async function handleIdeaById(
   req: NextApiRequest,
@@ -201,9 +209,11 @@ export async function handleIdeaById(
     return
   }
 
-  const expectedUpdatedAt = readIfMatch(req.headers['if-match'])
+  const expectedUpdatedAt = readExpectedUpdatedAt(
+    req.headers[EXPECTED_UPDATED_AT_HEADER]
+  )
   if (expectedUpdatedAt === null) {
-    res.status(400).json({ error: 'invalid_if_match' })
+    res.status(400).json({ error: 'invalid_expected_updated_at' })
     return
   }
 
@@ -235,7 +245,7 @@ export async function handleIdeaById(
       expectedUpdatedAt !== undefined &&
       expectedUpdatedAt !== current.updatedAt
     ) {
-      res.status(412).json({ error: 'precondition_failed' })
+      res.status(409).json({ error: 'conflict' })
       return
     }
     let next: Idea[]

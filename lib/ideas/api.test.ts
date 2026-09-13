@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
+  EXPECTED_UPDATED_AT_HEADER,
   GetSnapshotResponse,
   IdeaByIdResponse,
   PostIdeaResponse,
@@ -604,13 +605,19 @@ describe('handleIdeaById', () => {
     })
   })
 
-  describe('If-Match precondition', () => {
-    const tag = `"${existing.updatedAt}"`
+  describe('expected updatedAt precondition', () => {
+    const header = EXPECTED_UPDATED_AT_HEADER
+    const current = existing.updatedAt
+
+    it('uses a custom header, not If-Match, which the CDN would intercept', () => {
+      expect(header).toBe('x-ideas-expected-updated-at')
+      expect(header).not.toMatch(/^if-/i)
+    })
 
     it.each([
-      ['PUT', () => putRequest(existing.id, undefined, { 'if-match': tag })],
-      ['DELETE', () => deleteRequest(existing.id, { 'if-match': tag })],
-    ])('%s goes through when the tag matches updatedAt', async (_, make) => {
+      ['PUT', () => putRequest(existing.id, undefined, { [header]: current })],
+      ['DELETE', () => deleteRequest(existing.id, { [header]: current })],
+    ])('%s goes through when the value matches updatedAt', async (_, make) => {
       const { res, state } = makeResponse<IdeaByIdResponse>()
       state.revalidate.mockResolvedValue()
       await handleIdeaById(make(), res)
@@ -618,14 +625,25 @@ describe('handleIdeaById', () => {
       expect(saveSnapshot).toHaveBeenCalledTimes(1)
     })
 
-    it('accepts a weak tag', async () => {
+    it('trims surrounding whitespace', async () => {
       const { res, state } = makeResponse<IdeaByIdResponse>()
       state.revalidate.mockResolvedValue()
       await handleIdeaById(
-        putRequest(existing.id, undefined, { 'if-match': `W/${tag}` }),
+        putRequest(existing.id, undefined, { [header]: `  ${current} ` }),
         res
       )
       expect(state.statusCode).toBe(200)
+    })
+
+    it('ignores a stray If-Match header entirely', async () => {
+      const { res, state } = makeResponse<IdeaByIdResponse>()
+      state.revalidate.mockResolvedValue()
+      await handleIdeaById(
+        putRequest(existing.id, undefined, { 'if-match': '"nope"' }),
+        res
+      )
+      expect(state.statusCode).toBe(200)
+      expect(saveSnapshot).toHaveBeenCalledTimes(1)
     })
 
     it.each([
@@ -633,23 +651,27 @@ describe('handleIdeaById', () => {
         'PUT',
         () =>
           putRequest(existing.id, undefined, {
-            'if-match': '"2026-09-10T00:00:00.000Z"',
+            [header]: '2026-09-10T00:00:00.000Z',
           }),
       ],
       [
         'DELETE',
         () =>
           deleteRequest(existing.id, {
-            'if-match': '"2026-09-10T00:00:00.000Z"',
+            [header]: '2026-09-10T00:00:00.000Z',
           }),
       ],
+      [
+        'PUT with a quoted value',
+        () => putRequest(existing.id, undefined, { [header]: `"${current}"` }),
+      ],
     ])(
-      '%s is refused with 412 when the idea changed since',
+      '%s is refused with 409 when the value differs from updatedAt',
       async (_, make) => {
         const { res, state } = makeResponse<IdeaByIdResponse>()
         await handleIdeaById(make(), res)
-        expect(state.statusCode).toBe(412)
-        expect(state.json).toEqual({ error: 'precondition_failed' })
+        expect(state.statusCode).toBe(409)
+        expect(state.json).toEqual({ error: 'conflict' })
         expect(loadLatest).toHaveBeenCalledTimes(1)
         expect(saveSnapshot).not.toHaveBeenCalled()
         expect(state.revalidate).not.toHaveBeenCalled()
@@ -657,18 +679,27 @@ describe('handleIdeaById', () => {
     )
 
     it.each([
-      ['an unquoted value', existing.updatedAt],
       ['an empty header', ''],
-      ['a list of tags', `${tag}, "other"`],
-      ['a wildcard', '*'],
+      ['a whitespace header', '   '],
+      ['a repeated header', [current, current]],
     ])('returns 400 for %s without reading the store', async (_, value) => {
       const { res, state } = makeResponse<IdeaByIdResponse>()
       await handleIdeaById(
-        putRequest(existing.id, undefined, { 'if-match': value }),
+        makeRequest({
+          method: 'PUT',
+          url: `/api/ideas/${existing.id}`,
+          query: { id: existing.id },
+          body: { body: 'edited' },
+          headers: {
+            authorization: `Bearer ${SECRET}`,
+            'content-type': 'application/json',
+            [header]: value,
+          },
+        }),
         res
       )
       expect(state.statusCode).toBe(400)
-      expect(state.json).toEqual({ error: 'invalid_if_match' })
+      expect(state.json).toEqual({ error: 'invalid_expected_updated_at' })
       expect(loadLatest).not.toHaveBeenCalled()
     })
 
@@ -676,7 +707,7 @@ describe('handleIdeaById', () => {
       const { res, state } = makeResponse<IdeaByIdResponse>()
       await handleIdeaById(
         putRequest('20260912T000000000Z-000000', undefined, {
-          'if-match': '"whatever"',
+          [header]: 'whatever',
         }),
         res
       )
