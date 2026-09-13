@@ -38,7 +38,13 @@ type Props = {
 export const IdeaManager: React.FC<Props> = ({ secret }) => {
   const [list, setList] = React.useState<ListState>({ kind: 'idle' })
 
+  // A deleted row unmounts, so its outcome is reported here instead.
+  const [deleteNotice, setDeleteNotice] = React.useState<
+    { kind: 'none' } | { kind: 'deleted'; revalidated: boolean }
+  >({ kind: 'none' })
+
   const handleLoad = async () => {
+    setDeleteNotice({ kind: 'none' })
     setList({ kind: 'loading' })
     const result = await fetchIdeas(secret, fetch)
     if (result.ok) {
@@ -61,7 +67,8 @@ export const IdeaManager: React.FC<Props> = ({ secret }) => {
     )
   }
 
-  const handleDeleted = (id: string) => {
+  const handleDeleted = (id: string, revalidated: boolean) => {
+    setDeleteNotice({ kind: 'deleted', revalidated })
     setList((current) =>
       current.kind === 'loaded'
         ? {
@@ -94,6 +101,13 @@ export const IdeaManager: React.FC<Props> = ({ secret }) => {
           </span>
         )}
       </div>
+      {deleteNotice.kind === 'deleted' && (
+        <p role='status' className='m-0 text-sm text-primary'>
+          {deleteNotice.revalidated
+            ? '削除しました。'
+            : '削除しました。ページへの反映は最大 1 時間後になります。'}
+        </p>
+      )}
       {list.kind === 'loaded' && list.ideas.length === 0 && (
         <p className='m-0 text-sm text-muted-foreground'>
           まだアイデアはありません。
@@ -133,7 +147,7 @@ type RowProps = {
   idea: Idea
   secret: string
   onUpdated: (id: string, body: string, updatedAt: string) => void
-  onDeleted: (id: string) => void
+  onDeleted: (id: string, revalidated: boolean) => void
 }
 
 const IdeaRow: React.FC<RowProps> = ({
@@ -195,8 +209,9 @@ const IdeaRow: React.FC<RowProps> = ({
       fetch
     )
     if (result.ok) {
-      // The row unmounts when the parent drops the idea from its list.
-      onDeleted(idea.id)
+      // The row unmounts when the parent drops the idea from its list, so
+      // the parent shows the outcome (including a failed regeneration).
+      onDeleted(idea.id, result.revalidated)
       return
     }
     setNotice({ kind: 'error', message: result.message })

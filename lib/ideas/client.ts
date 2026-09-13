@@ -26,7 +26,7 @@ export function ideaApiPath(id: string): string {
 
 /**
  * Identifies the idea an edit or delete applies to. `expectedUpdatedAt` is
- * the `updatedAt` the caller last saw; the server refuses the write with 412
+ * the `updatedAt` the caller last saw; the server refuses the write with 409
  * when the idea has changed since, so a stale list never overwrites an edit
  * made elsewhere.
  */
@@ -35,8 +35,15 @@ export type IdeaTarget = {
   expectedUpdatedAt: string
 }
 
+/**
+ * Sent as a custom header rather than `If-Match`: Vercel's CDN evaluates
+ * `If-Match` against the response ETag and would answer 412 even though the
+ * function saved the change.
+ */
+export const EXPECTED_UPDATED_AT_HEADER = 'X-Ideas-Expected-Updated-At'
+
 function preconditionHeaders(target: IdeaTarget): Record<string, string> {
-  return { 'If-Match': `"${target.expectedUpdatedAt}"` }
+  return { [EXPECTED_UPDATED_AT_HEADER]: target.expectedUpdatedAt }
 }
 
 export type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>
@@ -132,7 +139,7 @@ export function messageForStatus(status: number): string {
       return '本文が空か、形式が正しくありません。'
     case 404:
       return 'そのアイデアは見つかりません。一覧を読み込み直してください。'
-    case 412:
+    case 409:
       return '他の端末で更新されています。一覧を読み込み直してください。'
     case 413:
       return '本文が 20 KB を超えています。'

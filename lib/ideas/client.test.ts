@@ -159,7 +159,7 @@ describe('canSubmit', () => {
 })
 
 describe('messageForStatus', () => {
-  it.each([401, 400, 404, 412, 413, 415, 500])(
+  it.each([401, 400, 404, 409, 413, 415, 500])(
     'has a message for %s',
     (status) => {
       expect(messageForStatus(status)).not.toContain('HTTP')
@@ -305,7 +305,7 @@ const target: IdeaTarget = {
 }
 
 describe('updateIdea', () => {
-  it('PUTs the same { body } JSON as a post, with the secret and an If-Match tag', async () => {
+  it('PUTs the same { body } JSON as a post, with the secret and the expected updatedAt header', async () => {
     const fetchImpl = vi.fn<FetchLike>().mockResolvedValue(
       response(200, {
         id: 'x',
@@ -326,7 +326,7 @@ describe('updateIdea', () => {
       headers: {
         Authorization: 'Bearer s3cret',
         'Content-Type': 'application/json',
-        'If-Match': '"2026-09-11T00:00:00.000Z"',
+        'X-Ideas-Expected-Updated-At': '2026-09-11T00:00:00.000Z',
       },
       body: JSON.stringify({ body: '# hi' }),
     })
@@ -334,7 +334,7 @@ describe('updateIdea', () => {
 
   it.each([
     ['a missing idea', 404],
-    ['a stale precondition', 412],
+    ['a stale precondition', 409],
   ])('has a message for %s', async (_, status) => {
     const fetchImpl = vi.fn<FetchLike>().mockResolvedValue(response(status, {}))
     const result = await updateIdea('s', target, 'b', fetchImpl)
@@ -372,7 +372,7 @@ describe('updateIdea', () => {
 })
 
 describe('deleteIdea', () => {
-  it('DELETEs with the secret and an If-Match tag, and no body', async () => {
+  it('DELETEs with the secret and the expected updatedAt header, and no body', async () => {
     const fetchImpl = vi
       .fn<FetchLike>()
       .mockResolvedValue(response(200, { id: 'x', revalidated: false }))
@@ -385,12 +385,12 @@ describe('deleteIdea', () => {
       method: 'DELETE',
       headers: {
         Authorization: 'Bearer s3cret',
-        'If-Match': '"2026-09-11T00:00:00.000Z"',
+        'X-Ideas-Expected-Updated-At': '2026-09-11T00:00:00.000Z',
       },
     })
   })
 
-  it.each([401, 404, 412])('maps %s to a message', async (status) => {
+  it.each([401, 404, 409])('maps %s to a message', async (status) => {
     const fetchImpl = vi.fn<FetchLike>().mockResolvedValue(response(status, {}))
     await expect(deleteIdea('s', target, fetchImpl)).resolves.toEqual({
       ok: false,
