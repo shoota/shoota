@@ -42,7 +42,9 @@ export const EXPECTED_UPDATED_AT_HEADER = 'x-ideas-expected-updated-at'
 
 /**
  * Reads the precondition header. Absent means no check (curl users).
- * Returns `null` when the header is present but empty or repeated.
+ * Returns `null` when the header is present but empty or repeated. Node
+ * joins repeated headers with ", " into one string, so a comma is treated
+ * as repetition too; an ISO timestamp never contains one.
  */
 function readExpectedUpdatedAt(
   header: string | string[] | undefined
@@ -54,7 +56,7 @@ function readExpectedUpdatedAt(
     return null
   }
   const value = header.trim()
-  return value.length > 0 ? value : null
+  return value.length > 0 && !value.includes(',') ? value : null
 }
 
 /**

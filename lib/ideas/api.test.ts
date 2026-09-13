@@ -10,6 +10,7 @@ import {
   handleIdeaById,
   handlePostIdea,
 } from '@/lib/ideas/api'
+import { EXPECTED_UPDATED_AT_HEADER as CLIENT_EXPECTED_UPDATED_AT_HEADER } from '@/lib/ideas/client'
 import { loadLatest, pruneSnapshots, saveSnapshot } from '@/lib/ideas/store'
 import { Idea } from '@/lib/ideas/types'
 import route, { config } from '@/pages/api/ideas'
@@ -614,6 +615,10 @@ describe('handleIdeaById', () => {
       expect(header).not.toMatch(/^if-/i)
     })
 
+    it('matches the name the browser client sends (Node lowercases it)', () => {
+      expect(CLIENT_EXPECTED_UPDATED_AT_HEADER.toLowerCase()).toBe(header)
+    })
+
     it.each([
       ['PUT', () => putRequest(existing.id, undefined, { [header]: current })],
       ['DELETE', () => deleteRequest(existing.id, { [header]: current })],
@@ -681,7 +686,8 @@ describe('handleIdeaById', () => {
     it.each([
       ['an empty header', ''],
       ['a whitespace header', '   '],
-      ['a repeated header', [current, current]],
+      ['a repeated header as an array', [current, current]],
+      ['a repeated header joined by Node', `${current}, ${current}`],
     ])('returns 400 for %s without reading the store', async (_, value) => {
       const { res, state } = makeResponse<IdeaByIdResponse>()
       await handleIdeaById(
