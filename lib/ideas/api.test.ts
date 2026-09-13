@@ -9,7 +9,7 @@ import {
   handleIdeaById,
   handlePostIdea,
 } from '@/lib/ideas/api'
-import { loadLatest, saveSnapshot } from '@/lib/ideas/store'
+import { loadLatest, pruneSnapshots, saveSnapshot } from '@/lib/ideas/store'
 import { Idea } from '@/lib/ideas/types'
 import route, { config } from '@/pages/api/ideas'
 import byIdRoute, { config as byIdConfig } from '@/pages/api/ideas/[id]'
@@ -17,6 +17,7 @@ import snapshotRoute from '@/pages/api/ideas/snapshot'
 
 vi.mock('@/lib/ideas/store', () => ({
   loadLatest: vi.fn(),
+  pruneSnapshots: vi.fn(),
   saveSnapshot: vi.fn(),
 }))
 
@@ -97,6 +98,7 @@ beforeEach(() => {
   vi.stubEnv('IDEAS_POST_SECRET', SECRET)
   vi.mocked(loadLatest).mockReset().mockResolvedValue([existing])
   vi.mocked(saveSnapshot).mockReset().mockResolvedValue('ideas/x.json')
+  vi.mocked(pruneSnapshots).mockReset().mockResolvedValue([])
   vi.spyOn(console, 'error').mockImplementation(() => {})
 })
 
@@ -259,6 +261,11 @@ describe('handlePostIdea', () => {
         [existing, { id, ...created }],
         NOW
       )
+      expect(pruneSnapshots).toHaveBeenCalledTimes(1)
+      expect(pruneSnapshots).toHaveBeenCalledWith(NOW)
+      expect(
+        vi.mocked(pruneSnapshots).mock.invocationCallOrder[0]
+      ).toBeGreaterThan(vi.mocked(saveSnapshot).mock.invocationCallOrder[0])
       expect(state.revalidate.mock.calls).toEqual([
         ['/ideas'],
         [`/ideas/${id}`],
@@ -322,6 +329,37 @@ describe('handlePostIdea', () => {
       expect(state.statusCode).toBe(201)
       expect(state.json).toMatchObject({ revalidated: false })
       expect(state.revalidate).toHaveBeenCalledTimes(2)
+    })
+  })
+
+  describe('snapshot retention', () => {
+    it('still returns 201 and revalidates when pruning fails, logging only the error name', async () => {
+      vi.mocked(pruneSnapshots).mockRejectedValue(new Error('blob exploded'))
+      const { res, state } = makeResponse()
+      state.revalidate.mockResolvedValue()
+
+      await handlePostIdea(authorized({ body: { body: 'x' } }), res)
+
+      expect(state.statusCode).toBe(201)
+      expect(state.json).toEqual({
+        id: expect.stringMatching(/^20260912T010203456Z-[0-9a-f]{6}$/),
+        createdAt: NOW.toISOString(),
+        revalidated: true,
+      })
+      expect(state.revalidate).toHaveBeenCalledTimes(2)
+      expect(loggedText()).toContain('prune')
+      expect(loggedText()).toContain('Error')
+      expect(loggedText()).not.toContain('blob exploded')
+      expect(loggedText()).not.toContain(SECRET)
+    })
+
+    it('does not prune when the save failed', async () => {
+      vi.mocked(saveSnapshot).mockRejectedValue(new Error('blob exploded'))
+      const { res } = makeResponse()
+
+      await handlePostIdea(authorized({ body: { body: 'x' } }), res)
+
+      expect(pruneSnapshots).not.toHaveBeenCalled()
     })
   })
 
@@ -673,6 +711,25 @@ describe('handleIdeaById', () => {
   })
 
   describe('PUT success', () => {
+    it('still returns 200 when pruning fails after the update', async () => {
+      vi.mocked(pruneSnapshots).mockRejectedValue(new Error('blob exploded'))
+      const { res, state } = makeResponse<IdeaByIdResponse>()
+      state.revalidate.mockResolvedValue()
+
+      await handleIdeaById(putRequest(existing.id), res)
+
+      expect(state.statusCode).toBe(200)
+      expect(state.json).toEqual({
+        id: existing.id,
+        updatedAt: NOW.toISOString(),
+        revalidated: true,
+      })
+      expect(state.revalidate).toHaveBeenCalledTimes(2)
+      expect(loggedText()).toContain('prune')
+      expect(loggedText()).toContain('Error')
+      expect(loggedText()).not.toContain('blob exploded')
+    })
+
     it('replaces body and updatedAt only, keeps the rest, and revalidates both pages', async () => {
       const { res, state } = makeResponse<IdeaByIdResponse>()
       state.revalidate.mockResolvedValue()
@@ -689,6 +746,11 @@ describe('handleIdeaById', () => {
         [{ ...existing, body: 'edited', updatedAt: NOW.toISOString() }, second],
         NOW
       )
+      expect(pruneSnapshots).toHaveBeenCalledTimes(1)
+      expect(pruneSnapshots).toHaveBeenCalledWith(NOW)
+      expect(
+        vi.mocked(pruneSnapshots).mock.invocationCallOrder[0]
+      ).toBeGreaterThan(vi.mocked(saveSnapshot).mock.invocationCallOrder[0])
       expect(state.revalidate.mock.calls).toEqual([
         ['/ideas'],
         [`/ideas/${existing.id}`],
@@ -731,10 +793,30 @@ describe('handleIdeaById', () => {
       expect(state.statusCode).toBe(200)
       expect(state.json).toEqual({ id: existing.id, revalidated: true })
       expect(saveSnapshot).toHaveBeenCalledWith([second], NOW)
+      expect(pruneSnapshots).toHaveBeenCalledTimes(1)
+      expect(pruneSnapshots).toHaveBeenCalledWith(NOW)
+      expect(
+        vi.mocked(pruneSnapshots).mock.invocationCallOrder[0]
+      ).toBeGreaterThan(vi.mocked(saveSnapshot).mock.invocationCallOrder[0])
       expect(state.revalidate.mock.calls).toEqual([
         ['/ideas'],
         [`/ideas/${existing.id}`],
       ])
+    })
+
+    it('still returns 200 when pruning fails after the delete', async () => {
+      vi.mocked(pruneSnapshots).mockRejectedValue(new Error('blob exploded'))
+      const { res, state } = makeResponse<IdeaByIdResponse>()
+      state.revalidate.mockResolvedValue()
+
+      await handleIdeaById(deleteRequest(existing.id), res)
+
+      expect(state.statusCode).toBe(200)
+      expect(state.json).toEqual({ id: existing.id, revalidated: true })
+      expect(state.revalidate).toHaveBeenCalledTimes(2)
+      expect(loggedText()).toContain('prune')
+      expect(loggedText()).toContain('Error')
+      expect(loggedText()).not.toContain('blob exploded')
     })
 
     it('saves an empty snapshot when the last idea is deleted', async () => {
