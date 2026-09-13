@@ -1,6 +1,7 @@
 import { del, get, list, put } from '@vercel/blob'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { mockIdeas } from '@/lib/ideas/mock'
 import {
   SNAPSHOT_PREFIX,
   SNAPSHOT_RETENTION,
@@ -211,10 +212,24 @@ describe('without BLOB_READ_WRITE_TOKEN', () => {
     ['unset', undefined],
     ['empty', ''],
   ])('loadLatest returns an empty array when the token is %s', async (_, v) => {
+    vi.stubEnv('NODE_ENV', 'production')
     vi.stubEnv('BLOB_READ_WRITE_TOKEN', v)
     await expect(loadLatest()).resolves.toEqual([])
     expect(list).not.toHaveBeenCalled()
   })
+
+  it.each([
+    ['unset', undefined],
+    ['empty', ''],
+  ])(
+    'loadLatest returns the mock ideas on the dev server when the token is %s',
+    async (_, v) => {
+      vi.stubEnv('NODE_ENV', 'development')
+      vi.stubEnv('BLOB_READ_WRITE_TOKEN', v)
+      await expect(loadLatest()).resolves.toEqual(mockIdeas())
+      expect(list).not.toHaveBeenCalled()
+    }
+  )
 
   it('saveSnapshot refuses to write', async () => {
     vi.stubEnv('BLOB_READ_WRITE_TOKEN', undefined)
@@ -240,6 +255,13 @@ describe('loadLatest with a store', () => {
     vi.mocked(list).mockResolvedValueOnce(listPage([]))
     await expect(loadLatest()).resolves.toEqual([])
     expect(get).not.toHaveBeenCalled()
+  })
+
+  it('reads the store instead of the mock on the dev server', async () => {
+    vi.stubEnv('NODE_ENV', 'development')
+    vi.mocked(list).mockResolvedValueOnce(listPage([]))
+    await expect(loadLatest()).resolves.toEqual([])
+    expect(list).toHaveBeenCalled()
   })
 
   it('reads the newest snapshot without the CDN cache', async () => {

@@ -1,5 +1,6 @@
 import { del, get, list, put } from '@vercel/blob'
 
+import { mockIdeas } from '@/lib/ideas/mock'
 import { Idea, isIdea } from '@/lib/ideas/types'
 
 /**
@@ -164,11 +165,14 @@ async function listSnapshots() {
 /**
  * Loads the ideas from the newest snapshot. Returns an empty array when the
  * Blob token is not configured (for example on Preview builds) or when no
- * snapshot exists yet, so the page can always be built.
+ * snapshot exists yet, so the page can always be built. On the dev server
+ * a missing token yields the mock ideas instead, so the pages can be styled
+ * without store access. Writes still require the token, so the mock never
+ * reaches a real store.
  */
 export async function loadLatest(): Promise<Idea[]> {
   if (!blobToken()) {
-    return []
+    return process.env.NODE_ENV === 'development' ? mockIdeas() : []
   }
   const latest = selectLatestSnapshot(await listSnapshots())
   if (!latest) {

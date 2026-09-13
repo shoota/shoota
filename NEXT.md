@@ -63,11 +63,13 @@ npx vercel env pull .env.local
 
 Variables used by the ideas feed (`/ideas`):
 
-| Variable                | Purpose                                                                                                             |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `BLOB_READ_WRITE_TOKEN` | Injected by the Vercel Blob integration. When it is missing the feed builds with an empty state.                    |
-| `IDEAS_BLOB_ACCESS`     | `public` or `private`, matching how the Blob store was created. Defaults to `private`.                              |
-| `IDEAS_POST_SECRET`     | Shared secret for `POST /api/ideas`. Production only, marked Sensitive. When it is missing every write is rejected. |
+| Variable                | Purpose                                                                                                                                                                       |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `BLOB_READ_WRITE_TOKEN` | Injected by the Vercel Blob integration. When it is missing the feed builds with an empty state, except on the dev server (`npm run dev`), which shows 20 mock ideas instead. |
+| `IDEAS_BLOB_ACCESS`     | `public` or `private`, matching how the Blob store was created. Defaults to `private`.                                                                                        |
+| `IDEAS_POST_SECRET`     | Shared secret for `POST /api/ideas`. Production only, marked Sensitive. When it is missing every write is rejected.                                                           |
+
+The mock ideas live in `lib/ideas/mock.ts` and cover the Markdown the feed renders (headings, lists, code, tables, quotes, long unbroken text), so the pages can be styled without store access. Once `.env.local` provides a token, the dev server reads the real store instead. Writes always need the token, so the mock never reaches a store.
 
 ### Posting an idea
 
