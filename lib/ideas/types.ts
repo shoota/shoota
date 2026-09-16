@@ -31,6 +31,16 @@ export function normalizeTitle(title: string): string {
 }
 
 /**
+ * Whether a title (already passed through `normalizeTitle`) may be saved.
+ * The API and the admin page share this one rule.
+ */
+export function isValidTitle(normalizedTitle: string): boolean {
+  return (
+    normalizedTitle.length > 0 && normalizedTitle.length <= MAX_TITLE_LENGTH
+  )
+}
+
+/**
  * A blank body is stored as `null`; anything else is kept exactly as sent,
  * because whitespace can be meaningful in Markdown. The API stores bodies in
  * this form and the admin page mirrors it in its list.
@@ -51,9 +61,11 @@ function isNullableString(value: unknown): value is string | null | undefined {
  * Parses one snapshot entry into an `Idea`, or returns `undefined` for
  * anything that is not one. Timestamps must parse as dates, because a string
  * that merely looks like one would pass the type check and then throw while
- * formatting during render. A missing or `null` title or body becomes
- * `null`, so ideas saved before titles existed are not dropped (and then
- * lost on the next save). Unknown fields are not carried over.
+ * formatting during render. A missing, `null`, or blank title or body
+ * becomes `null` (a hand-edited snapshot may carry `""`), so ideas saved
+ * before titles existed are not dropped (and then lost on the next save) and
+ * every reader can rely on "null or non-empty". Unknown fields are not
+ * carried over.
  */
 export function parseIdea(value: unknown): Idea | undefined {
   if (typeof value !== 'object' || value === null) {
@@ -70,10 +82,11 @@ export function parseIdea(value: unknown): Idea | undefined {
   ) {
     return undefined
   }
+  const title = record.title == null ? '' : normalizeTitle(record.title)
   return {
     id: record.id,
-    title: record.title ?? null,
-    body: record.body ?? null,
+    title: title.length > 0 ? title : null,
+    body: record.body == null ? null : normalizeBody(record.body),
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
   }

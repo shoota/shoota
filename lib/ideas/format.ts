@@ -19,6 +19,18 @@ export function ideaExcerpt(body: string | null): string {
 }
 
 /**
+ * Title for the detail page's `<title>` and Open Graph tags. Ideas saved
+ * before titles existed fall back to their timestamp label. Lives here, not
+ * in `view.ts`, so the page bundle does not pull in the Markdown pipeline.
+ */
+export function ideaPageTitle(idea: {
+  title: string | null
+  createdAtLabel: string
+}): string {
+  return idea.title ?? `Idea ${idea.createdAtLabel}`
+}
+
+/**
  * Formats an ISO timestamp as `yyyy.MM.dd HH:mm` in a fixed time zone.
  * Formatting happens in `getStaticProps`, so the markup is identical on the
  * server and in the browser regardless of where either one runs.

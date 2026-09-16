@@ -6,7 +6,7 @@ import { generateIdeaId, isIdeaId } from '@/lib/ideas/id'
 import { loadLatest, pruneSnapshots, saveSnapshot } from '@/lib/ideas/store'
 import {
   Idea,
-  MAX_TITLE_LENGTH,
+  isValidTitle,
   normalizeBody,
   normalizeTitle,
 } from '@/lib/ideas/types'
@@ -37,11 +37,11 @@ function readContent(payload: unknown): IdeaContent | { error: string } {
       : {}
   const title =
     typeof record.title === 'string' ? normalizeTitle(record.title) : ''
-  if (title.length === 0) {
-    return { error: 'title_required' }
-  }
-  if (title.length > MAX_TITLE_LENGTH) {
-    return { error: 'title_too_long' }
+  if (!isValidTitle(title)) {
+    // The two failure modes get distinct codes for the admin page's message.
+    return {
+      error: title.length === 0 ? 'title_required' : 'title_too_long',
+    }
   }
   const body = record.body
   if (body === undefined || body === null) {

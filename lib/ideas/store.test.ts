@@ -194,6 +194,18 @@ describe('parseSnapshot', () => {
     ])
   })
 
+  it('reads a blank title or body as null, like the API stores them', () => {
+    // A hand-edited snapshot may carry "" where the API would have null.
+    const json = JSON.stringify([
+      { ...idea, title: '', body: ' \n' },
+      { ...idea, id: '02', title: '  Two\n lines ' },
+    ])
+    expect(parseSnapshot(json)).toEqual([
+      { ...idea, title: null, body: null },
+      { ...idea, id: '02', title: 'Two lines' },
+    ])
+  })
+
   it('drops entries whose title or body is not a string', () => {
     const json = JSON.stringify([
       idea,

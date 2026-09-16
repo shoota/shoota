@@ -200,6 +200,18 @@ describe('canSubmit', () => {
 })
 
 describe('messageForStatus', () => {
+  it('names the title, not the body, for 400 since only the title is required', () => {
+    expect(messageForStatus(400)).toBe(
+      'タイトルが空か、形式が正しくありません。'
+    )
+  })
+
+  it('says the limit covers title and body together for 413', () => {
+    expect(messageForStatus(413)).toBe(
+      'タイトルと本文の合計が 20 KB を超えています。'
+    )
+  })
+
   it.each([401, 400, 404, 409, 413, 415, 500])(
     'has a message for %s',
     (status) => {

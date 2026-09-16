@@ -4,6 +4,7 @@ import {
   EMPTY_EXCERPT,
   formatIdeaTimestamp,
   ideaExcerpt,
+  ideaPageTitle,
 } from '@/lib/ideas/format'
 
 describe('ideaExcerpt', () => {
@@ -22,8 +23,23 @@ describe('ideaExcerpt', () => {
     ['an empty body', ''],
     ['only whitespace', ' \n\t\n'],
     ['only heading markers', '#\n##'],
+    ['no body', null],
   ])('falls back for %s', (_, body) => {
     expect(ideaExcerpt(body)).toBe(EMPTY_EXCERPT)
+  })
+})
+
+describe('ideaPageTitle', () => {
+  it('uses the title when there is one', () => {
+    expect(
+      ideaPageTitle({ title: 'Greeting', createdAtLabel: '2026.09.12 10:02' })
+    ).toBe('Greeting')
+  })
+
+  it('falls back to the timestamp label for an untitled idea', () => {
+    expect(
+      ideaPageTitle({ title: null, createdAtLabel: '2026.09.12 10:02' })
+    ).toBe('Idea 2026.09.12 10:02')
   })
 })
 

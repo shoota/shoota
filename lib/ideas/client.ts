@@ -7,7 +7,7 @@
 import { sortNewestFirst } from '@/lib/ideas/sort'
 import {
   Idea,
-  MAX_TITLE_LENGTH,
+  isValidTitle,
   normalizeTitle,
   parseIdeas,
 } from '@/lib/ideas/types'
@@ -140,13 +140,11 @@ export function canSubmit(input: {
   draft: IdeaDraft
   busy: boolean
 }): boolean {
-  const title = normalizeTitle(input.draft.title)
   return (
     !input.busy &&
     input.secret !== undefined &&
     input.secret.length > 0 &&
-    title.length > 0 &&
-    title.length <= MAX_TITLE_LENGTH &&
+    isValidTitle(normalizeTitle(input.draft.title)) &&
     requestByteLength(input.draft) <= MAX_BODY_BYTES
   )
 }

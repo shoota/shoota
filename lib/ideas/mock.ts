@@ -1,5 +1,5 @@
 import { generateIdeaId } from '@/lib/ideas/id'
-import { Idea } from '@/lib/ideas/types'
+import type { Idea } from '@/lib/ideas/types'
 
 type MockEntry = {
   createdAt: string

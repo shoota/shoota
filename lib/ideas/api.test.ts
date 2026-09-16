@@ -253,6 +253,7 @@ describe('handlePostIdea', () => {
       expect(state.statusCode).toBe(400)
       expect(state.json).toEqual({ error: 'title_too_long' })
       expect(saveSnapshot).not.toHaveBeenCalled()
+      expect(state.revalidate).not.toHaveBeenCalled()
     })
 
     it.each([
