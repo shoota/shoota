@@ -2,12 +2,16 @@ export const IDEAS_TIME_ZONE = 'Asia/Tokyo'
 
 export const EMPTY_EXCERPT = '(本文なし)'
 
+/** Shown in the admin list for ideas saved before titles existed. */
+export const UNTITLED_LABEL = '(タイトルなし)'
+
 /**
  * The first non-empty line of a Markdown body with any heading marker
- * removed, used as a one-line caption in the admin list.
+ * removed, used as a one-line caption in the admin list. `null` (an idea
+ * posted without a body) falls back like an empty body.
  */
-export function ideaExcerpt(body: string): string {
-  const line = body
+export function ideaExcerpt(body: string | null): string {
+  const line = (body ?? '')
     .split('\n')
     .map((part) => part.replace(/^#+\s*/, '').trim())
     .find((part) => part.length > 0)

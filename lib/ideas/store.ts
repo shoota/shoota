@@ -1,7 +1,7 @@
 import { del, get, list, put } from '@vercel/blob'
 
 import { mockIdeas } from '@/lib/ideas/mock'
-import { Idea, isIdea } from '@/lib/ideas/types'
+import { Idea, parseIdeas } from '@/lib/ideas/types'
 
 /**
  * Ideas are stored on Vercel Blob as immutable snapshots. Every save writes a
@@ -146,7 +146,7 @@ export function parseSnapshot(json: string): Idea[] {
   if (!Array.isArray(parsed)) {
     throw new Error('Ideas snapshot must be a JSON array')
   }
-  return parsed.filter(isIdea)
+  return parseIdeas(parsed)
 }
 
 async function listSnapshots() {

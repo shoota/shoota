@@ -9,6 +9,7 @@ import {
 } from '@/components/ideas/styles'
 import { cn } from '@/lib/utils'
 import {
+  IdeaDraft,
   MAX_BODY_BYTES,
   canSubmit,
   deleteIdea,
@@ -16,8 +17,17 @@ import {
   requestByteLength,
   updateIdea,
 } from '@/lib/ideas/client'
-import { formatIdeaTimestamp, ideaExcerpt } from '@/lib/ideas/format'
-import type { Idea } from '@/lib/ideas/types'
+import {
+  UNTITLED_LABEL,
+  formatIdeaTimestamp,
+  ideaExcerpt,
+} from '@/lib/ideas/format'
+import {
+  Idea,
+  MAX_TITLE_LENGTH,
+  normalizeBody,
+  normalizeTitle,
+} from '@/lib/ideas/types'
 
 type ListState =
   | { kind: 'idle' }
@@ -54,13 +64,17 @@ export const IdeaManager: React.FC<Props> = ({ secret }) => {
     setList({ kind: 'error', message: result.message })
   }
 
-  const handleUpdated = (id: string, body: string, updatedAt: string) => {
+  const handleUpdated = (id: string, draft: IdeaDraft, updatedAt: string) => {
+    // The server stores the title normalized and a blank body as null, so
+    // the list does the same.
+    const title = normalizeTitle(draft.title)
+    const body = normalizeBody(draft.body)
     setList((current) =>
       current.kind === 'loaded'
         ? {
             kind: 'loaded',
             ideas: current.ideas.map((idea) =>
-              idea.id === id ? { ...idea, body, updatedAt } : idea
+              idea.id === id ? { ...idea, title, body, updatedAt } : idea
             ),
           }
         : current
@@ -133,8 +147,8 @@ export const IdeaManager: React.FC<Props> = ({ secret }) => {
 
 type RowMode =
   | { kind: 'view' }
-  | { kind: 'editing'; draft: string }
-  | { kind: 'saving'; draft: string }
+  | { kind: 'editing'; draft: IdeaDraft }
+  | { kind: 'saving'; draft: IdeaDraft }
   | { kind: 'confirming' }
   | { kind: 'deleting' }
 
@@ -146,7 +160,7 @@ type Notice =
 type RowProps = {
   idea: Idea
   secret: string
-  onUpdated: (id: string, body: string, updatedAt: string) => void
+  onUpdated: (id: string, draft: IdeaDraft, updatedAt: string) => void
   onDeleted: (id: string, revalidated: boolean) => void
 }
 
@@ -161,7 +175,12 @@ const IdeaRow: React.FC<RowProps> = ({
 
   const handleStartEdit = () => {
     setNotice({ kind: 'none' })
-    setMode({ kind: 'editing', draft: idea.body })
+    // Ideas saved before titles existed start with an empty title, which
+    // has to be filled in before the edit can be saved.
+    setMode({
+      kind: 'editing',
+      draft: { title: idea.title ?? '', body: idea.body ?? '' },
+    })
   }
 
   const handleCancel = () => {
@@ -174,7 +193,7 @@ const IdeaRow: React.FC<RowProps> = ({
       return
     }
     const draft = mode.draft
-    if (!canSubmit({ secret, body: draft, busy: false })) {
+    if (!canSubmit({ secret, draft, busy: false })) {
       return
     }
     setMode({ kind: 'saving', draft })
@@ -220,22 +239,45 @@ const IdeaRow: React.FC<RowProps> = ({
 
   if (mode.kind === 'editing' || mode.kind === 'saving') {
     const busy = mode.kind === 'saving'
-    const bytes = requestByteLength(mode.draft)
+    const draft = mode.draft
+    const bytes = requestByteLength(draft)
     return (
       <form
         onSubmit={handleSave}
         className='flex flex-col gap-3 rounded-lg bg-card p-4 shadow-soft-glow'
       >
         <RowHeader idea={idea} />
-        <textarea
-          value={mode.draft}
-          onChange={(event) =>
-            setMode({ kind: 'editing', draft: event.target.value })
-          }
-          rows={8}
-          disabled={busy}
-          className={cn(fieldClass, 'font-mono leading-relaxed')}
-        />
+        <label className='flex flex-col gap-1 text-sm text-muted-foreground'>
+          タイトル
+          <input
+            type='text'
+            value={draft.title}
+            onChange={(event) =>
+              setMode({
+                kind: 'editing',
+                draft: { ...draft, title: event.target.value },
+              })
+            }
+            maxLength={MAX_TITLE_LENGTH}
+            disabled={busy}
+            className={fieldClass}
+          />
+        </label>
+        <label className='flex flex-col gap-1 text-sm text-muted-foreground'>
+          本文（Markdown、任意）
+          <textarea
+            value={draft.body}
+            onChange={(event) =>
+              setMode({
+                kind: 'editing',
+                draft: { ...draft, body: event.target.value },
+              })
+            }
+            rows={8}
+            disabled={busy}
+            className={cn(fieldClass, 'font-mono leading-relaxed')}
+          />
+        </label>
         <div className='flex flex-wrap items-center justify-between gap-3'>
           <span
             className={cn(
@@ -259,7 +301,7 @@ const IdeaRow: React.FC<RowProps> = ({
             </button>
             <button
               type='submit'
-              disabled={!canSubmit({ secret, body: mode.draft, busy })}
+              disabled={!canSubmit({ secret, draft, busy })}
               className={primaryButtonClass}
             >
               {busy ? '保存中…' : '保存する'}
@@ -274,7 +316,19 @@ const IdeaRow: React.FC<RowProps> = ({
   return (
     <div className='flex flex-col gap-3 rounded-lg bg-card p-4 shadow-soft-glow'>
       <RowHeader idea={idea} />
-      <p className='m-0 truncate text-sm'>{ideaExcerpt(idea.body)}</p>
+      <div className='flex flex-col gap-1'>
+        <p
+          className={cn(
+            'm-0 truncate text-sm',
+            idea.title ? 'text-foreground' : 'text-muted-foreground'
+          )}
+        >
+          {idea.title || UNTITLED_LABEL}
+        </p>
+        <p className='m-0 truncate text-xs text-muted-foreground'>
+          {ideaExcerpt(idea.body)}
+        </p>
+      </div>
       {mode.kind === 'view' && (
         <div className='flex flex-wrap gap-2'>
           <button

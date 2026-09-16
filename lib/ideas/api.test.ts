@@ -12,7 +12,7 @@ import {
 } from '@/lib/ideas/api'
 import { EXPECTED_UPDATED_AT_HEADER as CLIENT_EXPECTED_UPDATED_AT_HEADER } from '@/lib/ideas/client'
 import { loadLatest, pruneSnapshots, saveSnapshot } from '@/lib/ideas/store'
-import { Idea } from '@/lib/ideas/types'
+import { Idea, MAX_TITLE_LENGTH } from '@/lib/ideas/types'
 import route, { config } from '@/pages/api/ideas'
 import byIdRoute, { config as byIdConfig } from '@/pages/api/ideas/[id]'
 import snapshotRoute from '@/pages/api/ideas/snapshot'
@@ -26,8 +26,10 @@ vi.mock('@/lib/ideas/store', () => ({
 const SECRET = 'test-secret-value'
 const NOW = new Date('2026-09-12T01:02:03.456Z')
 
+// Saved before titles existed.
 const existing: Idea = {
   id: '20260911T000000000Z-000000',
+  title: null,
   body: 'older',
   createdAt: '2026-09-11T00:00:00.000Z',
   updatedAt: '2026-09-11T00:00:00.000Z',
@@ -150,7 +152,7 @@ describe('handlePostIdea', () => {
       await handlePostIdea(
         makeRequest({
           headers: { 'content-type': 'application/json', ...headers },
-          body: { body: 'hello' },
+          body: { title: 'Title', body: 'hello' },
         }),
         res
       )
@@ -167,7 +169,7 @@ describe('handlePostIdea', () => {
       await handlePostIdea(
         makeRequest({
           headers: { 'content-type': 'application/json' },
-          body: { body: 'hello' },
+          body: { title: 'Title', body: 'hello' },
           query: { token: SECRET, secret: SECRET },
           url: `/api/ideas?token=${SECRET}`,
         }),
@@ -180,7 +182,10 @@ describe('handlePostIdea', () => {
     it('returns the same 401 when IDEAS_POST_SECRET is unset', async () => {
       vi.stubEnv('IDEAS_POST_SECRET', undefined)
       const { res, state } = makeResponse()
-      await handlePostIdea(authorized({ body: { body: 'hello' } }), res)
+      await handlePostIdea(
+        authorized({ body: { title: 'Title', body: 'hello' } }),
+        res
+      )
       expect(state.statusCode).toBe(401)
       expect(state.json).toEqual({ error: 'unauthorized' })
       expect(saveSnapshot).not.toHaveBeenCalled()
@@ -198,7 +203,7 @@ describe('handlePostIdea', () => {
       await handlePostIdea(
         authorized({
           headers: { 'content-type': contentType },
-          body: { body: 'x' },
+          body: { title: 'Title', body: 'x' },
         }),
         res
       )
@@ -213,7 +218,7 @@ describe('handlePostIdea', () => {
       await handlePostIdea(
         authorized({
           headers: { 'content-type': 'Application/JSON; charset=utf-8' },
-          body: { body: 'hello' },
+          body: { title: 'Title', body: 'hello' },
         }),
         res
       )
@@ -221,24 +226,119 @@ describe('handlePostIdea', () => {
     })
 
     it.each([
-      ['missing body field', {}],
-      ['empty string', { body: '' }],
-      ['whitespace only', { body: '   \n' }],
-      ['non-string', { body: 42 }],
+      ['a missing title', { body: 'hello' }],
+      ['an empty title', { title: '', body: 'hello' }],
+      ['a whitespace title', { title: ' \n\t', body: 'hello' }],
+      ['a non-string title', { title: 42, body: 'hello' }],
+      ['an empty object', {}],
       ['not an object', 'hello'],
       ['null', null],
-    ])('returns 400 for %s', async (_, body) => {
+    ])('returns 400 title_required for %s', async (_, body) => {
       const { res, state } = makeResponse()
       await handlePostIdea(authorized({ body }), res)
       expect(state.statusCode).toBe(400)
-      expect(state.json).toEqual({ error: 'body_required' })
+      expect(state.json).toEqual({ error: 'title_required' })
+      expect(saveSnapshot).not.toHaveBeenCalled()
+      expect(state.revalidate).not.toHaveBeenCalled()
+    })
+
+    it('returns 400 title_too_long for a title over the limit', async () => {
+      const { res, state } = makeResponse()
+      await handlePostIdea(
+        authorized({
+          body: { title: 'a'.repeat(MAX_TITLE_LENGTH + 1), body: 'hello' },
+        }),
+        res
+      )
+      expect(state.statusCode).toBe(400)
+      expect(state.json).toEqual({ error: 'title_too_long' })
+      expect(saveSnapshot).not.toHaveBeenCalled()
+    })
+
+    it.each([
+      ['a number', { title: 'Title', body: 42 }],
+      ['an array', { title: 'Title', body: ['x'] }],
+    ])('returns 400 body_invalid when the body is %s', async (_, body) => {
+      const { res, state } = makeResponse()
+      await handlePostIdea(authorized({ body }), res)
+      expect(state.statusCode).toBe(400)
+      expect(state.json).toEqual({ error: 'body_invalid' })
       expect(saveSnapshot).not.toHaveBeenCalled()
       expect(state.revalidate).not.toHaveBeenCalled()
     })
   })
 
+  describe('optional body', () => {
+    it.each([
+      ['a missing body field', { title: 'Title' }],
+      ['a null body', { title: 'Title', body: null }],
+      ['an empty body', { title: 'Title', body: '' }],
+      ['a whitespace body', { title: 'Title', body: '   \n' }],
+    ])('stores %s as null', async (_, body) => {
+      const { res, state } = makeResponse()
+      state.revalidate.mockResolvedValue()
+
+      await handlePostIdea(authorized({ body }), res)
+
+      expect(state.statusCode).toBe(201)
+      expect(vi.mocked(saveSnapshot).mock.calls[0][0][1]).toMatchObject({
+        title: 'Title',
+        body: null,
+      })
+    })
+
+    it('keeps a non-blank body exactly as sent', async () => {
+      const { res, state } = makeResponse()
+      state.revalidate.mockResolvedValue()
+
+      await handlePostIdea(
+        authorized({ body: { title: 'Title', body: '  x  \n' } }),
+        res
+      )
+
+      expect(state.statusCode).toBe(201)
+      expect(vi.mocked(saveSnapshot).mock.calls[0][0][1]).toMatchObject({
+        body: '  x  \n',
+      })
+    })
+  })
+
+  describe('title normalization', () => {
+    it('stores the title on one line with surrounding whitespace removed', async () => {
+      const { res, state } = makeResponse()
+      state.revalidate.mockResolvedValue()
+
+      await handlePostIdea(
+        authorized({ body: { title: '  Two\n  lines\t', body: 'x' } }),
+        res
+      )
+
+      expect(state.statusCode).toBe(201)
+      expect(vi.mocked(saveSnapshot).mock.calls[0][0][1]).toMatchObject({
+        title: 'Two lines',
+      })
+    })
+
+    it('measures the limit after normalizing', async () => {
+      const { res, state } = makeResponse()
+      state.revalidate.mockResolvedValue()
+      const title = 'a'.repeat(MAX_TITLE_LENGTH)
+
+      await handlePostIdea(
+        authorized({ body: { title: ` ${title}\n`, body: 'x' } }),
+        res
+      )
+
+      expect(state.statusCode).toBe(201)
+      expect(vi.mocked(saveSnapshot).mock.calls[0][0][1]).toMatchObject({
+        title,
+      })
+    })
+  })
+
   describe('success', () => {
     const created = {
+      title: 'New idea',
       body: '# new idea',
       createdAt: '2026-09-12T01:02:03.456Z',
       updatedAt: '2026-09-12T01:02:03.456Z',
@@ -248,7 +348,10 @@ describe('handlePostIdea', () => {
       const { res, state } = makeResponse()
       state.revalidate.mockResolvedValue()
 
-      await handlePostIdea(authorized({ body: { body: '# new idea' } }), res)
+      await handlePostIdea(
+        authorized({ body: { title: 'New idea', body: '# new idea' } }),
+        res
+      )
 
       expect(state.statusCode).toBe(201)
       expect(state.json).toEqual({
@@ -279,7 +382,10 @@ describe('handlePostIdea', () => {
       const { res, state } = makeResponse()
       state.revalidate.mockResolvedValue()
 
-      await handlePostIdea(authorized({ body: { body: '# new idea' } }), res)
+      await handlePostIdea(
+        authorized({ body: { title: 'New idea', body: '# new idea' } }),
+        res
+      )
 
       const id = (state.json as { id: string }).id
       expect(saveSnapshot).toHaveBeenCalledWith([{ id, ...created }], NOW)
@@ -289,7 +395,10 @@ describe('handlePostIdea', () => {
       const { res, state } = makeResponse()
       state.revalidate.mockRejectedValue(new Error('revalidate down'))
 
-      await handlePostIdea(authorized({ body: { body: '# new idea' } }), res)
+      await handlePostIdea(
+        authorized({ body: { title: 'New idea', body: '# new idea' } }),
+        res
+      )
 
       expect(state.statusCode).toBe(201)
       expect(state.json).toEqual({
@@ -308,7 +417,10 @@ describe('handlePostIdea', () => {
         .mockRejectedValueOnce(new Error('feed down'))
         .mockResolvedValueOnce()
 
-      await handlePostIdea(authorized({ body: { body: '# new idea' } }), res)
+      await handlePostIdea(
+        authorized({ body: { title: 'New idea', body: '# new idea' } }),
+        res
+      )
 
       const id = (state.json as { id: string }).id
       expect(state.json).toMatchObject({ revalidated: false })
@@ -326,7 +438,10 @@ describe('handlePostIdea', () => {
         .mockResolvedValueOnce()
         .mockRejectedValueOnce(new Error('detail down'))
 
-      await handlePostIdea(authorized({ body: { body: '# new idea' } }), res)
+      await handlePostIdea(
+        authorized({ body: { title: 'New idea', body: '# new idea' } }),
+        res
+      )
 
       expect(state.statusCode).toBe(201)
       expect(state.json).toMatchObject({ revalidated: false })
@@ -340,7 +455,10 @@ describe('handlePostIdea', () => {
       const { res, state } = makeResponse()
       state.revalidate.mockResolvedValue()
 
-      await handlePostIdea(authorized({ body: { body: 'x' } }), res)
+      await handlePostIdea(
+        authorized({ body: { title: 'Title', body: 'x' } }),
+        res
+      )
 
       expect(state.statusCode).toBe(201)
       expect(state.json).toEqual({
@@ -359,7 +477,10 @@ describe('handlePostIdea', () => {
       vi.mocked(saveSnapshot).mockRejectedValue(new Error('blob exploded'))
       const { res } = makeResponse()
 
-      await handlePostIdea(authorized({ body: { body: 'x' } }), res)
+      await handlePostIdea(
+        authorized({ body: { title: 'Title', body: 'x' } }),
+        res
+      )
 
       expect(pruneSnapshots).not.toHaveBeenCalled()
     })
@@ -373,7 +494,10 @@ describe('handlePostIdea', () => {
       vi.mocked(fn).mockRejectedValue(new Error('blob exploded'))
       const { res, state } = makeResponse()
 
-      await handlePostIdea(authorized({ body: { body: 'x' } }), res)
+      await handlePostIdea(
+        authorized({ body: { title: 'Title', body: 'x' } }),
+        res
+      )
 
       expect(state.statusCode).toBe(500)
       expect(state.json).toEqual({ error: 'internal' })
@@ -465,6 +589,7 @@ describe('handleGetSnapshot', () => {
 describe('handleIdeaById', () => {
   const second: Idea = {
     id: '20260912T010203456Z-9f3a1b',
+    title: 'Newer',
     body: 'newer',
     createdAt: '2026-09-12T01:02:03.456Z',
     updatedAt: '2026-09-12T01:02:03.456Z',
@@ -472,7 +597,7 @@ describe('handleIdeaById', () => {
 
   function putRequest(
     id: string | string[] | undefined,
-    body: unknown = { body: 'edited' },
+    body: unknown = { title: 'Edited', body: 'edited' },
     headers: Record<string, string | undefined> = {}
   ) {
     return makeRequest({
@@ -733,16 +858,41 @@ describe('handleIdeaById', () => {
     })
 
     it.each([
-      ['a missing body', {}],
-      ['an empty body', { body: '' }],
-      ['a whitespace body', { body: '  \n' }],
-      ['a non-string body', { body: 1 }],
+      ['a missing title', { body: 'edited' }],
+      ['an empty title', { title: '', body: 'edited' }],
+      ['a whitespace title', { title: '  \n', body: 'edited' }],
+      ['a non-string title', { title: 1, body: 'edited' }],
       ['a non-object payload', 'edited'],
-    ])('returns 400 for %s', async (_, body) => {
+    ])('returns 400 title_required for %s', async (_, body) => {
       const { res, state } = makeResponse<IdeaByIdResponse>()
       await handleIdeaById(putRequest(existing.id, body), res)
       expect(state.statusCode).toBe(400)
-      expect(state.json).toEqual({ error: 'body_required' })
+      expect(state.json).toEqual({ error: 'title_required' })
+      expect(loadLatest).not.toHaveBeenCalled()
+    })
+
+    it('returns 400 title_too_long for a title over the limit', async () => {
+      const { res, state } = makeResponse<IdeaByIdResponse>()
+      await handleIdeaById(
+        putRequest(existing.id, {
+          title: 'a'.repeat(MAX_TITLE_LENGTH + 1),
+          body: 'edited',
+        }),
+        res
+      )
+      expect(state.statusCode).toBe(400)
+      expect(state.json).toEqual({ error: 'title_too_long' })
+      expect(loadLatest).not.toHaveBeenCalled()
+    })
+
+    it('returns 400 body_invalid for a non-string body', async () => {
+      const { res, state } = makeResponse<IdeaByIdResponse>()
+      await handleIdeaById(
+        putRequest(existing.id, { title: 'Edited', body: 1 }),
+        res
+      )
+      expect(state.statusCode).toBe(400)
+      expect(state.json).toEqual({ error: 'body_invalid' })
       expect(loadLatest).not.toHaveBeenCalled()
     })
   })
@@ -767,11 +917,15 @@ describe('handleIdeaById', () => {
       expect(loggedText()).not.toContain('blob exploded')
     })
 
-    it('replaces body and updatedAt only, keeps the rest, and revalidates both pages', async () => {
+    it('replaces title, body, and updatedAt only, keeps the rest, and revalidates both pages', async () => {
       const { res, state } = makeResponse<IdeaByIdResponse>()
       state.revalidate.mockResolvedValue()
 
-      await handleIdeaById(putRequest(existing.id, { body: 'edited' }), res)
+      // `existing` was saved before titles existed, so this edit gives it one.
+      await handleIdeaById(
+        putRequest(existing.id, { title: ' Edited\n', body: 'edited' }),
+        res
+      )
 
       expect(state.statusCode).toBe(200)
       expect(state.json).toEqual({
@@ -780,7 +934,15 @@ describe('handleIdeaById', () => {
         revalidated: true,
       })
       expect(saveSnapshot).toHaveBeenCalledWith(
-        [{ ...existing, body: 'edited', updatedAt: NOW.toISOString() }, second],
+        [
+          {
+            ...existing,
+            title: 'Edited',
+            body: 'edited',
+            updatedAt: NOW.toISOString(),
+          },
+          second,
+        ],
         NOW
       )
       expect(pruneSnapshots).toHaveBeenCalledTimes(1)
@@ -792,6 +954,49 @@ describe('handleIdeaById', () => {
         ['/ideas'],
         [`/ideas/${existing.id}`],
       ])
+    })
+
+    it('replaces an existing title', async () => {
+      const { res, state } = makeResponse<IdeaByIdResponse>()
+      state.revalidate.mockResolvedValue()
+
+      await handleIdeaById(
+        putRequest(second.id, { title: 'Renamed', body: 'newer' }),
+        res
+      )
+
+      expect(state.statusCode).toBe(200)
+      expect(saveSnapshot).toHaveBeenCalledWith(
+        [
+          existing,
+          { ...second, title: 'Renamed', updatedAt: NOW.toISOString() },
+        ],
+        NOW
+      )
+    })
+
+    it.each([
+      ['a missing body', { title: 'Edited' }],
+      ['a whitespace body', { title: 'Edited', body: '  \n' }],
+    ])('clears the body when the edit sends %s', async (_, body) => {
+      const { res, state } = makeResponse<IdeaByIdResponse>()
+      state.revalidate.mockResolvedValue()
+
+      await handleIdeaById(putRequest(second.id, body), res)
+
+      expect(state.statusCode).toBe(200)
+      expect(saveSnapshot).toHaveBeenCalledWith(
+        [
+          existing,
+          {
+            ...second,
+            title: 'Edited',
+            body: null,
+            updatedAt: NOW.toISOString(),
+          },
+        ],
+        NOW
+      )
     })
 
     it.each([

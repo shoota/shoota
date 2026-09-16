@@ -46,7 +46,7 @@ export async function loadIdeaPage(id: unknown): Promise<IdeaPageResult> {
 
 /**
  * `getStaticPaths` body for `/ideas/[id]`. Ids from the snapshot are filtered
- * through the guard because `isIdea` only requires a non-empty string, and a
+ * through the guard because `parseIdea` only requires a non-empty string, and a
  * hand-placed snapshot could carry an id that is not a valid route segment.
  */
 export async function listIdeaPaths(): Promise<{ params: { id: string } }[]> {

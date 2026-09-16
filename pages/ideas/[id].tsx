@@ -18,7 +18,8 @@ type Props = {
  * first request, so a freshly posted idea has a page without a redeploy.
  */
 const IdeaPage: React.FC<Props> = ({ idea }) => {
-  const title = `Idea ${idea.createdAtLabel}`
+  // Ideas saved before titles existed fall back to their timestamp.
+  const title = idea.title ?? `Idea ${idea.createdAtLabel}`
   // `idea.id` was validated by `loadIdeaPage`; the path is built inline so
   // the store and Markdown modules behind `ideaPath` stay out of the bundle.
   return (

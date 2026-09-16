@@ -23,10 +23,17 @@ import {
   updateIdea,
   writeSecret,
 } from '@/lib/ideas/client'
-import { Idea } from '@/lib/ideas/types'
+import { Idea, MAX_TITLE_LENGTH } from '@/lib/ideas/types'
 
-/** Bytes the JSON envelope `{"body":""}` adds around the Markdown. */
-const ENVELOPE_BYTES = requestByteLength('')
+/** Bytes the JSON envelope `{"title":"","body":""}` adds around the text. */
+const ENVELOPE_BYTES = requestByteLength({ title: '', body: '' })
+
+/** A draft for tests that only care about the body. */
+function bodyOnly(body: string) {
+  return { title: '', body }
+}
+
+const sample = { title: 't', body: 'b' }
 
 function memoryStorage(initial: Record<string, string> = {}): StorageLike & {
   data: Record<string, string>
@@ -119,42 +126,76 @@ describe('secret storage', () => {
 
 describe('requestByteLength', () => {
   it('measures the JSON request, not the raw text', () => {
-    expect(requestByteLength('')).toBe('{"body":""}'.length)
-    expect(requestByteLength('abc')).toBe(ENVELOPE_BYTES + 3)
+    expect(requestByteLength({ title: '', body: '' })).toBe(
+      '{"title":"","body":""}'.length
+    )
+    expect(requestByteLength(bodyOnly('abc'))).toBe(ENVELOPE_BYTES + 3)
+  })
+
+  it('counts the title as part of the request', () => {
+    expect(requestByteLength({ title: 'abc', body: '' })).toBe(
+      ENVELOPE_BYTES + 3
+    )
   })
 
   it('counts UTF-8 bytes and JSON escapes', () => {
-    expect(requestByteLength('あ')).toBe(ENVELOPE_BYTES + 3)
-    expect(requestByteLength('a\nb')).toBe(ENVELOPE_BYTES + 4)
-    expect(requestByteLength('"')).toBe(ENVELOPE_BYTES + 2)
+    expect(requestByteLength(bodyOnly('あ'))).toBe(ENVELOPE_BYTES + 3)
+    expect(requestByteLength(bodyOnly('a\nb'))).toBe(ENVELOPE_BYTES + 4)
+    expect(requestByteLength(bodyOnly('"'))).toBe(ENVELOPE_BYTES + 2)
   })
 })
 
 describe('canSubmit', () => {
-  const ok = { secret: 's', body: 'hello', busy: false }
-  const largest = 'a'.repeat(MAX_BODY_BYTES - ENVELOPE_BYTES)
+  const draft = { title: 'Title', body: 'hello' }
+  const ok = { secret: 's', draft, busy: false }
+  const largest = 'a'.repeat(
+    MAX_BODY_BYTES - ENVELOPE_BYTES - draft.title.length
+  )
 
-  it('allows a stored secret with a non-empty body', () => {
+  it('allows a stored secret with a title and a non-empty body', () => {
     expect(canSubmit(ok)).toBe(true)
+  })
+
+  it.each([
+    ['an empty body', ''],
+    ['a whitespace body', ' \n'],
+  ])('allows %s, since only the title is required', (_, body) => {
+    expect(canSubmit({ ...ok, draft: { ...draft, body } })).toBe(true)
   })
 
   it.each([
     ['no secret', { ...ok, secret: undefined }],
     ['empty secret', { ...ok, secret: '' }],
-    ['blank body', { ...ok, body: ' \n' }],
+    ['blank title', { ...ok, draft: { ...draft, title: ' \n' } }],
+    [
+      'title over the limit',
+      {
+        ...ok,
+        draft: { ...draft, title: 'a'.repeat(MAX_TITLE_LENGTH + 1) },
+      },
+    ],
     ['busy', { ...ok, busy: true }],
-    ['request one byte over the limit', { ...ok, body: `${largest}a` }],
+    [
+      'request one byte over the limit',
+      { ...ok, draft: { ...draft, body: `${largest}a` } },
+    ],
     [
       'escaped newline pushing over the limit',
-      { ...ok, body: `${largest.slice(1)}\n` },
+      { ...ok, draft: { ...draft, body: `${largest.slice(1)}\n` } },
     ],
   ])('refuses with %s', (_, input) => {
     expect(canSubmit(input)).toBe(false)
   })
 
+  it('measures the title length after normalizing it', () => {
+    const title = ` ${'a'.repeat(MAX_TITLE_LENGTH)}\n`
+    expect(canSubmit({ ...ok, draft: { ...draft, title } })).toBe(true)
+  })
+
   it('allows a request exactly at the limit', () => {
-    expect(requestByteLength(largest)).toBe(MAX_BODY_BYTES)
-    expect(canSubmit({ ...ok, body: largest })).toBe(true)
+    const atLimit = { ...draft, body: largest }
+    expect(requestByteLength(atLimit)).toBe(MAX_BODY_BYTES)
+    expect(canSubmit({ ...ok, draft: atLimit })).toBe(true)
   })
 })
 
@@ -176,7 +217,7 @@ describe('messageForStatus', () => {
 })
 
 describe('postIdea', () => {
-  it('sends the body with the bearer secret and returns the result', async () => {
+  it('sends the title and body with the bearer secret and returns the result', async () => {
     const fetchImpl = vi.fn<FetchLike>().mockResolvedValue(
       response(201, {
         id: 'x',
@@ -184,7 +225,8 @@ describe('postIdea', () => {
         revalidated: true,
       })
     )
-    await expect(postIdea('s3cret', '# hi', fetchImpl)).resolves.toEqual({
+    const draft = { title: 'Hi', body: '# hi' }
+    await expect(postIdea('s3cret', draft, fetchImpl)).resolves.toEqual({
       ok: true,
       id: 'x',
       createdAt: '2026-09-12T00:00:00.000Z',
@@ -196,15 +238,20 @@ describe('postIdea', () => {
         Authorization: 'Bearer s3cret',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ body: '# hi' }),
+      body: JSON.stringify({ title: 'Hi', body: '# hi' }),
     })
+    // The counter measures exactly what is sent.
+    expect(requestByteLength(draft)).toBe(
+      new TextEncoder().encode(JSON.stringify({ title: 'Hi', body: '# hi' }))
+        .length
+    )
   })
 
   it('maps an error status to a message', async () => {
     const fetchImpl = vi
       .fn<FetchLike>()
       .mockResolvedValue(response(401, { error: 'unauthorized' }))
-    await expect(postIdea('s', 'x', fetchImpl)).resolves.toEqual({
+    await expect(postIdea('s', sample, fetchImpl)).resolves.toEqual({
       ok: false,
       message: messageForStatus(401),
     })
@@ -214,7 +261,7 @@ describe('postIdea', () => {
     const fetchImpl = vi
       .fn<FetchLike>()
       .mockRejectedValue(new TypeError('offline'))
-    await expect(postIdea('s', 'x', fetchImpl)).resolves.toEqual({
+    await expect(postIdea('s', sample, fetchImpl)).resolves.toEqual({
       ok: false,
       message: NETWORK_ERROR_MESSAGE,
     })
@@ -222,7 +269,7 @@ describe('postIdea', () => {
 
   it('fails when the response body cannot be read', async () => {
     const fetchImpl = vi.fn<FetchLike>().mockResolvedValue(unreadableResponse())
-    const result = await postIdea('s', 'x', fetchImpl)
+    const result = await postIdea('s', sample, fetchImpl)
     expect(result.ok).toBe(false)
   })
 
@@ -236,7 +283,7 @@ describe('postIdea', () => {
     const fetchImpl = vi
       .fn<FetchLike>()
       .mockResolvedValue(response(201, payload))
-    const result = await postIdea('s', 'x', fetchImpl)
+    const result = await postIdea('s', sample, fetchImpl)
     expect(result.ok).toBe(false)
   })
 })
@@ -305,7 +352,7 @@ const target: IdeaTarget = {
 }
 
 describe('updateIdea', () => {
-  it('PUTs the same { body } JSON as a post, with the secret and the expected updatedAt header', async () => {
+  it('PUTs the same { title, body } JSON as a post, with the secret and the expected updatedAt header', async () => {
     const fetchImpl = vi.fn<FetchLike>().mockResolvedValue(
       response(200, {
         id: 'x',
@@ -314,7 +361,7 @@ describe('updateIdea', () => {
       })
     )
     await expect(
-      updateIdea('s3cret', target, '# hi', fetchImpl)
+      updateIdea('s3cret', target, { title: 'Hi', body: '# hi' }, fetchImpl)
     ).resolves.toEqual({
       ok: true,
       id: 'x',
@@ -328,7 +375,7 @@ describe('updateIdea', () => {
         'Content-Type': 'application/json',
         'X-Ideas-Expected-Updated-At': '2026-09-11T00:00:00.000Z',
       },
-      body: JSON.stringify({ body: '# hi' }),
+      body: JSON.stringify({ title: 'Hi', body: '# hi' }),
     })
   })
 
@@ -337,14 +384,14 @@ describe('updateIdea', () => {
     ['a stale precondition', 409],
   ])('has a message for %s', async (_, status) => {
     const fetchImpl = vi.fn<FetchLike>().mockResolvedValue(response(status, {}))
-    const result = await updateIdea('s', target, 'b', fetchImpl)
+    const result = await updateIdea('s', target, sample, fetchImpl)
     expect(result).toEqual({ ok: false, message: messageForStatus(status) })
     expect(messageForStatus(status)).not.toContain('HTTP')
   })
 
   it('reports a network failure', async () => {
     const fetchImpl = vi.fn<FetchLike>().mockRejectedValue(new Error('down'))
-    await expect(updateIdea('s', target, 'b', fetchImpl)).resolves.toEqual({
+    await expect(updateIdea('s', target, sample, fetchImpl)).resolves.toEqual({
       ok: false,
       message: NETWORK_ERROR_MESSAGE,
     })
@@ -352,7 +399,7 @@ describe('updateIdea', () => {
 
   it('fails when the response body cannot be read', async () => {
     const fetchImpl = vi.fn<FetchLike>().mockResolvedValue(unreadableResponse())
-    const result = await updateIdea('s', target, 'b', fetchImpl)
+    const result = await updateIdea('s', target, sample, fetchImpl)
     expect(result.ok).toBe(false)
   })
 
@@ -366,7 +413,7 @@ describe('updateIdea', () => {
     const fetchImpl = vi
       .fn<FetchLike>()
       .mockResolvedValue(response(200, payload))
-    const result = await updateIdea('s', target, 'b', fetchImpl)
+    const result = await updateIdea('s', target, sample, fetchImpl)
     expect(result.ok).toBe(false)
   })
 })
@@ -426,14 +473,17 @@ describe('deleteIdea', () => {
 })
 
 describe('fetchIdeas', () => {
+  // Saved before titles existed; it must still be listed so it can be edited.
   const older: Idea = {
     id: 'older',
+    title: null,
     body: 'first',
     createdAt: '2026-09-11T00:00:00.000Z',
     updatedAt: '2026-09-11T00:00:00.000Z',
   }
   const newer: Idea = {
     id: 'newer',
+    title: 'Second',
     body: 'second',
     createdAt: '2026-09-12T00:00:00.000Z',
     updatedAt: '2026-09-12T00:00:00.000Z',

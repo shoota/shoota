@@ -16,6 +16,7 @@ vi.mock('@/lib/ideas/store', () => ({
 
 const first: Idea = {
   id: '20260912T010203456Z-9f3a1b',
+  title: 'Greeting',
   body: '# Hello\n\n<script>alert(1)</script>world',
   createdAt: '2026-09-12T01:02:03.456Z',
   updatedAt: '2026-09-12T01:02:03.456Z',
@@ -23,6 +24,7 @@ const first: Idea = {
 
 const second: Idea = {
   id: '20260912-001',
+  title: null,
   body: 'second',
   createdAt: '2026-09-12T00:00:00.000Z',
   updatedAt: '2026-09-12T00:00:00.000Z',
@@ -55,6 +57,7 @@ describe('loadIdeaPage', () => {
       props: {
         idea: {
           id: first.id,
+          title: 'Greeting',
           createdAt: first.createdAt,
           createdAtLabel: '2026.09.12 10:02',
           html: expect.stringContaining('<h1>Hello</h1>'),

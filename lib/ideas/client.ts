@@ -5,7 +5,12 @@
  */
 
 import { sortNewestFirst } from '@/lib/ideas/sort'
-import { Idea, isIdea } from '@/lib/ideas/types'
+import {
+  Idea,
+  MAX_TITLE_LENGTH,
+  normalizeTitle,
+  parseIdeas,
+} from '@/lib/ideas/types'
 
 export const SECRET_STORAGE_KEY = 'ideas.postSecret'
 
@@ -105,29 +110,44 @@ function utf8ByteLength(text: string): number {
   return new TextEncoder().encode(text).length
 }
 
-function requestBody(body: string): string {
-  return JSON.stringify({ body })
+/**
+ * What the admin page sends when posting or editing an idea. The title is
+ * required; a blank body is allowed and the server stores it as `null`.
+ */
+export type IdeaDraft = {
+  title: string
+  body: string
+}
+
+/**
+ * The one serializer for the request body. The byte counter and the send
+ * both go through it, so the size shown is exactly the size sent.
+ */
+function requestBody(draft: IdeaDraft): string {
+  return JSON.stringify({ title: draft.title, body: draft.body })
 }
 
 /**
  * Size of the JSON request the browser will send, which is what the server's
  * 20 KB limit measures. JSON escaping makes this larger than the raw text.
  */
-export function requestByteLength(body: string): number {
-  return utf8ByteLength(requestBody(body))
+export function requestByteLength(draft: IdeaDraft): number {
+  return utf8ByteLength(requestBody(draft))
 }
 
 export function canSubmit(input: {
   secret: string | undefined
-  body: string
+  draft: IdeaDraft
   busy: boolean
 }): boolean {
+  const title = normalizeTitle(input.draft.title)
   return (
     !input.busy &&
     input.secret !== undefined &&
     input.secret.length > 0 &&
-    input.body.trim().length > 0 &&
-    requestByteLength(input.body) <= MAX_BODY_BYTES
+    title.length > 0 &&
+    title.length <= MAX_TITLE_LENGTH &&
+    requestByteLength(input.draft) <= MAX_BODY_BYTES
   )
 }
 
@@ -136,13 +156,13 @@ export function messageForStatus(status: number): string {
     case 401:
       return '秘密が違います。保存し直してください。'
     case 400:
-      return '本文が空か、形式が正しくありません。'
+      return 'タイトルが空か、形式が正しくありません。'
     case 404:
       return 'そのアイデアは見つかりません。一覧を読み込み直してください。'
     case 409:
       return '他の端末で更新されています。一覧を読み込み直してください。'
     case 413:
-      return '本文が 20 KB を超えています。'
+      return 'タイトルと本文の合計が 20 KB を超えています。'
     case 415:
       return 'リクエストの形式が正しくありません。'
     case 500:
@@ -172,7 +192,7 @@ function isPostIdeaSuccess(
 
 export async function postIdea(
   secret: string,
-  body: string,
+  draft: IdeaDraft,
   fetchImpl: FetchLike
 ): Promise<PostIdeaResult> {
   let response: Awaited<ReturnType<FetchLike>>
@@ -183,7 +203,7 @@ export async function postIdea(
         Authorization: `Bearer ${secret}`,
         'Content-Type': 'application/json',
       },
-      body: requestBody(body),
+      body: requestBody(draft),
     })
   } catch {
     return { ok: false, message: NETWORK_ERROR_MESSAGE }
@@ -227,14 +247,15 @@ function isUpdateIdeaSuccess(
 }
 
 /**
- * Replaces the body of one idea. The request is the same `{ body }` JSON as
- * `postIdea`, so `requestByteLength` measures it exactly and the client-side
- * 20 KB check stays in step with the server's 413.
+ * Replaces the title and body of one idea. The request is the same
+ * `{ title, body }` JSON as `postIdea`, so `requestByteLength` measures it
+ * exactly and the client-side 20 KB check stays in step with the server's
+ * 413.
  */
 export async function updateIdea(
   secret: string,
   target: IdeaTarget,
-  body: string,
+  draft: IdeaDraft,
   fetchImpl: FetchLike
 ): Promise<UpdateIdeaResult> {
   let response: Awaited<ReturnType<FetchLike>>
@@ -246,7 +267,7 @@ export async function updateIdea(
         'Content-Type': 'application/json',
         ...preconditionHeaders(target),
       },
-      body: requestBody(body),
+      body: requestBody(draft),
     })
   } catch {
     return { ok: false, message: NETWORK_ERROR_MESSAGE }
@@ -353,7 +374,7 @@ export async function fetchIdeas(
   if (!Array.isArray(payload)) {
     return { ok: false, message: UNREADABLE_RESPONSE_MESSAGE }
   }
-  return { ok: true, ideas: sortNewestFirst(payload.filter(isIdea)) }
+  return { ok: true, ideas: sortNewestFirst(parseIdeas(payload)) }
 }
 
 export type SnapshotResult =

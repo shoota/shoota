@@ -30,6 +30,7 @@ type PutResult = Awaited<ReturnType<typeof put>>
 
 const idea: Idea = {
   id: '01',
+  title: null,
   body: 'hello',
   createdAt: '2026-09-12T00:00:00.000Z',
   updatedAt: '2026-09-12T00:00:00.000Z',
@@ -170,6 +171,40 @@ describe('parseSnapshot', () => {
       { ...idea, id: '02', createdAt: 'tbd' },
       { ...idea, id: '03', updatedAt: '' },
     ])
+    expect(parseSnapshot(json)).toEqual([idea])
+  })
+
+  it('keeps ideas saved before titles existed alongside titled ones', () => {
+    // Dropping the untitled ones would lose them on the next save. Their
+    // snapshot entries have no `title` field at all, which reads as null.
+    const { title: _title, ...untitled } = idea
+    const titled = { ...idea, id: '02', title: 'A title' }
+    expect(parseSnapshot(JSON.stringify([untitled, titled]))).toEqual([
+      idea,
+      titled,
+    ])
+  })
+
+  it('reads a missing or null body as null', () => {
+    const { body: _body, ...missing } = idea
+    const json = JSON.stringify([missing, { ...idea, id: '02', body: null }])
+    expect(parseSnapshot(json)).toEqual([
+      { ...idea, body: null },
+      { ...idea, id: '02', body: null },
+    ])
+  })
+
+  it('drops entries whose title or body is not a string', () => {
+    const json = JSON.stringify([
+      idea,
+      { ...idea, id: '02', title: 42 },
+      { ...idea, id: '03', body: ['x'] },
+    ])
+    expect(parseSnapshot(json)).toEqual([idea])
+  })
+
+  it('does not carry unknown fields over', () => {
+    const json = JSON.stringify([{ ...idea, tags: ['x'] }])
     expect(parseSnapshot(json)).toEqual([idea])
   })
 

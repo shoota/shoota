@@ -4,8 +4,8 @@ import { Idea } from '@/lib/ideas/types'
 import { sortNewestFirst } from '@/lib/ideas/sort'
 import { toIdeaView } from '@/lib/ideas/view'
 
-function idea(id: string, createdAt: string, body = id): Idea {
-  return { id, body, createdAt, updatedAt: createdAt }
+function idea(id: string, createdAt: string, body: string | null = id): Idea {
+  return { id, title: null, body, createdAt, updatedAt: createdAt }
 }
 
 describe('toIdeaView', () => {
@@ -16,11 +16,27 @@ describe('toIdeaView', () => {
 
     expect(view).toEqual({
       id: 'a',
+      title: null,
       createdAt: '2026-09-12T01:02:03.456Z',
       createdAtLabel: '2026.09.12 10:02',
       html: expect.stringContaining('<strong>bold</strong>'),
     })
     expect(view.html).not.toContain('onerror')
+  })
+
+  it('passes the title through as plain text', async () => {
+    const view = await toIdeaView({
+      ...idea('a', '2026-09-12T01:02:03.456Z'),
+      title: '<b>Title</b>',
+    })
+
+    expect(view.title).toBe('<b>Title</b>')
+  })
+
+  it('renders an idea without a body as empty HTML', async () => {
+    const view = await toIdeaView(idea('a', '2026-09-12T01:02:03.456Z', null))
+
+    expect(view.html).toBe('')
   })
 })
 
