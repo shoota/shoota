@@ -1,6 +1,7 @@
 import { del, get, list, put } from '@vercel/blob'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { mockIdeas } from '@/lib/ideas/mock'
 import {
   SNAPSHOT_PREFIX,
   SNAPSHOT_RETENTION,
@@ -29,6 +30,7 @@ type PutResult = Awaited<ReturnType<typeof put>>
 
 const idea: Idea = {
   id: '01',
+  title: null,
   body: 'hello',
   createdAt: '2026-09-12T00:00:00.000Z',
   updatedAt: '2026-09-12T00:00:00.000Z',
@@ -172,6 +174,52 @@ describe('parseSnapshot', () => {
     expect(parseSnapshot(json)).toEqual([idea])
   })
 
+  it('keeps ideas saved before titles existed alongside titled ones', () => {
+    // Dropping the untitled ones would lose them on the next save. Their
+    // snapshot entries have no `title` field at all, which reads as null.
+    const { title: _title, ...untitled } = idea
+    const titled = { ...idea, id: '02', title: 'A title' }
+    expect(parseSnapshot(JSON.stringify([untitled, titled]))).toEqual([
+      idea,
+      titled,
+    ])
+  })
+
+  it('reads a missing or null body as null', () => {
+    const { body: _body, ...missing } = idea
+    const json = JSON.stringify([missing, { ...idea, id: '02', body: null }])
+    expect(parseSnapshot(json)).toEqual([
+      { ...idea, body: null },
+      { ...idea, id: '02', body: null },
+    ])
+  })
+
+  it('reads a blank title or body as null, like the API stores them', () => {
+    // A hand-edited snapshot may carry "" where the API would have null.
+    const json = JSON.stringify([
+      { ...idea, title: '', body: ' \n' },
+      { ...idea, id: '02', title: '  Two\n lines ' },
+    ])
+    expect(parseSnapshot(json)).toEqual([
+      { ...idea, title: null, body: null },
+      { ...idea, id: '02', title: 'Two lines' },
+    ])
+  })
+
+  it('drops entries whose title or body is not a string', () => {
+    const json = JSON.stringify([
+      idea,
+      { ...idea, id: '02', title: 42 },
+      { ...idea, id: '03', body: ['x'] },
+    ])
+    expect(parseSnapshot(json)).toEqual([idea])
+  })
+
+  it('does not carry unknown fields over', () => {
+    const json = JSON.stringify([{ ...idea, tags: ['x'] }])
+    expect(parseSnapshot(json)).toEqual([idea])
+  })
+
   it('rejects a top-level object', () => {
     expect(() => parseSnapshot(JSON.stringify({ ideas: [] }))).toThrow(
       /JSON array/
@@ -211,10 +259,24 @@ describe('without BLOB_READ_WRITE_TOKEN', () => {
     ['unset', undefined],
     ['empty', ''],
   ])('loadLatest returns an empty array when the token is %s', async (_, v) => {
+    vi.stubEnv('NODE_ENV', 'production')
     vi.stubEnv('BLOB_READ_WRITE_TOKEN', v)
     await expect(loadLatest()).resolves.toEqual([])
     expect(list).not.toHaveBeenCalled()
   })
+
+  it.each([
+    ['unset', undefined],
+    ['empty', ''],
+  ])(
+    'loadLatest returns the mock ideas on the dev server when the token is %s',
+    async (_, v) => {
+      vi.stubEnv('NODE_ENV', 'development')
+      vi.stubEnv('BLOB_READ_WRITE_TOKEN', v)
+      await expect(loadLatest()).resolves.toEqual(mockIdeas())
+      expect(list).not.toHaveBeenCalled()
+    }
+  )
 
   it('saveSnapshot refuses to write', async () => {
     vi.stubEnv('BLOB_READ_WRITE_TOKEN', undefined)
@@ -240,6 +302,13 @@ describe('loadLatest with a store', () => {
     vi.mocked(list).mockResolvedValueOnce(listPage([]))
     await expect(loadLatest()).resolves.toEqual([])
     expect(get).not.toHaveBeenCalled()
+  })
+
+  it('reads the store instead of the mock on the dev server', async () => {
+    vi.stubEnv('NODE_ENV', 'development')
+    vi.mocked(list).mockResolvedValueOnce(listPage([]))
+    await expect(loadLatest()).resolves.toEqual([])
+    expect(list).toHaveBeenCalled()
   })
 
   it('reads the newest snapshot without the CDN cache', async () => {
