@@ -188,6 +188,7 @@
   --animate-lighting: lighting 8s 1.5s ease-in-out 2 alternate;
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-bulb-loop: bulb-loop 10.7s step-end 6s infinite;
 
   @keyframes lighting {
     0% {
@@ -198,6 +199,41 @@
     }
     100% {
       filter: grayscale(1) brightness(0.4) blur(4px);
+    }
+  }
+
+  /*
+   * 電球のちらつきのループ。点灯を `_`、消灯を `.` として 1 マス 70ms で
+   * `__ . _ . ____ .` とまたたいたあと 10 秒間点灯を保ち、最初に戻る（計 10.7s）。
+   * step-end で再生するので、各キーフレームの値は次のキーフレームまで保持される。
+   * 最初の 6 秒は delay で、その間は要素自身のスタイル（点灯状態）が表示される。
+   */
+  @keyframes bulb-loop {
+    1.31%,
+    2.62%,
+    5.89% {
+      color: var(--muted-foreground);
+      text-shadow: none;
+      opacity: 1;
+    }
+    1.96% {
+      color: var(--color-tone);
+      text-shadow: 0 0 2px var(--color-tone);
+      opacity: 0.7;
+    }
+    0%,
+    3.27% {
+      color: var(--color-tone);
+      text-shadow: 0 0 4px var(--color-tone);
+      opacity: 0.85;
+    }
+    6.54%,
+    100% {
+      color: var(--color-tone);
+      text-shadow:
+        0 0 4px var(--color-tone),
+        0 0 12px var(--color-tone);
+      opacity: 1;
     }
   }
 

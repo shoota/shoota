@@ -139,7 +139,7 @@ export function HeaderNavigation({
       {...props}
     >
       <div className='flex min-w-0 flex-grow items-baseline pt-5 pb-3'>
-        <h1 className='m-0 min-w-0 truncate px-4 text-2xl text-accent uppercase [text-shadow:0_0_4px_var(--color-tone)] sm:px-6 md:text-3xl lg:text-4xl'>
+        <h1 className='m-0 min-w-0 truncate px-4 text-2xl text-accent uppercase animate-bulb-loop motion-reduce:animate-none [text-shadow:0_0_4px_var(--color-tone),0_0_12px_var(--color-tone)] sm:px-6 md:text-3xl lg:text-4xl'>
           {title}
         </h1>
         {menuItems.length > 0 && (
