@@ -28,7 +28,7 @@ const Index: React.FC = () => {
               href='/profile'
               className='inline-block rounded-full border border-border px-5 py-2 text-sm text-foreground transition-colors hover:border-primary hover:text-primary'
             >
-              About →
+              Profile →
             </Link>
           </div>
         </div>

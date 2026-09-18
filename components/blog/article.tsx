@@ -24,7 +24,7 @@ export type ArticleProps = {
   title: string
   /** タイトルの上に出す小さなラベル */
   label?: string
-  description: string
+  description?: string
   content?: string
   size?: ArticleSize
   /** `horizontal` は sm 以上で左に画像・右に本文を並べる（sm 未満は縦積み） */
@@ -124,14 +124,16 @@ export function Article({
             orientation === 'horizontal' && 'sm:my-auto'
           )}
         >
-          <p
-            className={cn(
-              'm-0 text-base leading-[1.5] text-foreground',
-              '[text-shadow:var(--text-shadow-light-blur)]'
-            )}
-          >
-            {description}
-          </p>
+          {description ? (
+            <p
+              className={cn(
+                'm-0 text-base leading-[1.5] text-foreground',
+                '[text-shadow:var(--text-shadow-light-blur)]'
+              )}
+            >
+              {description}
+            </p>
+          ) : null}
           {content ? (
             <p
               className={cn(
