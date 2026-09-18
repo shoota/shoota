@@ -31,7 +31,9 @@ export const HeroPost = ({
         <Article
           size='xl'
           orientation='horizontal'
-          className='max-w-none sm:h-88 transition-shadow duration-[1500ms] group-hover:shadow-strong-glow group-focus:shadow-strong-glow'
+          className='max-w-none sm:min-h-88 transition-shadow duration-[1500ms] group-hover:shadow-strong-glow group-focus:shadow-strong-glow'
+          label='最新の記事'
+          titleClassName='mt-2 text-3xl'
           title={title}
           description={excerpt}
           content={format(parseISO(date), 'yyyy.MM.dd')}

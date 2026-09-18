@@ -22,6 +22,8 @@ export type ArticleSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
 export type ArticleProps = {
   title: string
+  /** タイトルの上に出す小さなラベル */
+  label?: string
   description: string
   content?: string
   size?: ArticleSize
@@ -33,6 +35,7 @@ export type ArticleProps = {
     caption?: React.ReactNode
   }
   className?: string
+  titleClassName?: string
 }
 
 const sizeMaxWidth: Record<ArticleSize, string> = {
@@ -45,12 +48,14 @@ const sizeMaxWidth: Record<ArticleSize, string> = {
 
 export function Article({
   title,
+  label,
   description,
   content,
   size = 'sm',
   orientation = 'vertical',
   image,
   className,
+  titleClassName,
 }: ArticleProps) {
   return (
     <article
@@ -66,10 +71,16 @@ export function Article({
           className={cn(
             'aspect-[16/9] w-full overflow-hidden',
             orientation === 'horizontal' &&
-              'sm:aspect-auto sm:w-1/2 sm:shrink-0 lg:w-[61.8%]'
+              'sm:relative sm:aspect-auto sm:w-2/5 sm:shrink-0'
           )}
         >
-          <Picture className='h-full rounded-none bg-card'>
+          <Picture
+            className={cn(
+              'h-full rounded-none bg-card',
+              // 画像の元の縦横比がカードの高さを押し広げないよう、横並びでは枠に貼り付ける
+              orientation === 'horizontal' && 'sm:absolute sm:inset-0'
+            )}
+          >
             <Picture.Image
               src={image.src}
               alt={image.alt}
@@ -85,36 +96,48 @@ export function Article({
       <div
         className={cn(
           'flex flex-col gap-3 p-6',
-          orientation === 'horizontal' &&
-            'sm:min-w-0 sm:flex-1 sm:justify-center'
+          orientation === 'horizontal' && 'sm:min-w-0 sm:flex-1 sm:py-10'
         )}
       >
+        {label ? (
+          <p className='m-0 w-full border-b border-muted-foreground/40 pb-1 text-xs uppercase tracking-[0.3em] text-primary'>
+            {label}
+          </p>
+        ) : null}
         <h3
           className={cn(
             'm-0 text-xl font-bold leading-tight text-accent',
-            '[text-shadow:var(--text-shadow-glow)]'
+            '[text-shadow:var(--text-shadow-glow)]',
+            titleClassName
           )}
         >
           {title}
         </h3>
-        <p
+        <div
           className={cn(
-            'm-0 text-base leading-[1.5] text-foreground',
-            '[text-shadow:var(--text-shadow-light-blur)]'
+            'flex flex-col gap-3',
+            orientation === 'horizontal' && 'sm:my-auto'
           )}
         >
-          {description}
-        </p>
-        {content ? (
           <p
             className={cn(
-              'm-0 text-xs leading-[1.5] text-accent',
-              '[text-shadow:var(--text-shadow-glow)]'
+              'm-0 text-base leading-[1.5] text-foreground',
+              '[text-shadow:var(--text-shadow-light-blur)]'
             )}
           >
-            {content}
+            {description}
           </p>
-        ) : null}
+          {content ? (
+            <p
+              className={cn(
+                'm-0 text-xs leading-[1.5] text-accent',
+                '[text-shadow:var(--text-shadow-glow)]'
+              )}
+            >
+              {content}
+            </p>
+          ) : null}
+        </div>
       </div>
     </article>
   )
