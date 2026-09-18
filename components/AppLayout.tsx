@@ -1,8 +1,11 @@
-import { useRouter } from 'next/router'
 import { PropsWithChildren } from 'react'
 
 import Meta from './meta'
-import { HeaderNavigation } from '@/components/blog/header-navigation'
+import {
+  GitHubIcon,
+  HeaderNavigation,
+  XIcon,
+} from '@/components/blog/header-navigation'
 
 type Props = {
   ogImage?: string
@@ -18,7 +21,6 @@ export const AppLayout = ({
   currentIndex,
   children,
 }: PropsWithChildren<Props>) => {
-  const router = useRouter()
   return (
     <div className='min-h-screen bg-background text-foreground'>
       <Meta ogImage={ogImage} ogTitle={ogTitle} path={path} />
@@ -27,10 +29,18 @@ export const AppLayout = ({
           title='shoota works'
           currentIndex={currentIndex}
           menuItems={[
-            { name: 'Home', onClick: () => router.push('/') },
-            { name: 'Blog', onClick: () => router.push('/blog') },
-            { name: 'Ideas', onClick: () => router.push('/ideas') },
-            { name: 'Profile', onClick: () => router.push('/profile') },
+            { name: 'Home', href: '/' },
+            { name: 'Blog', href: '/blog' },
+            { name: 'Ideas', href: '/ideas' },
+            { name: 'Profile', href: '/profile' },
+          ]}
+          socialLinks={[
+            { name: 'X', href: 'https://x.com/shoota', icon: <XIcon /> },
+            {
+              name: 'GitHub',
+              href: 'https://github.com/shoota',
+              icon: <GitHubIcon />,
+            },
           ]}
         />
         <main className='mx-auto my-8'>{children}</main>
