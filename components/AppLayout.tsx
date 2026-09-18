@@ -6,6 +6,7 @@ import {
   HeaderNavigation,
   XIcon,
 } from '@/components/blog/header-navigation'
+import { SOCIAL_URLS } from '@/lib/constants'
 
 type Props = {
   ogImage?: string
@@ -35,10 +36,10 @@ export const AppLayout = ({
             { name: 'Profile', href: '/profile' },
           ]}
           socialLinks={[
-            { name: 'X', href: 'https://x.com/shoota', icon: <XIcon /> },
+            { name: 'X', href: SOCIAL_URLS.x, icon: <XIcon /> },
             {
               name: 'GitHub',
-              href: 'https://github.com/shoota',
+              href: SOCIAL_URLS.github,
               icon: <GitHubIcon />,
             },
           ]}

@@ -24,7 +24,9 @@ export type ArticleProps = {
   title: string
   /** タイトルの上に出す小さなラベル */
   label?: string
-  description: string
+  /** タイトルの上に出すバッジ（<Badge /> など） */
+  badge?: React.ReactNode
+  description?: string
   content?: string
   size?: ArticleSize
   /** `horizontal` は sm 以上で左に画像・右に本文を並べる（sm 未満は縦積み） */
@@ -49,6 +51,7 @@ const sizeMaxWidth: Record<ArticleSize, string> = {
 export function Article({
   title,
   label,
+  badge,
   description,
   content,
   size = 'sm',
@@ -109,6 +112,7 @@ export function Article({
             {label}
           </p>
         ) : null}
+        {badge ? <div className='flex flex-wrap gap-2'>{badge}</div> : null}
         <h3
           className={cn(
             'm-0 text-xl font-bold leading-tight text-accent',
@@ -124,14 +128,16 @@ export function Article({
             orientation === 'horizontal' && 'sm:my-auto'
           )}
         >
-          <p
-            className={cn(
-              'm-0 text-base leading-[1.5] text-foreground',
-              '[text-shadow:var(--text-shadow-light-blur)]'
-            )}
-          >
-            {description}
-          </p>
+          {description ? (
+            <p
+              className={cn(
+                'm-0 text-base leading-[1.5] text-foreground',
+                '[text-shadow:var(--text-shadow-light-blur)]'
+              )}
+            >
+              {description}
+            </p>
+          ) : null}
           {content ? (
             <p
               className={cn(
