@@ -32,7 +32,8 @@ export type HeaderNavigationProps = React.HTMLAttributes<HTMLElement> & {
   currentIndex?: number
 }
 
-const linkClassName = 'text-muted-foreground hover:text-primary'
+const linkClassName =
+  'text-muted-foreground transition-[color,text-shadow] duration-800 hover:text-primary'
 
 // グローバルの a:hover（文字色 + glow）と同じ見た目
 const currentClassName = 'text-primary [text-shadow:0_0_4px_var(--color-link)]'
@@ -138,7 +139,7 @@ export function HeaderNavigation({
       )}
       {...props}
     >
-      <div className='flex min-w-0 flex-grow items-baseline pt-5 pb-3'>
+      <div className='mt-1 flex min-w-0 flex-grow items-baseline py-3'>
         <h1 className='m-0 min-w-0 truncate px-4 text-2xl text-accent uppercase animate-bulb-loop motion-reduce:animate-none [text-shadow:0_0_4px_var(--color-tone),0_0_12px_var(--color-tone)] sm:px-6 md:text-3xl lg:text-4xl'>
           {title}
         </h1>
@@ -149,12 +150,12 @@ export function HeaderNavigation({
         )}
       </div>
       {socialLinks.length > 0 && (
-        <div className='hidden items-center gap-2 border-l border-border px-4 pt-2 md:flex'>
+        <div className='hidden items-center gap-2 border-l border-border px-4 md:flex'>
           <SocialLinks socialLinks={socialLinks} />
         </div>
       )}
       {hasMenu && (
-        <div className='flex items-center border-l border-border px-3 pt-2 md:hidden'>
+        <div className='flex items-center border-l border-border px-3 md:hidden'>
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger
               render={
