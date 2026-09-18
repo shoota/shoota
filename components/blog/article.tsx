@@ -60,7 +60,7 @@ export function Article({
   return (
     <article
       className={cn(
-        'flex w-full flex-col overflow-hidden rounded-lg bg-card shadow-soft-glow',
+        'group/article flex w-full flex-col overflow-hidden rounded-lg bg-card shadow-soft-glow',
         sizeMaxWidth[size],
         orientation === 'horizontal' && 'sm:flex-row',
         className
@@ -84,8 +84,13 @@ export function Article({
             <Picture.Image
               src={image.src}
               alt={image.alt}
-              transition
-              className='h-full rounded-none'
+              // フィルターの解除は画像単体ではなくカード全体の hover / focus に反応させる
+              className={cn(
+                'h-full rounded-none',
+                'group-hover/article:opacity-100 group-hover/article:grayscale-[60%] group-hover/article:duration-1000',
+                'group-focus-within/article:opacity-100 group-focus-within/article:grayscale-[60%] group-focus-within/article:duration-1000',
+                'group-focus:opacity-100 group-focus:grayscale-[60%] group-focus:duration-1000'
+              )}
             />
             {image.caption ? (
               <Picture.Caption>{image.caption}</Picture.Caption>
