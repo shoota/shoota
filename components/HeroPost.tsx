@@ -21,7 +21,7 @@ export const HeroPost = ({
 }: Props) => {
   const router = useRouter()
   return (
-    <section className='mb-16 w-full'>
+    <section className='mb-12 w-full'>
       <button
         type='button'
         onClick={() => router.push(`/posts/${slug}`)}
