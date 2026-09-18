@@ -14,6 +14,17 @@ export type CareerEntry = {
   current?: boolean
 }
 
+export type MediaEntry = {
+  /** Podcast / Interview などの種別 */
+  kind: string
+  title: string
+  /** 番組名や掲載先 */
+  source: string
+  url: string
+  /** 公開日 (yyyy-MM-dd) */
+  date: string
+}
+
 export type Talk = {
   title: string
   url: string
@@ -22,6 +33,8 @@ export type Talk = {
   /** 公開日 (yyyy-MM-dd) */
   date: string
   slides: number
+  /** バッジに出す登壇先。Findy の connpass イベントは 'Findy' とする */
+  event?: string
 }
 
 export const PROFILE = {
@@ -118,6 +131,7 @@ export const TALKS: Talk[] = [
     deckId: 'ab4dddb85f1a4d07a47d3ff54a7626a1',
     date: '2026-06-24',
     slides: 22,
+    event: 'Findy',
   },
   {
     title: '組織の中で自分を経営する技術',
@@ -125,6 +139,7 @@ export const TALKS: Talk[] = [
     deckId: 'ba49da85e7ce45d8aa3ba19ab387422d',
     date: '2026-05-27',
     slides: 26,
+    event: 'Qiita Conference 2026',
   },
   {
     title:
@@ -133,6 +148,7 @@ export const TALKS: Talk[] = [
     deckId: '604def4c3d8f4b49b1975bec91f10bd9',
     date: '2025-11-16',
     slides: 64,
+    event: 'JSConf JP 2025',
   },
   {
     title: 'AIの個性を理解し、指揮する',
@@ -140,6 +156,7 @@ export const TALKS: Talk[] = [
     deckId: 'f42c257808e7421190b96b22d991898e',
     date: '2025-10-29',
     slides: 18,
+    event: 'Findy',
   },
   {
     title: '開発生産性向上！ 育成を「改善」と捉えるエンジニア育成戦略',
@@ -147,6 +164,7 @@ export const TALKS: Talk[] = [
     deckId: 'cdf74a17686a4f1e86de14e25b785021',
     date: '2024-12-05',
     slides: 15,
+    event: 'Findy',
   },
   {
     title:
@@ -155,6 +173,32 @@ export const TALKS: Talk[] = [
     deckId: 'f6a8658e814a484c9f7e9a553e519490',
     date: '2024-04-22',
     slides: 26,
+    event: 'Findy',
+  },
+]
+
+/** 出演した Podcast や、取材を受けた記事。新しい順 */
+export const MEDIA: MediaEntry[] = [
+  {
+    kind: 'Podcast',
+    title: '#10【番外編】DevRelとテックリードエンジニアのゆるく話す会',
+    source: 'Engineer Lab.fm',
+    url: 'https://open.spotify.com/episode/3ooMq1BPDltSIZ82C6PYmh',
+    date: '2026-03-03',
+  },
+  {
+    kind: 'Interview',
+    title: '全てのエンジニアがプロダクトに集中できる世界へ',
+    source: 'ファインディ公式note エンジニアインタビュー',
+    url: 'https://note.findy.co.jp/n/ne15a6c2c3e81',
+    date: '2024-12-17',
+  },
+  {
+    kind: 'Podcast',
+    title: '#1 青森からのフルリモートワークについて',
+    source: 'グロービス・テック・トーク',
+    url: 'https://open.spotify.com/episode/3MXfGbSFJizIkZbKHqOxsv',
+    date: '2022-02-25',
   },
 ]
 

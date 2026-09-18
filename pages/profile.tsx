@@ -2,8 +2,9 @@ import React from 'react'
 import Head from 'next/head'
 
 import { SITE_NAME } from '@/lib/constants'
-import { CAREER, SKILLS, SKILLS_INTRO, TALKS } from '@/lib/profile'
+import { CAREER, MEDIA, SKILLS, SKILLS_INTRO, TALKS } from '@/lib/profile'
 import { AppLayout } from '@/components/AppLayout'
+import { MediaCard } from '@/components/profile/MediaCard'
 import { ProfileHero } from '@/components/profile/ProfileHero'
 import {
   CareerCard,
@@ -38,6 +39,13 @@ const Profile: React.FC = () => {
       </ProfileSection>
       <ProfileSection label='Career'>
         <CareerCard entries={CAREER} />
+      </ProfileSection>
+      <ProfileSection label='Media'>
+        <div className='grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3'>
+          {MEDIA.map((entry) => (
+            <MediaCard key={entry.url} entry={entry} />
+          ))}
+        </div>
       </ProfileSection>
     </AppLayout>
   )

@@ -24,6 +24,8 @@ export type ArticleProps = {
   title: string
   /** タイトルの上に出す小さなラベル */
   label?: string
+  /** タイトルの上に出すバッジ（<Badge /> など） */
+  badge?: React.ReactNode
   description?: string
   content?: string
   size?: ArticleSize
@@ -49,6 +51,7 @@ const sizeMaxWidth: Record<ArticleSize, string> = {
 export function Article({
   title,
   label,
+  badge,
   description,
   content,
   size = 'sm',
@@ -109,6 +112,7 @@ export function Article({
             {label}
           </p>
         ) : null}
+        {badge ? <div className='flex flex-wrap gap-2'>{badge}</div> : null}
         <h3
           className={cn(
             'm-0 text-xl font-bold leading-tight text-accent',
