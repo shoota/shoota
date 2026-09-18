@@ -1,13 +1,13 @@
-import { MenuIcon } from 'lucide-react'
+import { MenuIcon, XIcon as CloseIcon } from 'lucide-react'
 import Link from 'next/link'
 import * as React from 'react'
 
 import { Button, buttonVariants } from '@/components/ui/button'
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
-  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -32,8 +32,10 @@ export type HeaderNavigationProps = React.HTMLAttributes<HTMLElement> & {
   currentIndex?: number
 }
 
-const linkClassName =
-  'text-foreground underline decoration-primary underline-offset-4 hover:text-primary'
+const linkClassName = 'text-muted-foreground hover:text-primary'
+
+// グローバルの a:hover（文字色 + glow）と同じ見た目
+const currentClassName = 'text-primary [text-shadow:0_0_4px_var(--color-link)]'
 
 export function XIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -65,7 +67,11 @@ function MenuLinks({
       {menuItems.map((item, index) => {
         if (index === currentIndex) {
           return (
-            <span key={`${item.name}-${index}`} aria-current='page'>
+            <span
+              key={`${item.name}-${index}`}
+              aria-current='page'
+              className={currentClassName}
+            >
               {item.name}
             </span>
           )
@@ -87,10 +93,8 @@ function MenuLinks({
 
 function SocialLinks({
   socialLinks,
-  variant,
 }: {
   socialLinks: HeaderNavigationSocialLink[]
-  variant: 'ghost' | 'outline'
 }) {
   return (
     <>
@@ -102,8 +106,8 @@ function SocialLinks({
           rel='noopener noreferrer'
           aria-label={link.name}
           className={cn(
-            buttonVariants({ variant, size: 'icon' }),
-            'text-foreground hover:text-primary'
+            buttonVariants({ variant: 'ghost', size: 'icon' }),
+            'rounded-xl border-border text-foreground hover:text-primary'
           )}
         >
           {link.icon}
@@ -127,28 +131,30 @@ export function HeaderNavigation({
   return (
     <header
       className={cn(
-        'mx-0 my-5 flex items-stretch border border-border',
+        'mx-0 my-5 flex items-stretch rounded-md border border-border',
         'bg-[rgba(4,37,43,0.4)] bg-[linear-gradient(rgba(214,214,214,0.1)_0%,rgba(4,37,43,0.4)_4%,rgba(4,37,43,0.4)_80%,rgba(4,37,43,0.4)_90%,rgba(214,214,214,0.1)_100%)]',
         'shadow-[0_0_2.5rem_0_rgba(214,214,214,0.3)]',
         className
       )}
       {...props}
     >
-      <h1 className='m-0 flex min-w-0 flex-grow items-center px-4 py-4 text-xl sm:px-6 md:flex-grow-0 md:text-2xl lg:text-3xl'>
-        <span className='truncate'>{title}</span>
-      </h1>
-      {menuItems.length > 0 && (
-        <nav className='hidden flex-grow items-center gap-5 border-l border-border px-6 text-base md:flex'>
-          <MenuLinks menuItems={menuItems} currentIndex={currentIndex} />
-        </nav>
-      )}
+      <div className='flex min-w-0 flex-grow items-baseline pt-5 pb-3'>
+        <h1 className='m-0 min-w-0 truncate px-4 text-2xl text-accent uppercase [text-shadow:0_0_4px_var(--color-tone)] sm:px-6 md:text-3xl lg:text-4xl'>
+          {title}
+        </h1>
+        {menuItems.length > 0 && (
+          <nav className='ml-auto hidden items-baseline gap-5 pr-6 pl-2 text-lg md:flex lg:text-xl'>
+            <MenuLinks menuItems={menuItems} currentIndex={currentIndex} />
+          </nav>
+        )}
+      </div>
       {socialLinks.length > 0 && (
-        <div className='hidden items-center gap-1 border-l border-border px-4 md:flex'>
-          <SocialLinks socialLinks={socialLinks} variant='ghost' />
+        <div className='hidden items-center gap-2 border-l border-border px-4 pt-2 md:flex'>
+          <SocialLinks socialLinks={socialLinks} />
         </div>
       )}
       {hasMenu && (
-        <div className='flex items-center border-l border-border px-3 md:hidden'>
+        <div className='flex items-center border-l border-border px-3 pt-2 md:hidden'>
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger
               render={
@@ -157,25 +163,38 @@ export function HeaderNavigation({
             >
               <MenuIcon className='size-5' />
             </SheetTrigger>
-            <SheetContent side='right'>
-              <SheetHeader className='border-b border-border'>
-                <SheetTitle className='text-xl'>{title}</SheetTitle>
+            <SheetContent
+              side='right'
+              showCloseButton={false}
+              overlayClassName='bg-black/60'
+              className='shadow-[0_0_2.5rem_0_rgba(214,214,214,0.3)]'
+            >
+              <SheetHeader className='flex-row items-center gap-2 border-b border-border px-4 py-3'>
+                <SheetTitle className='sr-only'>{title}</SheetTitle>
                 <SheetDescription className='sr-only'>
                   Site navigation
                 </SheetDescription>
+                <SocialLinks socialLinks={socialLinks} />
+                <SheetClose
+                  render={
+                    <Button
+                      variant='ghost'
+                      size='icon'
+                      className='ml-auto'
+                      aria-label='Close menu'
+                    />
+                  }
+                >
+                  <CloseIcon />
+                </SheetClose>
               </SheetHeader>
-              <nav className='flex flex-col gap-5 px-4 text-lg'>
+              <nav className='flex flex-col gap-5 px-4 text-xl'>
                 <MenuLinks
                   menuItems={menuItems}
                   currentIndex={currentIndex}
                   onNavigate={() => setOpen(false)}
                 />
               </nav>
-              {socialLinks.length > 0 && (
-                <SheetFooter className='flex-row'>
-                  <SocialLinks socialLinks={socialLinks} variant='outline' />
-                </SheetFooter>
-              )}
             </SheetContent>
           </Sheet>
         </div>
