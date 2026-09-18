@@ -23,7 +23,7 @@ function Index({ allPosts }: Props) {
           <h2 className='mb-8 text-center text-xs uppercase tracking-[0.3em] text-primary'>
             最新の記事
           </h2>
-          <hr className='mx-auto mb-12 w-full max-w-3xl border-t border-muted-foreground/40' />
+          <hr className='mb-12 w-full border-t border-muted-foreground/40' />
           <HeroPost
             title={heroPost.title}
             coverImage={heroPost.coverImage}

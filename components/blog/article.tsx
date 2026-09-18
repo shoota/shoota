@@ -25,6 +25,8 @@ export type ArticleProps = {
   description: string
   content?: string
   size?: ArticleSize
+  /** `horizontal` は sm 以上で左に画像・右に本文を並べる（sm 未満は縦積み） */
+  orientation?: 'vertical' | 'horizontal'
   image?: {
     src: string
     alt: string
@@ -46,6 +48,7 @@ export function Article({
   description,
   content,
   size = 'sm',
+  orientation = 'vertical',
   image,
   className,
 }: ArticleProps) {
@@ -54,11 +57,18 @@ export function Article({
       className={cn(
         'flex w-full flex-col overflow-hidden rounded-lg bg-card shadow-soft-glow',
         sizeMaxWidth[size],
+        orientation === 'horizontal' && 'sm:flex-row',
         className
       )}
     >
       {image && (
-        <div className='aspect-[16/9] w-full overflow-hidden'>
+        <div
+          className={cn(
+            'aspect-[16/9] w-full overflow-hidden',
+            orientation === 'horizontal' &&
+              'sm:aspect-auto sm:w-1/2 sm:shrink-0 lg:w-[61.8%]'
+          )}
+        >
           <Picture className='h-full rounded-none bg-card'>
             <Picture.Image
               src={image.src}
@@ -72,7 +82,13 @@ export function Article({
           </Picture>
         </div>
       )}
-      <div className='flex flex-col gap-3 p-6'>
+      <div
+        className={cn(
+          'flex flex-col gap-3 p-6',
+          orientation === 'horizontal' &&
+            'sm:min-w-0 sm:flex-1 sm:justify-center'
+        )}
+      >
         <h3
           className={cn(
             'm-0 text-xl font-bold leading-tight text-accent',
