@@ -15,6 +15,9 @@ type Props = {
 /**
  * One idea as a card. The page that renders it must also render
  * `<GlobalStyles scope='.idea-body' />` once so the Markdown output is styled.
+ * The title is plain text and is rendered as text; only the body is HTML.
+ * Either may be absent: ideas saved before titles existed have no title, and
+ * an idea posted with a blank body has no body.
  */
 export const IdeaCard: React.FC<Props> = ({ idea, href }) => {
   const time = (
@@ -23,8 +26,8 @@ export const IdeaCard: React.FC<Props> = ({ idea, href }) => {
     </time>
   )
   return (
-    <article className='overflow-hidden rounded-lg bg-card shadow-soft-glow'>
-      <header className='px-6 pt-5 text-accent'>
+    <article className='overflow-hidden rounded-lg bg-card px-6 pt-5 pb-6 shadow-soft-glow'>
+      <header className='text-accent'>
         {href === undefined ? (
           time
         ) : (
@@ -36,9 +39,16 @@ export const IdeaCard: React.FC<Props> = ({ idea, href }) => {
           </Link>
         )}
       </header>
-      <Content className='idea-body px-6 pt-3 pb-6 leading-[1.85] [&_p:last-child]:mb-0'>
-        <div dangerouslySetInnerHTML={{ __html: idea.html }} />
-      </Content>
+      {idea.title !== null && (
+        <h3 className='mt-3 mb-0 text-lg font-bold leading-snug text-foreground'>
+          {idea.title}
+        </h3>
+      )}
+      {idea.html.length > 0 && (
+        <Content className='idea-body mt-3 p-0 leading-[1.85] [&_p:last-child]:mb-0'>
+          <div dangerouslySetInnerHTML={{ __html: idea.html }} />
+        </Content>
+      )}
     </article>
   )
 }

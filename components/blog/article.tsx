@@ -22,15 +22,22 @@ export type ArticleSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
 export type ArticleProps = {
   title: string
-  description: string
+  /** タイトルの上に出す小さなラベル */
+  label?: string
+  /** タイトルの上に出すバッジ（<Badge /> など） */
+  badge?: React.ReactNode
+  description?: string
   content?: string
   size?: ArticleSize
+  /** `horizontal` は sm 以上で左に画像・右に本文を並べる（sm 未満は縦積み） */
+  orientation?: 'vertical' | 'horizontal'
   image?: {
     src: string
     alt: string
     caption?: React.ReactNode
   }
   className?: string
+  titleClassName?: string
 }
 
 const sizeMaxWidth: Record<ArticleSize, string> = {
@@ -43,28 +50,50 @@ const sizeMaxWidth: Record<ArticleSize, string> = {
 
 export function Article({
   title,
+  label,
+  badge,
   description,
   content,
   size = 'sm',
+  orientation = 'vertical',
   image,
   className,
+  titleClassName,
 }: ArticleProps) {
   return (
     <article
       className={cn(
-        'flex w-full flex-col overflow-hidden rounded-lg bg-card shadow-soft-glow',
+        'group/article flex w-full flex-col overflow-hidden rounded-lg bg-card shadow-soft-glow',
         sizeMaxWidth[size],
+        orientation === 'horizontal' && 'sm:flex-row',
         className
       )}
     >
       {image && (
-        <div className='aspect-[16/9] w-full overflow-hidden'>
-          <Picture className='h-full rounded-none bg-card'>
+        <div
+          className={cn(
+            'aspect-[16/9] w-full overflow-hidden',
+            orientation === 'horizontal' &&
+              'sm:relative sm:aspect-auto sm:w-2/5 sm:shrink-0'
+          )}
+        >
+          <Picture
+            className={cn(
+              'h-full rounded-none bg-card',
+              // 画像の元の縦横比がカードの高さを押し広げないよう、横並びでは枠に貼り付ける
+              orientation === 'horizontal' && 'sm:absolute sm:inset-0'
+            )}
+          >
             <Picture.Image
               src={image.src}
               alt={image.alt}
-              transition
-              className='h-full rounded-none'
+              // フィルターの解除は画像単体ではなくカード全体の hover / focus に反応させる
+              className={cn(
+                'h-full rounded-none',
+                'group-hover/article:opacity-100 group-hover/article:grayscale-[60%] group-hover/article:duration-1000',
+                'group-focus-within/article:opacity-100 group-focus-within/article:grayscale-[60%] group-focus-within/article:duration-1000',
+                'group-focus:opacity-100 group-focus:grayscale-[60%] group-focus:duration-1000'
+              )}
             />
             {image.caption ? (
               <Picture.Caption>{image.caption}</Picture.Caption>
@@ -72,33 +101,54 @@ export function Article({
           </Picture>
         </div>
       )}
-      <div className='flex flex-col gap-3 p-6'>
+      <div
+        className={cn(
+          'flex flex-col gap-3 p-6',
+          orientation === 'horizontal' && 'sm:min-w-0 sm:flex-1 sm:py-10'
+        )}
+      >
+        {label ? (
+          <p className='m-0 w-full border-b border-muted-foreground/40 pb-1 text-xs uppercase tracking-[0.3em] text-primary'>
+            {label}
+          </p>
+        ) : null}
+        {badge ? <div className='flex flex-wrap gap-2'>{badge}</div> : null}
         <h3
           className={cn(
             'm-0 text-xl font-bold leading-tight text-accent',
-            '[text-shadow:var(--text-shadow-glow)]'
+            '[text-shadow:var(--text-shadow-glow)]',
+            titleClassName
           )}
         >
           {title}
         </h3>
-        <p
+        <div
           className={cn(
-            'm-0 text-base leading-[1.5] text-foreground',
-            '[text-shadow:var(--text-shadow-light-blur)]'
+            'flex flex-col gap-3',
+            orientation === 'horizontal' && 'sm:my-auto'
           )}
         >
-          {description}
-        </p>
-        {content ? (
-          <p
-            className={cn(
-              'm-0 text-xs leading-[1.5] text-accent',
-              '[text-shadow:var(--text-shadow-glow)]'
-            )}
-          >
-            {content}
-          </p>
-        ) : null}
+          {description ? (
+            <p
+              className={cn(
+                'm-0 text-base leading-[1.5] text-foreground',
+                '[text-shadow:var(--text-shadow-light-blur)]'
+              )}
+            >
+              {description}
+            </p>
+          ) : null}
+          {content ? (
+            <p
+              className={cn(
+                'm-0 text-xs leading-[1.5] text-accent',
+                '[text-shadow:var(--text-shadow-glow)]'
+              )}
+            >
+              {content}
+            </p>
+          ) : null}
+        </div>
       </div>
     </article>
   )

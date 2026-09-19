@@ -18,6 +18,7 @@ import {
   requestByteLength,
   writeSecret,
 } from '@/lib/ideas/client'
+import { MAX_TITLE_LENGTH } from '@/lib/ideas/types'
 
 type SubmitState =
   | { kind: 'idle' }
@@ -103,13 +104,15 @@ export const IdeaComposer: React.FC = () => {
   }
 
   // Posting
+  const [title, setTitle] = React.useState('')
   const [body, setBody] = React.useState('')
   const [submitState, setSubmitState] = React.useState<SubmitState>({
     kind: 'idle',
   })
   const busy = submitState.kind === 'submitting'
-  const bytes = requestByteLength(body)
-  const submittable = canSubmit({ secret, body, busy })
+  const draft = { title, body }
+  const bytes = requestByteLength(draft)
+  const submittable = canSubmit({ secret, draft, busy })
 
   const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -117,8 +120,9 @@ export const IdeaComposer: React.FC = () => {
       return
     }
     setSubmitState({ kind: 'submitting' })
-    const result = await postIdea(secret, body, fetch)
+    const result = await postIdea(secret, draft, fetch)
     if (result.ok) {
+      setTitle('')
       setBody('')
       setSubmitState({
         kind: 'success',
@@ -190,7 +194,18 @@ export const IdeaComposer: React.FC = () => {
 
       <form onSubmit={handleSubmit} className='flex flex-col gap-3'>
         <label className='flex flex-col gap-1 text-sm text-muted-foreground'>
-          本文（Markdown）
+          タイトル
+          <input
+            type='text'
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+            maxLength={MAX_TITLE_LENGTH}
+            disabled={busy}
+            className={fieldClass}
+          />
+        </label>
+        <label className='flex flex-col gap-1 text-sm text-muted-foreground'>
+          本文（Markdown、任意）
           <textarea
             value={body}
             onChange={(event) => setBody(event.target.value)}
@@ -277,7 +292,7 @@ const SubmitStatus: React.FC<SubmitStatusProps> = ({ state }) => {
     <p role='status' className='m-0 text-sm text-primary'>
       {state.revalidated
         ? '投稿しました。'
-        : '保存しました。フィードへの反映は最大 1 時間後になります。'}{' '}
+        : '保存しました。フィードへの反映は最大 1 日後になります。'}{' '}
       <Link href='/ideas' className='underline underline-offset-4'>
         フィードを見る
       </Link>
