@@ -292,7 +292,7 @@ const SubmitStatus: React.FC<SubmitStatusProps> = ({ state }) => {
     <p role='status' className='m-0 text-sm text-primary'>
       {state.revalidated
         ? '投稿しました。'
-        : '保存しました。フィードへの反映は最大 1 時間後になります。'}{' '}
+        : '保存しました。フィードへの反映は最大 1 日後になります。'}{' '}
       <Link href='/ideas' className='underline underline-offset-4'>
         フィードを見る
       </Link>
