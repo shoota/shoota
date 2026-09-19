@@ -4,7 +4,12 @@ import { isAuthorized } from '@/lib/ideas/auth'
 import { IDEAS_PATH, ideaPath } from '@/lib/ideas/detail'
 import { generateIdeaId, isIdeaId } from '@/lib/ideas/id'
 import { loadLatest, pruneSnapshots, saveSnapshot } from '@/lib/ideas/store'
-import { Idea } from '@/lib/ideas/types'
+import {
+  Idea,
+  isValidTitle,
+  normalizeBody,
+  normalizeTitle,
+} from '@/lib/ideas/types'
 
 /** Response body of `POST /api/ideas`. Errors carry a short code only. */
 export type PostIdeaResponse =
@@ -16,15 +21,36 @@ function mediaType(header: string | string[] | undefined): string {
   return (value ?? '').split(';')[0].trim().toLowerCase()
 }
 
-function readBody(payload: unknown): string | undefined {
-  if (typeof payload !== 'object' || payload === null) {
-    return undefined
+type IdeaContent = { title: string; body: string | null }
+
+/**
+ * Reads the `{ title, body }` JSON shared by POST and PUT. The title is
+ * required and stored normalized. The body is optional: missing, `null`, or
+ * blank is stored as `null`, anything else is kept as sent. On failure
+ * returns the error code for the 400 response, checking the fields in form
+ * order.
+ */
+function readContent(payload: unknown): IdeaContent | { error: string } {
+  const record =
+    typeof payload === 'object' && payload !== null
+      ? (payload as Record<string, unknown>)
+      : {}
+  const title =
+    typeof record.title === 'string' ? normalizeTitle(record.title) : ''
+  if (!isValidTitle(title)) {
+    // The two failure modes get distinct codes for the admin page's message.
+    return {
+      error: title.length === 0 ? 'title_required' : 'title_too_long',
+    }
   }
-  const body = (payload as Record<string, unknown>).body
-  if (typeof body !== 'string' || body.trim().length === 0) {
-    return undefined
+  const body = record.body
+  if (body === undefined || body === null) {
+    return { title, body: null }
   }
-  return body
+  if (typeof body !== 'string') {
+    return { error: 'body_invalid' }
+  }
+  return { title, body: normalizeBody(body) }
 }
 
 /** Logs must not carry the message (it may quote input) or a stack trace. */
@@ -130,16 +156,17 @@ export async function handlePostIdea(
     return
   }
 
-  const body = readBody(req.body)
-  if (body === undefined) {
-    res.status(400).json({ error: 'body_required' })
+  const content = readContent(req.body)
+  if ('error' in content) {
+    res.status(400).json({ error: content.error })
     return
   }
 
   const now = new Date()
   const idea: Idea = {
     id: generateIdeaId(now),
-    body,
+    title: content.title,
+    body: content.body,
     createdAt: now.toISOString(),
     updatedAt: now.toISOString(),
   }
@@ -180,8 +207,8 @@ export type IdeaByIdResponse = PutIdeaResponse | DeleteIdeaResponse
  * The method and the shared secret are checked before the id, so an
  * unauthenticated caller learns nothing about which ids exist. The id must
  * pass `isIdeaId` before the store is read or a path is built from it; a
- * malformed id is a plain 404 without a Blob call. PUT replaces `body` and
- * `updatedAt` only; `id` and `createdAt` never change.
+ * malformed id is a plain 404 without a Blob call. PUT replaces `title`,
+ * `body`, and `updatedAt` only; `id` and `createdAt` never change.
  *
  * Writes are read-modify-write on the whole snapshot and the store has no
  * compare-and-swap, so an optional `X-Ideas-Expected-Updated-At: <updatedAt>`
@@ -220,18 +247,18 @@ export async function handleIdeaById(
   }
 
   const isDelete = req.method === 'DELETE'
-  let body = ''
+  let content: IdeaContent | undefined
   if (!isDelete) {
     if (mediaType(req.headers['content-type']) !== 'application/json') {
       res.status(415).json({ error: 'unsupported_media_type' })
       return
     }
-    const read = readBody(req.body)
-    if (read === undefined) {
-      res.status(400).json({ error: 'body_required' })
+    const read = readContent(req.body)
+    if ('error' in read) {
+      res.status(400).json({ error: read.error })
       return
     }
-    body = read
+    content = read
   }
 
   const now = new Date()
@@ -251,10 +278,15 @@ export async function handleIdeaById(
       return
     }
     let next: Idea[]
-    if (isDelete) {
+    if (content === undefined) {
       next = ideas.filter((candidate) => candidate.id !== id)
     } else {
-      const edited: Idea = { ...current, body, updatedAt: now.toISOString() }
+      const edited: Idea = {
+        ...current,
+        title: content.title,
+        body: content.body,
+        updatedAt: now.toISOString(),
+      }
       updated = edited
       next = ideas.map((candidate) =>
         candidate.id === id ? edited : candidate

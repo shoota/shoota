@@ -6,6 +6,7 @@ import { GlobalStyles } from '@/components/blog/global-styles'
 import { IdeaCard } from '@/components/ideas/IdeaCard'
 import { SITE_NAME } from '@/lib/constants'
 import { listIdeaPaths, loadIdeaPage } from '@/lib/ideas/detail'
+import { ideaPageTitle } from '@/lib/ideas/format'
 import type { IdeaView } from '@/lib/ideas/view'
 
 type Props = {
@@ -18,7 +19,7 @@ type Props = {
  * first request, so a freshly posted idea has a page without a redeploy.
  */
 const IdeaPage: React.FC<Props> = ({ idea }) => {
-  const title = `Idea ${idea.createdAtLabel}`
+  const title = ideaPageTitle(idea)
   // `idea.id` was validated by `loadIdeaPage`; the path is built inline so
   // the store and Markdown modules behind `ideaPath` stay out of the bundle.
   return (

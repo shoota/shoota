@@ -21,7 +21,7 @@ export const HeroPost = ({
 }: Props) => {
   const router = useRouter()
   return (
-    <section className='mx-auto mb-16 w-full max-w-3xl'>
+    <section className='mb-12 w-full'>
       <button
         type='button'
         onClick={() => router.push(`/posts/${slug}`)}
@@ -30,7 +30,10 @@ export const HeroPost = ({
       >
         <Article
           size='xl'
-          className='max-w-none transition-shadow duration-[1500ms] group-hover:shadow-strong-glow group-focus:shadow-strong-glow'
+          orientation='horizontal'
+          className='max-w-none sm:min-h-88 transition-shadow duration-[1500ms] group-hover:shadow-strong-glow group-focus:shadow-strong-glow'
+          label='最新の記事'
+          titleClassName='mt-2 text-3xl'
           title={title}
           description={excerpt}
           content={format(parseISO(date), 'yyyy.MM.dd')}
