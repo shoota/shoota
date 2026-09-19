@@ -70,6 +70,8 @@ export async function getStaticProps({ params }: Params) {
   ])
   const content = await markdownToHtml(post.content || '')
 
+  // `getAllPosts` is newest first, so the previous entry is the newer post
+  // and the next entry is the older one, matching the blog index order.
   const allPosts = getAllPosts(['title', 'slug'])
   const idx = allPosts.findIndex((p) => p.slug === params.slug)
   const prevPost = idx > 0 ? allPosts[idx - 1] : null
