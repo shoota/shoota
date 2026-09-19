@@ -119,7 +119,7 @@ export const IdeaManager: React.FC<Props> = ({ secret }) => {
         <p role='status' className='m-0 text-sm text-primary'>
           {deleteNotice.revalidated
             ? '削除しました。'
-            : '削除しました。ページへの反映は最大 1 時間後になります。'}
+            : '削除しました。ページへの反映は最大 1 日後になります。'}
         </p>
       )}
       {list.kind === 'loaded' && list.ideas.length === 0 && (
@@ -413,7 +413,7 @@ const RowNotice: React.FC<{ idea: Idea; notice: Notice }> = ({
     <p role='status' className='m-0 text-sm text-primary'>
       {notice.revalidated
         ? '保存しました。'
-        : '保存しました。ページへの反映は最大 1 時間後になります。'}{' '}
+        : '保存しました。ページへの反映は最大 1 日後になります。'}{' '}
       <Link href={`/ideas/${idea.id}`} className='underline underline-offset-4'>
         ページを見る
       </Link>
