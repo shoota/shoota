@@ -23,6 +23,16 @@
       "groupName": "devDependencies"
     },
     {
+      "description": "typescript-eslint が TypeScript 7 に未対応のため、typescript の major は単独の PR に分ける",
+      "matchPackageNames": [
+        "typescript"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "groupName": "typescript"
+    },
+    {
       "description": "npm 12 は npm/cli#9800 で lock 更新に失敗するため、constraints.npm の引き上げを止める",
       "matchManagers": [
         "renovate-config"
