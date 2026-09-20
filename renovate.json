@@ -21,6 +21,16 @@
         "devDependencies"
       ],
       "groupName": "devDependencies"
+    },
+    {
+      "description": "npm 12 は npm/cli#9800 で lock 更新に失敗するため、constraints.npm の引き上げを止める",
+      "matchManagers": [
+        "renovate-config"
+      ],
+      "matchDepNames": [
+        "npm"
+      ],
+      "enabled": false
     }
   ]
 }
