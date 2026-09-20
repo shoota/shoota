@@ -1,24 +1,23 @@
 {
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base"
+    "config:recommended"
   ],
+  "constraints": {
+    "npm": "<12"
+  },
   "lockFileMaintenance": {
     "enabled": true
   },
   "packageRules": [
     {
-      "packagePatterns": [
-        "*"
-      ]
-    },
-    {
-      "depTypeList": [
+      "matchDepTypes": [
         "dependencies"
       ],
       "groupName": "dependencies"
     },
     {
-      "depTypeList": [
+      "matchDepTypes": [
         "devDependencies"
       ],
       "groupName": "devDependencies"
