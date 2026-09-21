@@ -33,6 +33,16 @@
       "groupName": "typescript"
     },
     {
+      "description": "eslint-config-next が同梱する eslint-plugin-react などが ESLint 10 に未対応で lint がクラッシュするため、eslint の major は単独の PR に分ける",
+      "matchPackageNames": [
+        "eslint"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "groupName": "eslint"
+    },
+    {
       "description": "npm 12 は npm/cli#9800 で lock 更新に失敗するため、constraints.npm の引き上げを止める",
       "matchManagers": [
         "renovate-config"
