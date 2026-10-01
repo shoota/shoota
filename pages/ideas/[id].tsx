@@ -23,7 +23,12 @@ const IdeaPage: React.FC<Props> = ({ idea }) => {
   // `idea.id` was validated by `loadIdeaPage`; the path is built inline so
   // the store and Markdown modules behind `ideaPath` stay out of the bundle.
   return (
-    <AppLayout currentIndex={2} path={`/ideas/${idea.id}`} ogTitle={title}>
+    <AppLayout
+      currentIndex={2}
+      path={`/ideas/${idea.id}`}
+      ogTitle={title}
+      description={idea.description ?? undefined}
+    >
       <Head>
         <title>{`${title} | ${SITE_NAME}`}</title>
       </Head>

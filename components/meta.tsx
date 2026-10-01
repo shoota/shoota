@@ -1,19 +1,36 @@
 import Head from 'next/head'
 
-import { HOME_OG_IMAGE_URL } from '../lib/constants'
+import {
+  HOME_OG_IMAGE_URL,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_URL,
+  X_ACCOUNT,
+} from '../lib/constants'
 
-const Meta: React.FC<{ ogImage?: string; ogTitle?: string; path?: string }> = ({
+type Props = {
+  /** Site-relative path of the Open Graph image; the avatar when omitted. */
+  ogImage?: string
+  ogTitle?: string
+  /** `article` for a post or an idea, `website` for an index page. */
+  ogType?: 'article' | 'website'
+  /** Page description; the site-wide one when omitted. */
+  description?: string
+  path?: string
+}
+
+const Meta: React.FC<Props> = ({
   ogTitle,
   ogImage,
+  ogType = 'article',
+  description = SITE_DESCRIPTION,
   path,
 }) => {
-  const ogImageContent = ogImage
-    ? `https://shoota.work${ogImage}`
-    : HOME_OG_IMAGE_URL
+  const ogImageContent = ogImage ? `${SITE_URL}${ogImage}` : HOME_OG_IMAGE_URL
 
-  const ogTitleContent = ogTitle || 'shoota works'
+  const ogTitleContent = ogTitle || SITE_NAME
 
-  const ogUrl = path ? `https://shoota.work${path}` : 'https://shoota.work'
+  const ogUrl = path ? `${SITE_URL}${path}` : SITE_URL
 
   return (
     <Head>
@@ -45,19 +62,20 @@ const Meta: React.FC<{ ogImage?: string; ogTitle?: string; path?: string }> = ({
       <meta name='msapplication-config' content='/favicon/browserconfig.xml' />
       <meta name='theme-color' content='#000' />
       <link rel='alternate' type='application/rss+xml' href='/feed.xml' />
-      <meta name='description' content='@shootaのブログ' />
+      <meta name='description' content={description} />
       {/* OGP */}
-      <meta property='og:type' content='article' />
+      <meta property='og:type' content={ogType} />
       <meta property='og:url' content={ogUrl} />
-      <meta property='og:site_name' content='shoota works' />
+      <meta property='og:site_name' content={SITE_NAME} />
       <meta property='og:title' content={ogTitleContent} />
       <meta property='og:image' content={ogImageContent} />
-      <meta property='og:description' content='@shootaのブログ' />
+      <meta property='og:description' content={description} />
+      <meta name='twitter:card' content='summary_large_image' />
+      <meta name='twitter:site' content={X_ACCOUNT} />
       <meta name='twitter:title' content={ogTitleContent} />
       <meta name='twitter:text:title' content={ogTitleContent} />
       <meta name='twitter:image' content={ogImageContent} />
-      <meta name='twitter:card' content='summary_large_image' />
-      <meta name='twitter:description' content='@shootaのブログ' />
+      <meta name='twitter:description' content={description} />
     </Head>
   )
 }

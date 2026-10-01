@@ -11,6 +11,8 @@ import { SOCIAL_URLS } from '@/lib/constants'
 type Props = {
   ogImage?: string
   ogTitle?: string
+  ogType?: 'article' | 'website'
+  description?: string
   path?: string
   currentIndex?: number
 }
@@ -18,13 +20,21 @@ type Props = {
 export const AppLayout = ({
   ogImage,
   ogTitle,
+  ogType,
+  description,
   path,
   currentIndex,
   children,
 }: PropsWithChildren<Props>) => {
   return (
     <div className='min-h-screen bg-background text-foreground'>
-      <Meta ogImage={ogImage} ogTitle={ogTitle} path={path} />
+      <Meta
+        ogImage={ogImage}
+        ogTitle={ogTitle}
+        ogType={ogType}
+        description={description}
+        path={path}
+      />
       <div className='mx-auto w-full max-w-6xl px-4 sm:px-6'>
         <HeaderNavigation
           title='shoota works'
