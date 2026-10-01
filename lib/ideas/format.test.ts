@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest'
 
 import {
   EMPTY_EXCERPT,
+  MAX_DESCRIPTION_LENGTH,
   formatIdeaTimestamp,
+  ideaDescription,
   ideaExcerpt,
   ideaPageTitle,
 } from '@/lib/ideas/format'
@@ -26,6 +28,61 @@ describe('ideaExcerpt', () => {
     ['no body', null],
   ])('falls back for %s', (_, body) => {
     expect(ideaExcerpt(body)).toBe(EMPTY_EXCERPT)
+  })
+})
+
+describe('ideaDescription', () => {
+  it.each([
+    ['a plain line', 'first line\nsecond', 'first line'],
+    ['a heading', '## Title\n\nbody', 'Title'],
+    ['a quote', '> quoted', 'quoted'],
+    ['a bullet', '- item one\n- item two', 'item one'],
+    ['a numbered item', '1. first', 'first'],
+    ['a task item', '- [x] done\n- [ ] todo', 'done'],
+    [
+      'emphasis',
+      '**bold** and *em* and _under_ and ~~gone~~',
+      'bold and em and under and gone',
+    ],
+    ['snake_case words', 'use git_worktree here', 'use git_worktree here'],
+    ['a code span', 'run `npm test` now', 'run npm test now'],
+    [
+      'a link',
+      'see [the docs](https://example.com) first',
+      'see the docs first',
+    ],
+    ['an image', '![alt text](/a.png) caption', 'alt text caption'],
+    ['inline html', 'a <b>bold</b> <img src=x> word', 'a bold word'],
+    [
+      'a code fence as the first line',
+      '```ts\nconst a = 1\n```',
+      'const a = 1',
+    ],
+    ['a rule as the first line', '---\ntext', 'text'],
+    ['collapsed whitespace', '  a   b\tc  ', 'a b c'],
+  ])('reads %s as plain text', (_, body, expected) => {
+    expect(ideaDescription(body)).toBe(expected)
+  })
+
+  it.each([
+    ['no body', null],
+    ['an empty body', ''],
+    ['only whitespace', ' \n\t'],
+    ['only markers', '#\n> \n```'],
+  ])('returns null for %s', (_, body) => {
+    expect(ideaDescription(body)).toBeNull()
+  })
+
+  it('keeps a description at the limit intact', () => {
+    const body = 'あ'.repeat(MAX_DESCRIPTION_LENGTH)
+    expect(ideaDescription(body)).toBe(body)
+  })
+
+  it('cuts a longer description by characters, not bytes, and adds an ellipsis', () => {
+    const body = '😀'.repeat(MAX_DESCRIPTION_LENGTH + 5)
+    const description = ideaDescription(body)
+    expect(Array.from(description ?? '')).toHaveLength(MAX_DESCRIPTION_LENGTH)
+    expect(description?.endsWith('…')).toBe(true)
   })
 })
 

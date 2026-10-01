@@ -1,4 +1,4 @@
-import { formatIdeaTimestamp } from '@/lib/ideas/format'
+import { formatIdeaTimestamp, ideaDescription } from '@/lib/ideas/format'
 import { ideaMarkdownToHtml } from '@/lib/ideas/markdown'
 import { Idea } from '@/lib/ideas/types'
 
@@ -24,6 +24,11 @@ export type IdeaView = {
   /** Pre-formatted display text produced by `formatIdeaTimestamp`. */
   createdAtLabel: string
   /**
+   * Plain-text summary for meta descriptions, produced by
+   * `ideaDescription`; `null` when the idea has no body.
+   */
+  description: string | null
+  /**
    * Sanitized HTML produced by `ideaMarkdownToHtml`; empty when the idea
    * has no body.
    */
@@ -36,6 +41,7 @@ export async function toIdeaView(idea: Idea): Promise<IdeaView> {
     title: idea.title,
     createdAt: idea.createdAt,
     createdAtLabel: formatIdeaTimestamp(idea.createdAt),
+    description: ideaDescription(idea.body),
     html: idea.body === null ? '' : await ideaMarkdownToHtml(idea.body),
   }
 }

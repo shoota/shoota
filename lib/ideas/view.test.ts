@@ -19,6 +19,7 @@ describe('toIdeaView', () => {
       title: null,
       createdAt: '2026-09-12T01:02:03.456Z',
       createdAtLabel: '2026.09.12 10:02',
+      description: 'bold',
       html: expect.stringContaining('<strong>bold</strong>'),
     })
     expect(view.html).not.toContain('onerror')
@@ -33,10 +34,11 @@ describe('toIdeaView', () => {
     expect(view.title).toBe('<b>Title</b>')
   })
 
-  it('renders an idea without a body as empty HTML', async () => {
+  it('renders an idea without a body as empty HTML and no description', async () => {
     const view = await toIdeaView(idea('a', '2026-09-12T01:02:03.456Z', null))
 
     expect(view.html).toBe('')
+    expect(view.description).toBeNull()
   })
 })
 

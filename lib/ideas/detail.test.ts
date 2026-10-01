@@ -60,6 +60,7 @@ describe('loadIdeaPage', () => {
           title: 'Greeting',
           createdAt: first.createdAt,
           createdAtLabel: '2026.09.12 10:02',
+          description: 'Hello',
           html: expect.stringContaining('<h1>Hello</h1>'),
         },
       },

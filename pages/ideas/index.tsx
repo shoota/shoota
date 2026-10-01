@@ -13,7 +13,7 @@ type Props = {
 
 const IdeasPage: React.FC<Props> = ({ ideas }) => {
   return (
-    <AppLayout currentIndex={2} path='/ideas' ogTitle='Ideas'>
+    <AppLayout currentIndex={2} path='/ideas' ogTitle='Ideas' ogType='website'>
       <Head>
         <title>{`Ideas | ${SITE_NAME}`}</title>
       </Head>
