@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
-    "@vercel/blob": "2.8.0",
+    "@vercel/blob": "2.8.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
@@ -30,7 +30,7 @@
     "remark-gfm": "4.0.1",
     "remark-html": "16.0.1",
     "remark-rehype": "11.1.2",
-    "shiki": "4.4.3",
+    "shiki": "4.5.0",
     "tailwind-merge": "^3.0.0"
   },
   "devDependencies": {
