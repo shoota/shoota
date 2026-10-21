@@ -7,7 +7,7 @@ import { SITE_NAME } from '@/lib/constants'
 
 const Index: React.FC = () => {
   return (
-    <AppLayout currentIndex={0}>
+    <AppLayout currentIndex={0} ogType='website'>
       <Head>
         <title>{`${SITE_NAME} | Home`}</title>
       </Head>

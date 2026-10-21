@@ -1,7 +1,7 @@
 import Head from 'next/head'
 
 import {
-  HOME_OG_IMAGE_URL,
+  DEFAULT_OG_IMAGE_PATH,
   SITE_DESCRIPTION,
   SITE_NAME,
   SITE_URL,
@@ -26,7 +26,7 @@ const Meta: React.FC<Props> = ({
   description = SITE_DESCRIPTION,
   path,
 }) => {
-  const ogImageContent = ogImage ? `${SITE_URL}${ogImage}` : HOME_OG_IMAGE_URL
+  const ogImageContent = `${SITE_URL}${ogImage || DEFAULT_OG_IMAGE_PATH}`
 
   const ogTitleContent = ogTitle || SITE_NAME
 
