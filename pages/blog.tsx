@@ -14,7 +14,7 @@ function Index({ allPosts }: Props) {
   const heroPost = allPosts[0]
   const morePosts = allPosts.slice(1)
   return (
-    <AppLayout currentIndex={1}>
+    <AppLayout currentIndex={1} path='/blog' ogTitle='Blog'>
       <Head>
         <title>Blog</title>
       </Head>

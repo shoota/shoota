@@ -26,6 +26,7 @@ const Post: React.FC<Props> = ({ post, prev, next }) => {
     <AppLayout
       ogImage={post.ogImage.url}
       ogTitle={post.title}
+      ogType='article'
       path={`/posts/${post.slug}`}
       currentIndex={1}
     >

@@ -1,5 +1,9 @@
-export const HOME_OG_IMAGE_URL =
-  'https://gist.github.com/shoota/9319742/raw/3d1a799e759fb548262cdf5484cc1a914e56e7bd/avt.jpg'
+/**
+ * Site-relative path of the fallback Open Graph image. It must be served from
+ * this origin: X's crawler honours robots.txt, and gist.github.com disallows
+ * its raw file paths, so an image hosted there never shows up on a Twitter card.
+ */
+export const DEFAULT_OG_IMAGE_PATH = '/assets/og/avatar.jpg'
 
 export const SITE_NAME = 'shoota works'
 

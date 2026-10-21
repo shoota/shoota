@@ -1,18 +1,18 @@
 import Head from 'next/head'
 
 import {
-  HOME_OG_IMAGE_URL,
   SITE_DESCRIPTION,
   SITE_NAME,
   SITE_URL,
   X_ACCOUNT,
 } from '../lib/constants'
+import { ogImageUrl } from '../lib/og'
 
 type Props = {
-  /** Site-relative path of the Open Graph image; the avatar when omitted. */
+  /** Site-relative path of the Open Graph image; the site-wide avatar when omitted. */
   ogImage?: string
   ogTitle?: string
-  /** `article` for a post or an idea, `website` for an index page. */
+  /** `article` for a post or an idea; every other page is a `website`. */
   ogType?: 'article' | 'website'
   /** Page description; the site-wide one when omitted. */
   description?: string
@@ -22,11 +22,11 @@ type Props = {
 const Meta: React.FC<Props> = ({
   ogTitle,
   ogImage,
-  ogType = 'article',
+  ogType = 'website',
   description = SITE_DESCRIPTION,
   path,
 }) => {
-  const ogImageContent = ogImage ? `${SITE_URL}${ogImage}` : HOME_OG_IMAGE_URL
+  const ogImageContent = ogImageUrl(ogImage)
 
   const ogTitleContent = ogTitle || SITE_NAME
 
