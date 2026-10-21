@@ -27,6 +27,7 @@ const IdeaPage: React.FC<Props> = ({ idea }) => {
       currentIndex={2}
       path={`/ideas/${idea.id}`}
       ogTitle={title}
+      ogType='article'
       description={idea.description ?? undefined}
     >
       <Head>
