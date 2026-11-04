@@ -77,7 +77,10 @@ export const toJstDate = (pubDate: string): string | undefined => {
   return jstDate.format(new Date(time))
 }
 
-/** RSS 2.0 の XML を記事の一覧にする。題名・URL・日付のどれかが欠けた item は飛ばす */
+/**
+ * RSS 2.0 の XML を記事の一覧（新しい順）にする。
+ * 題名・URL・日付のどれかが欠けた item は飛ばす
+ */
 export const parseTechBlogRss = (xml: string): TechBlogArticle[] => {
   const items = xml.match(/<item>[\s\S]*?<\/item>/g) ?? []
   const articles: TechBlogArticle[] = []
@@ -90,7 +93,7 @@ export const parseTechBlogRss = (xml: string): TechBlogArticle[] => {
     const image = attributeOf(item, 'enclosure', 'url')
     articles.push(image ? { title, url, date, image } : { title, url, date })
   }
-  return articles
+  return articles.sort((a, b) => b.date.localeCompare(a.date))
 }
 
 /**

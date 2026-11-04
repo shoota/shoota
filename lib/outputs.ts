@@ -1,9 +1,7 @@
 /**
  * 発信（登壇・出演・取材）の記録。Findy Tech Blog の記事は RSS から取るので
- * ここには持たず、`lib/techBlog.ts` を見る。
+ * ここには持たず、`lib/techBlog.ts` を見る。それぞれ新しい順に並べておく。
  */
-
-import type { TechBlogArticle } from '@/lib/techBlog'
 
 export type MediaEntry = {
   /** Podcast / Interview などの種別 */
@@ -108,62 +106,3 @@ export const MEDIA: MediaEntry[] = [
 
 export const talkThumbnail = (deckId: string) =>
   `https://files.speakerdeck.com/presentations/${deckId}/preview_slide_0.jpg`
-
-/** 発信の 1 件。種別ごとに元のデータをそのまま持ち、日付で並べ替える */
-export type OutputEntry =
-  | { kind: 'talk'; date: string; talk: Talk }
-  | { kind: 'media'; date: string; media: MediaEntry }
-  | { kind: 'article'; date: string; article: TechBlogArticle }
-
-const byDateDesc = (a: OutputEntry, b: OutputEntry) =>
-  b.date.localeCompare(a.date)
-
-/** 登壇・出演・記事をひとつの時系列（新しい順）にまとめる */
-export const buildOutputs = (
-  articles: TechBlogArticle[],
-  talks: Talk[] = TALKS,
-  media: MediaEntry[] = MEDIA
-): OutputEntry[] =>
-  [
-    ...talks.map((talk): OutputEntry => ({
-      kind: 'talk',
-      date: talk.date,
-      talk,
-    })),
-    ...media.map((entry): OutputEntry => ({
-      kind: 'media',
-      date: entry.date,
-      media: entry,
-    })),
-    ...articles.map((article): OutputEntry => ({
-      kind: 'article',
-      date: article.date,
-      article,
-    })),
-  ].sort(byDateDesc)
-
-/** 新しい順に並んだ一覧を、年ごとの見出しで区切る */
-export const groupByYear = (
-  entries: OutputEntry[]
-): { year: string; entries: OutputEntry[] }[] => {
-  const groups: { year: string; entries: OutputEntry[] }[] = []
-  for (const entry of entries) {
-    const year = entry.date.slice(0, 4)
-    const last = groups[groups.length - 1]
-    if (last && last.year === year) last.entries.push(entry)
-    else groups.push({ year, entries: [entry] })
-  }
-  return groups
-}
-
-/** 一覧の要素の key。URL は種別をまたいでも重ならない */
-export const outputKey = (entry: OutputEntry): string => {
-  switch (entry.kind) {
-    case 'talk':
-      return entry.talk.url
-    case 'media':
-      return entry.media.url
-    case 'article':
-      return entry.article.url
-  }
-}

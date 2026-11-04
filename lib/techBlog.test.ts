@@ -53,6 +53,15 @@ describe('parseTechBlogRss', () => {
     ])
   })
 
+  it('フィードの順に関わらず新しい順に並べる', () => {
+    const items = RSS.match(/<item>[\s\S]*?<\/item>/g) ?? []
+    const reversed = `<rss><channel>${[...items].reverse().join('')}</channel></rss>`
+    expect(parseTechBlogRss(reversed).map((article) => article.date)).toEqual([
+      '2025-02-17',
+      '2024-04-01',
+    ])
+  })
+
   it('item が無ければ空の配列を返す', () => {
     expect(parseTechBlogRss('<rss><channel></channel></rss>')).toEqual([])
   })
