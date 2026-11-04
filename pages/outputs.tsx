@@ -30,18 +30,6 @@ const Outputs: React.FC<Props> = ({ entries }) => {
       <Head>
         <title>{`${SITE_NAME} | Outputs`}</title>
       </Head>
-      <section className='mx-auto mb-12 w-full'>
-        <p className='m-0 text-xs uppercase tracking-[0.3em] text-primary'>
-          Outputs
-        </p>
-        <h1 className='m-0 mt-2 text-4xl font-bold leading-tight text-accent [text-shadow:var(--text-shadow-glow)]'>
-          発信
-        </h1>
-        <p className='m-0 mt-4 max-w-2xl text-base leading-[1.85] text-foreground [text-shadow:var(--text-shadow-light-blur)]'>
-          登壇した資料、出演した Podcast や取材、{TECH_BLOG_NAME}{' '}
-          に書いた記事を新しい順に並べています。
-        </p>
-      </section>
       {groupByYear(entries).map(({ year, entries: items }) => (
         <ProfileSection key={year} label={year}>
           <div className='grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3'>
