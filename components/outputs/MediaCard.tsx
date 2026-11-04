@@ -2,7 +2,7 @@ import { format, parseISO } from 'date-fns'
 
 import { Article } from '@/components/blog/article'
 import { Badge } from '@/components/ui/badge'
-import { MediaEntry } from '@/lib/profile'
+import { MediaEntry } from '@/lib/outputs'
 
 /**
  * Podcast や取材記事のカード。番組のカバー画像は正方形で 16:9 の枠では切れて

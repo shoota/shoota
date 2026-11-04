@@ -2,20 +2,18 @@ import React from 'react'
 import Head from 'next/head'
 
 import { SITE_NAME } from '@/lib/constants'
-import { CAREER, MEDIA, SKILLS, SKILLS_INTRO, TALKS } from '@/lib/profile'
+import { CAREER, SKILLS, SKILLS_INTRO } from '@/lib/profile'
 import { AppLayout } from '@/components/AppLayout'
-import { MediaCard } from '@/components/profile/MediaCard'
 import { ProfileHero } from '@/components/profile/ProfileHero'
 import {
   CareerCard,
   ProfileListCard,
   ProfileSection,
 } from '@/components/profile/ProfileSection'
-import { TalkCard } from '@/components/profile/TalkCard'
 
 const Profile: React.FC = () => {
   return (
-    <AppLayout currentIndex={3} path='/profile' ogTitle='Profile'>
+    <AppLayout currentIndex={4} path='/profile' ogTitle='Profile'>
       <Head>
         <title>{`${SITE_NAME} | Profile`}</title>
       </Head>
@@ -30,22 +28,8 @@ const Profile: React.FC = () => {
           items={SKILLS}
         />
       </ProfileSection>
-      <ProfileSection label='Talks'>
-        <div className='grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3'>
-          {TALKS.map((talk) => (
-            <TalkCard key={talk.url} talk={talk} />
-          ))}
-        </div>
-      </ProfileSection>
       <ProfileSection label='Career'>
         <CareerCard entries={CAREER} />
-      </ProfileSection>
-      <ProfileSection label='Media'>
-        <div className='grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3'>
-          {MEDIA.map((entry) => (
-            <MediaCard key={entry.url} entry={entry} />
-          ))}
-        </div>
       </ProfileSection>
     </AppLayout>
   )

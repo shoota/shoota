@@ -2,7 +2,7 @@ import { format, parseISO } from 'date-fns'
 
 import { Article } from '@/components/blog/article'
 import { Badge } from '@/components/ui/badge'
-import { Talk, talkThumbnail } from '@/lib/profile'
+import { Talk, talkThumbnail } from '@/lib/outputs'
 
 /** 登壇資料のカード。ブログ一覧のカードと同じ見た目で、Speaker Deck を別タブで開く */
 export const TalkCard: React.FC<{ talk: Talk }> = ({ talk }) => {
