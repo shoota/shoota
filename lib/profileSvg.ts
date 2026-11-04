@@ -5,14 +5,8 @@
  * `@keyframes` とシステムフォントだけで組む。
  */
 
-import {
-  CAREER,
-  MEDIA,
-  PROFILE,
-  SKILLS,
-  SKILLS_INTRO,
-  TALKS,
-} from '@/lib/profile'
+import { CAREER, PROFILE, SKILLS, SKILLS_INTRO } from '@/lib/profile'
+import { MEDIA, TALKS } from '@/lib/outputs'
 import { SITE_URL } from '@/lib/constants'
 
 export const WIDTH = 800

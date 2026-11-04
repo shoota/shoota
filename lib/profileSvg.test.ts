@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { CAREER, MEDIA, PROFILE, SKILLS, TALKS } from '@/lib/profile'
+import { MEDIA, TALKS } from '@/lib/outputs'
+import { CAREER, PROFILE, SKILLS } from '@/lib/profile'
 import {
   buildSections,
   cycleSeconds,

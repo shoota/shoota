@@ -43,6 +43,7 @@ export const AppLayout = ({
             { name: 'Home', href: '/' },
             { name: 'Blog', href: '/blog' },
             { name: 'Ideas', href: '/ideas' },
+            { name: 'Outputs', href: '/outputs' },
             { name: 'Profile', href: '/profile' },
           ]}
           socialLinks={[
