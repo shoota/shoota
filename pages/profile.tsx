@@ -1,6 +1,5 @@
 import React from 'react'
 import Head from 'next/head'
-import Link from 'next/link'
 
 import { SITE_NAME } from '@/lib/constants'
 import { CAREER, SKILLS, SKILLS_INTRO } from '@/lib/profile'
@@ -31,15 +30,6 @@ const Profile: React.FC = () => {
       </ProfileSection>
       <ProfileSection label='Career'>
         <CareerCard entries={CAREER} />
-      </ProfileSection>
-      <ProfileSection label='Outputs'>
-        <p className='m-0 text-base leading-[1.85] text-foreground [text-shadow:var(--text-shadow-light-blur)]'>
-          登壇・出演・記事は{' '}
-          <Link href='/outputs' className='text-primary'>
-            発信のページ
-          </Link>{' '}
-          に新しい順でまとめています。
-        </p>
       </ProfileSection>
     </AppLayout>
   )
