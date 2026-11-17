@@ -1,13 +1,22 @@
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 
 import { Content } from '@/components/blog/content'
+import {
+  CARD_INTERACTIVE_SELECTOR,
+  shouldOpenCard,
+} from '@/lib/ideas/cardClick'
 import type { IdeaView } from '@/lib/ideas/view'
+import { cn } from '@/lib/utils'
 
 type Props = {
   idea: IdeaView
   /**
-   * When set, the timestamp becomes a permalink to this path. The body can
-   * contain sanitized links of its own, so the whole card is never a link.
+   * When set, the timestamp becomes a permalink to this path and a click
+   * anywhere else on the card opens it too. The body can contain sanitized
+   * links of its own and should stay selectable, so the card is not wrapped
+   * in (or covered by) an anchor: a click handler navigates instead, and the
+   * timestamp stays the real link for keyboards and new-tab clicks.
    */
   href?: string
 }
@@ -20,13 +29,38 @@ type Props = {
  * an idea posted with a blank body has no body.
  */
 export const IdeaCard: React.FC<Props> = ({ idea, href }) => {
+  const router = useRouter()
   const time = (
     <time dateTime={idea.createdAt} className='text-xs tracking-wider'>
       {idea.createdAtLabel}
     </time>
   )
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    if (href === undefined) return
+    const { target } = event
+    const open = shouldOpenCard({
+      defaultPrevented: event.defaultPrevented,
+      button: event.button,
+      metaKey: event.metaKey,
+      ctrlKey: event.ctrlKey,
+      shiftKey: event.shiftKey,
+      altKey: event.altKey,
+      onInteractive:
+        target instanceof Element &&
+        target.closest(CARD_INTERACTIVE_SELECTOR) !== null,
+      hasSelection: window.getSelection()?.isCollapsed === false,
+    })
+    if (open) void router.push(href)
+  }
   return (
-    <article className='overflow-hidden rounded-lg bg-card px-6 pt-5 pb-6 shadow-soft-glow'>
+    <article
+      onClick={href === undefined ? undefined : handleClick}
+      className={cn(
+        'overflow-hidden rounded-lg bg-card px-6 pt-5 pb-6 shadow-soft-glow',
+        href !== undefined &&
+          'cursor-pointer ring-1 ring-transparent transition-shadow hover:ring-primary/40'
+      )}
+    >
       <header className='text-accent'>
         {href === undefined ? (
           time
